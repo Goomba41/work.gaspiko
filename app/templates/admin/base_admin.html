@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Заголовок -->
+        <title>Администрирование</title>
+
+        <!-- Иконка сайта -->
+        <link rel="shortcut icon" href="{{ url_for('static', filename='admin/img/favicon.png') }}" type="image/x-icon"/>
+
+        <!-- Описание страницы -->
+        <meta name="description" content="" />
+
+        <!-- Ключевые слова -->
+        <meta name="keywords" content="" />
+
+        <!-- Стили -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/css-reset.css') }}" type="text/css" media="screen" >
+        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap.css') }}" type="text/css" media="screen" >
+        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-theme.css') }}" type="text/css" media="screen" >
+        <link rel="stylesheet" href="{{ url_for('static', filename='admin/fonts/font-awesome-4.7.0/css/font-awesome.css') }}"  >
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/loader.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap.js') }}"></script>
+    </head>
+
+    <body id = "main">
+
+        <div id="page-preloader"><span class="spinner"></span></div>
+
+        <nav class="navbar navbar-inverse" style="margin-bottom: 2px;">
+            <div class="container" style="margin-left: initial; width:100%;">
+              <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                  <span class="sr-only">Навигация</span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/index">ЕИСА</a>
+              </div>
+              <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class=""><a href="{{url_for('admin')}}">Главный экран</a></li>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Администрирование
+                        {% if  current_user.role.id == 1 %}
+                            <i class="fa fa-unlock" aria-hidden="true"></i>
+                        {% else %}
+                            <i class="fa fa-lock" aria-hidden="true"></i>
+                        {% endif %}
+                        <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{url_for('admin_users')}}"><span class="badge">{{ users_all_count }}</span> Пользователи</a></li>
+                            <li><a href="#"><span class="badge">1</span> Роли </a></li>
+                            <li><a href="#"><span class="badge">1</span> Отделы </a></li>
+                            <li><a href="#"><span class="badge">1</span> Должности </a></li>
+<!--
+                            <li role="separator" class="divider"></li>
+-->
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Модули <i class="fa fa-keyboard-o" aria-hidden="true"></i> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Модуль раз</a></li>
+                            <li><a href="#">Модуль два</a></li>
+                        </ul>
+                    </li>
+                    <li class=""><a href="{{url_for('logout')}}">Выйти</a></li>
+                </ul>
+              </div>
+            </div>
+        </nav>
+
+        {% block content %}
+        {% endblock %}
+
+<!--
+        <nav class="navbar navbar-inverse navbar-static-bottom">
+          <div class="container">
+            <p class="navbar-brand" href="/index">Разработка: <a href="https://vk.com/goomba41">Бородавкин Антон</a> © 2017-{{ (today.split('-')[0])|int }}</p>
+          </div>
+        </nav>
+-->
+    </body>
+</html>

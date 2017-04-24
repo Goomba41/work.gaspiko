@@ -1,0 +1,165 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+        <div class="container" style = "margin-top: 2%;">
+            <div class="row">
+
+                {% if not birth_celebrate %}
+                {% else %}
+                    {% for key, value in  birth_celebrate.items() %}
+                        {% if value|int == (today.split('-')[2])|int %}
+                            <!--Панель с поздравлением с днем рождения -->
+                            <div class="col-sm-12">
+                                <div class="panel panel-success">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><strong>ПОЗДРАВЛЯЕМ</strong></h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="col-sm-4" style="text-align:center;">
+                                            <strong style="font-family:MarckScript-Regular; font-size: 2.5em">{{ key }}</strong><br/>
+                                            <span style="font-family:MarckScript-Regular; font-size: 1.5em;">От лица всех сотрудников архива поздравляем Вас <br/><strong style="font-size: 2em;">С ДНЕМ РОЖДЕНИЯ</strong></span><br/>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/flowers.png') }}"  />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- --------------------------------- -->
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if not worktime_celebrate %}
+                {% else %}
+                    {% for key, value in  worktime_celebrate.items() %}
+                        {% if value|int ==  (today.split('-')[2])|int %}
+                            <!--Панель с поздравлением о стаже-->
+                            <div class="col-sm-12">
+                                <div class="panel panel-success">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><strong>ПОЗДРАВЛЯЕМ</strong></h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="col-sm-4" style="text-align:center;">
+                                            <strong style="font-family:MarckScript-Regular; font-size: 2.5em">{{ key }}</strong><br/>
+                                            <span style="font-family:MarckScript-Regular; font-size: 1.5em;">От лица всех сотрудников архива поздравляем Вас <br/><strong style="font-size: 2em;">с {{ time_worked[0] }}-ым годом работы в архиве</strong></span><br/>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/books.png') }}"  />
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/books.png') }}"  />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- --------------------------------- -->
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+
+                <!--Панель с информацией о пользователе-->
+                <div class="col-sm-12">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><strong>Информация о пользователе</strong></h3>
+                        </div>
+                        <div class="panel-body">
+                            <a href="#" class = "profile col-sm-1 " >
+                                <div class = "profile-photo">
+                                    {% if current_user.photo is none  %}
+                                        <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/anonymous.png') }}"  />
+                                    {% else %}
+                                        <img style = "width:100%;" src ="{{ url_for('static', filename='admin/upload/users/'+current_user.photo) }}"  />
+                                    {% endif %}
+                                </div>
+                            </a>
+                            <div class = "col-sm-4 ">
+                                <ul class="">
+                                    <li>ФИО: <strong>{{ current_user.surname }} {{ current_user.name }} {{ current_user.patronymic }}</strong></li>
+                                    <li>Последний раз вход совершен: <strong>{{ last_login }}</strong></li>
+                                    <li>Вам присвоена роль: <strong>{{ current_user.role.name }}</strong></li>
+                                    <li>Ваша должность: <strong>{{ current_user.post.name }}</strong></li>
+                                    <li>Ваш отдел: <strong>{{ current_user.department.name }}</strong></li>
+                                    <li>Ваш стаж: <strong>{{ time_worked[0] }} лет {{ time_worked[1] }} месяцев {{ time_worked[2] }} дней</strong></li>
+                                    <li><i class="fa fa-history" aria-hidden="true"></i><a href="">История действий</a></li>
+                                </ul>
+                            </div>
+                            <div class = "col-sm-5 ">
+                                <h3 style="margin-top:0px;">Вы можете:</h3>
+                                <ul class="">
+                                    <li>Здесь будут записи с полномочиями в работе</li>
+                                    <li>Здесь будут записи с полномочиями в работе</li>
+                                    <li>Здесь будут записи с полномочиями в работе</li>
+                                    <li>Здесь будут записи с полномочиями в работе</li>
+                                    <li>Здесь будут записи с полномочиями в работе</li>
+                                    <li>Здесь будут записи с полномочиями в работе</li>
+                                </ul>
+                                <h3>Вы имеете доступ к:</h3>
+                                <ul class="">
+                                    <li>Здесь будут записи о доступе к модулям</li>
+                                    <li>Здесь будут записи о доступе к модулям</li>
+                                    <li>Здесь будут записи о доступе к модулям</li>
+                                    <li>Здесь будут записи о доступе к модулям</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- --------------------------------- -->
+
+                <!--Панель с информацией о днях рождения пользователей-->
+                <div class="col-sm-4">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><strong>В этом месяце празднуют:</strong></h3>
+                        </div>
+                        <ul class="list-group">
+                            {% if not birth_celebrate %}
+                                <li class="list-group-item list-group-item-danger">В этом месяце никто не празднует дней рождений</li>
+                            {% else %}
+                                {% for key, value in  birth_celebrate.items() %}
+                                    <li class="list-group-item list-group-item-success"><strong>{{ key }}</strong><br/> празднует день рождения <strong>{{ value }} числа</strong></li>
+                                {% endfor %}
+                            {% endif %}
+                            {% if not worktime_celebrate %}
+                                <li class="list-group-item list-group-item-danger">В этом месяце никто не празднует очередной год работы</li>
+                            {% else %}
+                                {% for key, value in  worktime_celebrate.items() %}
+                                    <li class="list-group-item list-group-item-warning"><strong>{{ key }}</strong><br/> празднует очередной год стажа <strong>{{ value }} числа</strong></li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                <!-- --------------------------------- -->
+
+                <!--Панель забыл зачем-->
+                <div class="col-sm-8">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><strong>Важная информация</strong>
+                                {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
+                                    <i class="fa fa-unlock" aria-hidden="true"></i>
+                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                {% else %}
+                                    <i class="fa fa-lock" aria-hidden="true"></i>
+                                {% endif %}
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            Здесь будет размещаться важная информация для архивистов в текстовом виде
+                        </div>
+                    </div>
+                </div>
+                <!-- --------------------------------- -->
+
+            </div>
+        </div>
+{% endif %}
+
+{% endblock %}
+

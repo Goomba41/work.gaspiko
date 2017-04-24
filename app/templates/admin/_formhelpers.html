@@ -1,0 +1,47 @@
+{% macro render_field(field) %}
+
+    {% if field.type == "TextField" %}
+        <div class="input-group" style="margin: 20px 2% 2%;">
+            <span class="input-group-addon"  style="width: 84px;" id="basic-addon1">{{field.label}}</span>
+            {{ field(**kwargs)|safe }}
+        </div>
+    {% elif field.type == "PasswordField" %}
+        <div class="input-group" style="margin: 20px 2% 2%;">
+            <span class="input-group-addon"  style="width: 84px;" id="basic-addon1">{{field.label}}</span>
+            {{ field(**kwargs)|safe }}
+        </div>
+    {% else %}
+      <div class="form-group" style="margin-top:20px;">
+        <label for="exampleInputFile">{% if field.flags.required %}<span class="asterisk">*</span>{% endif %}{{field.label}}</label>
+        {{ field(**kwargs)|safe }}
+        <small id="fileHelp" class="form-text text-muted" style="color: #860808">Разрешенные типы файлов: jpeg, jpg</small>
+      </div>
+    {% endif %}
+
+    {% if field.errors %}
+        {% for error in field.errors %}
+            {% if ((field.type == "TextField") or  (field.type == "PasswordField")) %}
+                <script>$( "#{{field.name}}" ).addClass('error_shadowed');</script>
+            {% else %}
+                <script>$( "#{{field.name}}" ).addClass('error_shadowed');</script>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endmacro %}
+
+{% macro flash_msg(messages) %}
+
+    {% for category, message in messages %}
+        {% if category == 'success'%}
+        <div class="alert alert-success" role="alert" style="margin-top:20px;">
+            <strong>Успешно!</strong> {{ message }}.
+        </div>
+        {% endif %}
+        {% if category == 'error'%}
+            <div class="alert alert-danger" role="alert" style="margin-top:20px;">
+                <strong>Ошибка!</strong> {{ message }}.
+            </div>
+        {% endif %}
+    {% endfor %}
+
+{% endmacro %}
