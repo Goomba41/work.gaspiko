@@ -1,10 +1,11 @@
 # -*- coding: utf8 -*-
 from app import db
+import time
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     login = db.Column(db.String(15), unique=True)
-    password = db.Column(db.String(32), unique=True)
+    password = db.Column(db.String(32))
     photo = db.Column(db.String(50))
     name = db.Column(db.String(15))
     surname = db.Column(db.String(15))
@@ -21,6 +22,8 @@ class User(db.Model):
     department_id = db.Column(db.Integer, db.ForeignKey("department.id"))
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
     role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
+
+    important_news = db.relationship('Important_news', backref = 'user',lazy = 'dynamic')
 
     def __repr__(self):
         return '<Users %r>' % (self.name)
@@ -51,3 +54,13 @@ class Role(db.Model):
 
     def __repr__(self):
         return '<Role %r >' % (self.name)
+
+class Important_news(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    author = db.Column(db.Integer, db.ForeignKey("user.id"))
+    text = db.Column(db.Text)
+    cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
+    expired = db.Column(db.DateTime)
+
+    def __repr__(self):
+        return '<Good news everyone! %r >' % (self.name)

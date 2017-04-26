@@ -15,14 +15,14 @@
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-                <li class=""><a href="">Список  <span class="badge">{{users_all_count}}</span></a></li>
-                <li><a href="">Создать</a></li>
+                <li class=""><a href="{{url_for('admin_users')}}">Список  <span class="badge">{{users_all_count}}</span></a></li>
+                <li><a href="{{url_for('new_user')}}">Создать</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">С выбранным<span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Выключить</a></li>
+                        <li><a href="#" onclick="disable_rows()">Выключить</a></li>
                         <li role="separator" class="divider"></li>
-                        <li><a class="delete" href="#">Удалить</a></li>
+                        <li><a class="delete" onclick="delete_rows()"  href="">Удалить</a></li>
                     </ul>
                 </li>
             </ul>
@@ -40,6 +40,7 @@
     <div class="admin_wrapper">
         <table class="table table-striped table-bordered table-hover model-list" >
             <tr>
+                <th><input type="checkbox" name="rowtoggle" class="action-rowtoggle" title="Выделение всех записей" width="1%"></th>
                 <th width="1%">Управление</th>
                 <th width="1%">ID</th>
                 <th width="1%">Роль</th>
@@ -55,6 +56,7 @@
             </tr>
             {% for user in users_all.items %}
                 <tr>
+                    <td width="1%"><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ user.id }} title="Выберите запись"></td>
                     <td>
                         <div class = "control">
                             <form action="" method="post" name="deluser">
@@ -72,7 +74,7 @@
                         <div class = "control">
                             <div>
                                 <form method="post">
-                                    <a class = "edit" href=""><button onclick="password_reset({{ user.id }})" class="btn-warning"  title="Изменить запись">Забыл пароль</button></a>
+                                    <button onclick="password_reset({{ user.id }})" class="btn-warning"  title="Изменить запись">Забыл пароль</button>
                                 </form>
                             </div>
                         </div>
@@ -81,7 +83,7 @@
                     <td>{{ user.role.name }}</td>
                     <td>
                         <div class = "profile-photo">
-                        {% if current_user.photo is none  %}
+                        {% if user.photo is none  %}
                             <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/anonymous.png') }}"  />
                         {% else %}
                             <img style = "width:100%;" src ="{{ url_for('static', filename='admin/upload/users/'+user.photo) }}"  />
@@ -106,19 +108,6 @@
             {% endfor %}
         </table>
     </div>
-    <script>
-    function password_reset(user_id) {
-        var password = prompt("Пожалуйста, введите новый пароль:");
-        numbers = password.match(/\d+/g);
-
-        if (password != null && password.length>=8 && numbers!=null) {
-            $.post( "/password_reset", {
-                new_password: password,
-                user: user_id,
-            })
-        }else {alert( 'Не выполнены требования к паролю! Пароль должен состоять из цифр и букв, и быть длиной не менее 8 символов.' )};
-    }
-</script>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

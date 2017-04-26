@@ -1,0 +1,73 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+    <nav class="navbar navbar-default">
+        <div class="container" style ="margin-right: initial; margin-left: initial;">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+              <span class="sr-only">Навигация</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Управление</a>
+          </div>
+          <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
+            <ul class="nav navbar-nav">
+                <li class=""><a href="{{url_for('admin_users')}}">Список  <span class="badge">{{users_all_count}}</span></a></li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+
+    {% from "admin/_formhelpers.html" import flash_msg %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+    <div class="admin_wrapper">
+        {% from "admin/_formhelpers.html" import render_field %}
+        <form action="" method="POST" name = "form_user_add" enctype="multipart/form-data">
+            {{ form_user_add.csrf_token }}
+            {{ render_field(form_user_add.login, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+            {{ render_field(form_user_add.password, size=50, class ="form-control", placeholder ="Минимум 8 символов", autocomplete = True) }}
+            {{ render_field(form_user_add.photo, class ="form-control-file") }}
+            {{ render_field(form_user_add.surname, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+            {{ render_field(form_user_add.name, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+            {{ render_field(form_user_add.patronymic, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+            {{ render_field(form_user_add.email, size=50, class ="form-control", placeholder ="Максимум 50 символов", autocomplete = True) }}
+            {{ render_field(form_user_add.phone, size=50, class ="form-control", placeholder ="Введите номер телефона", autocomplete = True) }}
+            {{ render_field(form_user_add.birth_date, class ="form-control") }}
+            {{ render_field(form_user_add.work_date, class ="form-control") }}
+            <br/>
+            <input type="submit" value="Добавить" class="btn btn-lg btn-success">
+            <a href="{{url_for('admin_users')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+            <br/>
+        </form>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+{% endif %}
+
+<script type="text/javascript">
+  $(function () {
+    $('#datetimepicker1').datetimepicker({
+        locale: 'ru',
+        format: 'YYYY-MM-DD'
+    });
+    $('#datetimepicker2').datetimepicker({
+        locale: 'ru',
+        format: 'YYYY-MM-DD'
+    });
+  });
+</script>
+
+{% endblock %}

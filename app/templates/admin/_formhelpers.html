@@ -2,16 +2,26 @@
 
     {% if field.type == "TextField" %}
         <div class="input-group" style="margin: 20px 2% 2%;">
-            <span class="input-group-addon"  style="width: 84px;" id="basic-addon1">{{field.label}}</span>
+            <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>
             {{ field(**kwargs)|safe }}
         </div>
     {% elif field.type == "PasswordField" %}
         <div class="input-group" style="margin: 20px 2% 2%;">
-            <span class="input-group-addon"  style="width: 84px;" id="basic-addon1">{{field.label}}</span>
+            <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>
             {{ field(**kwargs)|safe }}
         </div>
+    {% elif field.type == "DateField" %}
+        <div class="form-group" style="margin: 20px 2% 2%; width: 41%;">
+            <div class="input-group date"  id="datetimepicker{{field.id}}">
+                <span class="input-group-addon" style="width: 30%;" id="basic-addon1">{{field.label}}</span>
+                {{ field(**kwargs)|safe }}
+                <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
+        </div>
     {% else %}
-      <div class="form-group" style="margin-top:20px;">
+      <div class="form-group" style="margin: 20px 2% 2%;">
         <label for="exampleInputFile">{% if field.flags.required %}<span class="asterisk">*</span>{% endif %}{{field.label}}</label>
         {{ field(**kwargs)|safe }}
         <small id="fileHelp" class="form-text text-muted" style="color: #860808">Разрешенные типы файлов: jpeg, jpg</small>

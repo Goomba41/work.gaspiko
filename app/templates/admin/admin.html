@@ -144,15 +144,30 @@
                             <h3 class="panel-title"><strong>Важная информация</strong>
                                 {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
                                     <i class="fa fa-unlock" aria-hidden="true"></i>
+<!--
                                     <i class="fa fa-pencil" aria-hidden="true"></i>
+-->
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
                                 {% else %}
                                     <i class="fa fa-lock" aria-hidden="true"></i>
                                 {% endif %}
                             </h3>
                         </div>
-                        <div class="panel-body">
-                            Здесь будет размещаться важная информация для архивистов в текстовом виде
+                        <div class="panel-body list-group-item-danger" >
+                            Уважаемые архивисты, перед началом работы ознакомтесь, пожалуйста, со следующей важной информацией:
                         </div>
+                        <ul class="list-group">
+                            {% for news in important_news_all %}
+                                <li class="list-group-item">
+                                {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
+                                    <i class="fa fa-trash fa-control"></i>
+                                    <i class="fa fa-pencil fa-control" aria-hidden="true"></i>
+                                    Автор: {{ news.user.surname }} | Истекает: {{ news.expired }}
+                                    <br/>
+                                {% endif %}
+                                    <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> {{ news.text }}</li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
                 <!-- --------------------------------- -->
