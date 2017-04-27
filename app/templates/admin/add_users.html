@@ -31,21 +31,28 @@
     <div class="admin_wrapper">
         {% from "admin/_formhelpers.html" import render_field %}
         <form action="" method="POST" name = "form_user_add" enctype="multipart/form-data">
+            <div class="col-sm-6">
             {{ form_user_add.csrf_token }}
             {{ render_field(form_user_add.login, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             {{ render_field(form_user_add.password, size=50, class ="form-control", placeholder ="Минимум 8 символов", autocomplete = True) }}
-            {{ render_field(form_user_add.photo, class ="form-control-file") }}
             {{ render_field(form_user_add.surname, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             {{ render_field(form_user_add.name, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             {{ render_field(form_user_add.patronymic, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             {{ render_field(form_user_add.email, size=50, class ="form-control", placeholder ="Максимум 50 символов", autocomplete = True) }}
             {{ render_field(form_user_add.phone, size=50, class ="form-control", placeholder ="Введите номер телефона", autocomplete = True) }}
             {{ render_field(form_user_add.birth_date, class ="form-control") }}
+            </div>
+            <div class="col-sm-6">
+            {{ render_field(form_user_add.department_id, class ="form-control") }}
+            {{ render_field(form_user_add.post_id, class ="form-control") }}
+            {{ render_field(form_user_add.role_id, class ="form-control") }}
             {{ render_field(form_user_add.work_date, class ="form-control") }}
-            <br/>
+            {{ render_field(form_user_add.photo, class ="form-control-file") }}
+            </div>
+            <div class="col-sm-8">
             <input type="submit" value="Добавить" class="btn btn-lg btn-success">
             <a href="{{url_for('admin_users')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
-            <br/>
+            </div>
         </form>
     </div>
 

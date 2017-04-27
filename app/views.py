@@ -197,12 +197,9 @@ def new_user():
 
     form_user_add = AddUserForm()
     users_all_count = User.query.count()
-    print 1
 
     if form_user_add.validate_on_submit():
-        print 2
         if request.method  == 'POST':
-            print 3
             login = form_user_add.login.data
             password = form_user_add.password.data
             surname = form_user_add.surname.data
@@ -212,6 +209,9 @@ def new_user():
             phone = form_user_add.phone.data
             birth_date = form_user_add.birth_date.data
             work_date = form_user_add.work_date.data
+            department_id = form_user_add.department_id.data
+            post_id = form_user_add.post_id.data
+            role_id = form_user_add.role_id.data
 
             print login
             print password
@@ -222,6 +222,9 @@ def new_user():
             print phone
             print birth_date
             print work_date
+            print department_id
+            print post_id
+            print role_id
             #~ if form_user_add.user.data:
             #~ user = User(
             #~ login = form_user_add.login.data,
