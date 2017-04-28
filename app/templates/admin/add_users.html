@@ -39,7 +39,7 @@
             {{ render_field(form_user_add.name, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             {{ render_field(form_user_add.patronymic, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             {{ render_field(form_user_add.email, size=50, class ="form-control", placeholder ="Максимум 50 символов", autocomplete = True) }}
-            {{ render_field(form_user_add.phone, size=50, class ="form-control", placeholder ="Введите номер телефона", autocomplete = True) }}
+            {{ render_field(form_user_add.phone, size=50, class ="form-control input-medium bfh-phone", placeholder ="Введите номер телефона", autocomplete = True, **{'data-format': '+7 (ddd) ddd-dd-dd'}) }}
             {{ render_field(form_user_add.birth_date, class ="form-control") }}
             </div>
             <div class="col-sm-6">

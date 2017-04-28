@@ -10,6 +10,11 @@
             <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>
             {{ field(**kwargs)|safe }}
         </div>
+    {% elif field.type == "TelField" %}
+        <div class="input-group" style="margin: 2% 2%;width: 100%;">
+            <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>
+            {{ field(**kwargs)|safe }}
+        </div>
     {% elif field.type == "DateField" %}
         <div class="form-group" style="margin: 2% 2%; width: 100%;">
             <div class="input-group date"  id="datetimepicker{{field.id}}">
@@ -24,7 +29,7 @@
       <div class="form-group" style="margin: 2% 2%;">
         <label for="exampleInputFile">{% if field.flags.required %}<span class="asterisk">*</span>{% endif %}{{field.label}}</label>
         {{ field(**kwargs)|safe }}
-        <small id="fileHelp" class="form-text text-muted" style="color: #860808">Разрешенные типы файлов: jpeg, jpg</small>
+        <small id="fileHelp" class="form-text text-muted" style="color: #860808">Разрешенные типы файлов: jpeg, jpg, png</small>
       </div>
     {% else %}
             <div class="input-group" style="margin: 2% 2%;width: 100%;">

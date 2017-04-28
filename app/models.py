@@ -11,7 +11,7 @@ class User(db.Model):
     surname = db.Column(db.String(15))
     patronymic = db.Column(db.String(15))
     email = db.Column(db.String(50), unique=True)
-    phone = db.Column(db.String(12), unique=True)
+    phone = db.Column(db.String(18), unique=True)
 
     birth_date = db.Column(db.Date)
     work_date = db.Column(db.Date)

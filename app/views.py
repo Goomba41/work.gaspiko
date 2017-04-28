@@ -206,12 +206,13 @@ def new_user():
             name= form_user_add.name.data
             patronymic = form_user_add.patronymic.data
             email = form_user_add.email.data
-            phone = form_user_add.phone.data
+            phone = form_user_add.phone
             birth_date = form_user_add.birth_date.data
             work_date = form_user_add.work_date.data
             department_id = form_user_add.department_id.data
             post_id = form_user_add.post_id.data
             role_id = form_user_add.role_id.data
+            photo = request.files['photo']
 
             print login
             print password
@@ -225,6 +226,12 @@ def new_user():
             print department_id
             print post_id
             print role_id
+            print photo.filename
+
+            hashname = hashlib.md5(photo.filename.encode('utf-8'))
+            hashname = hashname.hexdigest() + '.' + photo.filename.rsplit('.', 1)[1]
+            print hashname
+
             #~ if form_user_add.user.data:
             #~ user = User(
             #~ login = form_user_add.login.data,
