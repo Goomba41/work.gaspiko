@@ -17,6 +17,7 @@
             <ul class="nav navbar-nav">
                 <li class=""><a href="{{url_for('admin_users')}}">Список  <span class="badge">{{users_all_count}}</span></a></li>
                 <li><a href="{{url_for('new_user')}}">Создать</a></li>
+                <li><a href="">Разрешения</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">С выбранным<span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -67,7 +68,7 @@
                                 </div>
                             </form>
                             <div>
-                                <a class = "edit" href=""><button class="btn-primary" type="submit" title="Изменить запись"><i class="fa fa-pencil fa-control" aria-hidden="true"></i></button></a>
+                                <a class = "edit" href="{{url_for('edit_user', id = user.id)}}"><button class="btn-primary" type="submit" title="Изменить запись"><i class="fa fa-pencil fa-control" aria-hidden="true"></i></button></a>
                             </div>
                         </div>
                         <br/>
@@ -96,11 +97,23 @@
                     <td>{{ user.phone }}</td>
                     <td>{{ user.last_login }}</td>
                     <td>
-                        {% if  user.status == 1%}
-                        <i style="color:green; font-size:2em" class="fa fa-toggle-on" aria-hidden="true"></i>
+                        {% if  user.status == 1 %}
+                        <a href="#" id="status{{ user.id }}" ><i style="color:green; font-size:2em" class="fa fa-toggle-on" aria-hidden="true"></i></a>
                         {% else %}
-                        <i style="color:red; font-size:2em" class="fa fa-toggle-off" aria-hidden="true"></i>
+                        <a href="#" id="status{{ user.id }}" ><i style="color:red; font-size:2em" class="fa fa-toggle-off" aria-hidden="true"></i></a>
                         {% endif %}
+                        <script>
+                            $('#status{{ user.id }}').editable({
+                                type: 'select',
+                                pk: {{ user.id }},
+                                url: '/post',
+                                title: 'Выберите состояние',
+                                source: [
+                                  {value: 0, text: 'Выкл.'},
+                                  {value: 1, text: 'Вкл.'}
+                                ]
+                            });
+                        </script>
                     </td>
                     <td>{{ user.department.name }}</td>
                     <td>{{ user.post.name }}</td>

@@ -2,13 +2,13 @@
 
 from app import app, db
 from models import User, Department, Role, Post, Important_news
-from forms import LoginForm, DelUserForm, AddUserForm
+from forms import LoginForm, DelUserForm, AddUserForm, EditUserForm
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify
 from functools import wraps
-from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI
+from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
-import time, calendar, os, hashlib, shutil
+import time, calendar, os, hashlib, shutil, uuid
 
 #Функция счета стажа
 def standing(f):
@@ -200,51 +200,126 @@ def new_user():
 
     if form_user_add.validate_on_submit():
         if request.method  == 'POST':
-            login = form_user_add.login.data
-            password = form_user_add.password.data
-            surname = form_user_add.surname.data
-            name= form_user_add.name.data
-            patronymic = form_user_add.patronymic.data
-            email = form_user_add.email.data
-            phone = form_user_add.phone
-            birth_date = form_user_add.birth_date.data
-            work_date = form_user_add.work_date.data
-            department_id = form_user_add.department_id.data
-            post_id = form_user_add.post_id.data
-            role_id = form_user_add.role_id.data
+
+            print form_user_add.role_id.data
             photo = request.files['photo']
+            if photo:
+                hashname = uuid.uuid4().hex + '.' + photo.filename.rsplit('.', 1)[1]
+                photo.save(os.path.join(app.config['AVATARS_FOLDER'], hashname))
+            else:
+                hashname = None
 
-            print login
-            print password
-            print surname
-            print name
-            print patronymic
-            print email
-            print phone
-            print birth_date
-            print work_date
-            print department_id
-            print post_id
-            print role_id
-            print photo.filename
+            check = User.query.filter((User.login==form_user_add.login.data)|(User.email==form_user_add.email.data)|(User.phone==form_user_add.phone.data)).first()
 
-            hashname = hashlib.md5(photo.filename.encode('utf-8'))
-            hashname = hashname.hexdigest() + '.' + photo.filename.rsplit('.', 1)[1]
-            print hashname
+            if check:
+                flash(u"Уже существует пользователь с таким логином, почтой или телефоном", 'error')
+            else:
+                user = User(
+                login = form_user_add.login.data,
+                password = hashlib.md5(form_user_add.password.data.encode('utf-8')).hexdigest(),
+                surname = form_user_add.surname.data,
+                name= form_user_add.name.data,
+                patronymic = form_user_add.patronymic.data,
+                email = form_user_add.email.data,
+                phone = form_user_add.phone.data,
+                birth_date = form_user_add.birth_date.data,
+                work_date = form_user_add.work_date.data,
+                status = 1,
+                department_id = form_user_add.department_id.data.id,
+                post_id = form_user_add.post_id.data.id,
+                role_id = form_user_add.role_id.data.id,
+                photo = hashname )
 
-            #~ if form_user_add.user.data:
-            #~ user = User(
-            #~ login = form_user_add.login.data,
-            #~ password = form_user_add.password.data,
-            #~ surname = form_user_add.surname.data,
-            #~ name= form_user_add.name.data,
-            #~ patronymic = form_user_add.patronymic.data,
-            #~ email = form_user_add.email.data,
-            #~ phone = form_user_add.phone.data,
-            #~ birth_date = form_user_add.birth_date.data
-            #~ )
-            #~ db.session.add(user)
-            #~ db.session.commit()
-            flash(u"Пользователь добавлен", 'success')
-            return redirect(url_for('admin_users'))
+                db.session.add(user)
+                db.session.commit()
+
+                flash(u"Пользователь добавлен", 'success')
+                return redirect(url_for('admin_users'))
     return render_template("admin/add_users.html", form_user_add = form_user_add, users_all_count = users_all_count, current_user=current_user)
+
+#Форма изменения пользователя
+@app.route('/admin/users/edit', methods=['GET', 'POST'])
+@login_required
+def edit_user():
+    current_user = get_current_user()
+    users_all_count = User.query.count()
+
+    edit_user = User.query.get(request.args.get('id'))
+
+    form_user_edit = EditUserForm(
+    name=edit_user.name,
+    login=edit_user.login,
+    email=edit_user.email,
+    phone=edit_user.phone,
+    surname=edit_user.surname,
+    patronymic=edit_user.patronymic,
+    birth_date=edit_user.birth_date,
+    work_date=edit_user.work_date,
+    status=edit_user.status,
+    department_id=edit_user.department_id,
+    post_id=edit_user.post_id,
+    role_id=edit_user.role_id
+    )
+
+    if form_user_edit.validate_on_submit():
+        if request.method  == 'POST':
+
+            login = form_user_edit.login.data
+            password = form_user_edit.password.data
+            email = form_user_edit.email.data
+            phone = form_user_edit.phone.data
+            error = False
+
+            if password:
+                password = hashlib.md5(form_user_edit.password.data.encode('utf-8')).hexdigest()
+            else:
+                password = edit_user.password
+
+            if login:
+                check = User.query.filter(User.login==login).first()
+                if (check and (check.id!=edit_user.id)):
+                    error = True
+                    form_user_edit.login.errors.append('Пользователь с такими данными существует')
+
+            if email:
+                check = User.query.filter(User.email==email).first()
+                if (check and (check.id!=edit_user.id)):
+                    error = True
+                    form_user_edit.email.errors.append('Пользователь с такими данными существует')
+
+            if phone:
+                check = User.query.filter(User.phone==phone).first()
+                if (check and (check.id!=edit_user.id)):
+                    error = True
+                    form_user_edit.phone.errors.append('Пользователь с такими данными существует')
+
+            if error:
+                flash(u"Уже существует пользователь с таким логином, почтой или телефоном", 'error')
+            else:
+                photo = request.files['photo']
+                if photo:
+                    hashname = uuid.uuid4().hex + '.' + photo.filename.rsplit('.', 1)[1]
+                    photo.save(os.path.join(app.config['AVATARS_FOLDER'], hashname))
+                else:
+                    hashname = edit_user.photo
+
+                edit_user.login = login
+                edit_user.password = password
+                edit_user.surname = form_user_edit.surname.data
+                edit_user.name= form_user_edit.name.data
+                edit_user.patronymic = form_user_edit.patronymic.data
+                edit_user.email = email
+                edit_user.phone = phone
+                edit_user.birth_date = form_user_edit.birth_date.data
+                edit_user.work_date = form_user_edit.work_date.data
+                edit_user.status = form_user_edit.status.data
+                edit_user.department_id = form_user_edit.department_id.data
+                edit_user.post_id = form_user_edit.post_id.data
+                edit_user.role_id = form_user_edit.role_id.data
+                edit_user.photo = hashname
+
+                db.session.commit()
+
+                flash(u"Пользователь изменен", 'success')
+                return redirect(url_for('admin_users'))
+    return render_template("admin/edit_users.html", form_user_edit = form_user_edit, users_all_count = users_all_count, current_user=current_user)

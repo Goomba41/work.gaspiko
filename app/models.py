@@ -52,8 +52,8 @@ class Role(db.Model):
 
     users = db.relationship('User', backref = 'role',lazy = 'dynamic')
 
-    def __repr__(self):
-        return '<Role %r >' % (self.name)
+    #~ def __repr__(self):
+        #~ return '<Role %r >' % (self.name)
 
 class Important_news(db.Model):
     id = db.Column(db.Integer, primary_key = True)

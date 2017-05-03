@@ -15,4 +15,6 @@ SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://goomba:tester@localhost/arhiv'
 SQLALCHEMY_TRACK_MODIFICATIONS = 'true'
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
+AVATARS_FOLDER = os.path.join(basedir, 'app/static/admin/upload/users')
+
 PER_PAGE = 5
