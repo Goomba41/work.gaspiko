@@ -1,0 +1,87 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+    <nav class="navbar navbar-default">
+        <div class="container" style ="margin-right: initial; margin-left: initial;">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+              <span class="sr-only">Навигация</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Управление</a>
+          </div>
+          <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
+            <ul class="nav navbar-nav">
+                <li class=""><a href="{{url_for('admin_posts')}}">Список  <span class="badge">{{ all_counters.get('post_count') }}</span></a></li>
+                <li><a href="{{url_for('new_post')}}">Создать</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">С выбранным<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="delete" onclick="delete_posts()"  href="">Удалить</a></li>
+                    </ul>
+                </li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+
+    {% from "admin/_formhelpers.html" import flash_msg %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+    <div class="alert alert-info" role="alert" style="margin-top:20px;">
+        <strong style="border-bottom: dashed 1px #0088cc;">Подчеркнутые</strong> поля можно изменить, кликнув по надписи
+    </div>
+
+    <div class="col-sm-1">
+        <table class="table table-striped table-bordered table-hover model-list" >
+            <tr>
+                <th><input type="checkbox" name="rowtoggle" class="action-rowtoggle" title="Выделение всех записей" width="1%"></th>
+                <th width="1%">Управление</th>
+                <th width="1%">ID</th>
+                <th width="1%">Название</th>
+            </tr>
+            {% for post in posts_all.items %}
+                <tr>
+                    <td width="1%"><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ post.id }} title="Выберите запись"></td>
+                    <td>
+                        <div class = "control">
+                            <form action="" method="post" name="deluser">
+                                {{form_delete.hidden_tag()}}
+                                <div>
+                                    <button class="btn-danger" type="submit" title="Удалить запись" onclick="return confirm('Точно?');"><i class="fa fa-trash fa-control"></i></button>
+                                    {{form_delete.del_id(id="del-"+post.id|string,value=post.id, style = "display:none;")}}<br>
+                                </div>
+                            </form>
+                        </div>
+                        <br/>
+                    </td>
+                    <td>{{ post.id }}</td>
+                    <td><a href="#" id="name{{ post.id }}" data-name="name" data-type="text" data-pk="{{ post.id }}" data-url="/fast_post_edit" data-title="Введите название">{{ post.name }}</a></td>
+                    <script>
+                        $('#name{{ post.id }}').editable({
+
+                        });
+                    </script>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <br style="clear: both;"/>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+    {{ pagination.links }}
+{% endif %}
+
+{% endblock %}
