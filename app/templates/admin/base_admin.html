@@ -66,12 +66,12 @@
                         <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a href="{{url_for('admin_users')}}"><span class="badge">{{ users_all_count }}</span> Пользователи</a></li>
-                            <li><a href="#"><span class="badge">1</span> Роли </a></li>
-                            <li><a href="#"><span class="badge">1</span> Отделы </a></li>
-                            <li><a href="#"><span class="badge">1</span> Должности </a></li>
+                            <li><a href="{{url_for('admin_users')}}"><span class="badge">{{ all_counters.get('user_count') }}</span> Пользователи</a></li>
+                            <li><a href="{{url_for('admin_roles')}}"><span class="badge">{{ all_counters.get('role_count') }}</span> Роли </a></li>
+                            <li><a href="{{url_for('admin_departments')}}"><span class="badge">{{ all_counters.get('department_count') }}</span> Отделы </a></li>
+                            <li><a href="{{url_for('admin_posts')}}"><span class="badge">{{ all_counters.get('post_count') }}</span> Должности </a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="#"><span class="badge">1</span> Новости отдела </a></li>
+                            <li><a href="#"><span class="badge">0</span> Новости отдела </a></li>
                         </ul>
                     </li>
                 </ul>
@@ -91,6 +91,20 @@
 
         {% block content %}
         {% endblock %}
+
+        <nav class="navbar navbar-inverse navbar-fixed-bottom" style="margin-bottom: 2px;">
+            <div class="container" style="margin-left: initial; width:100%;">
+              <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                  <span class="sr-only">Навигация</span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                </button>
+                <span class="navbar-brand">Разработка: <a href="https://vk.com/goomba41">Бородавкин Антон</a> <i class="fa fa-copyright" aria-hidden="true"></i> 2017 - {{ today.split('-')[0] }}</span>
+              </div>
+            </div>
+        </nav>
 
     </body>
 </html>

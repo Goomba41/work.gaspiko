@@ -14,7 +14,6 @@ class LoginForm(FlaskForm):
     password = PasswordField(u'Пароль', validators = [Required(message = u'Введите пароль')])
 
 class AddUserForm(FlaskForm):
-
     login = TextField(u'Логин', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Логин должен быть в диапазоне от 1 до 15 символов')])
     password = PasswordField(u'Пароль', validators = [Required(message = u'Введите пароль'), Length(min=1, message = u'Пароль должен быть более 8 символов')])
     photo = FileField(u'Выберите фото профиля', validators = [FileAllowed(['jpg', 'jpeg', 'png'], u'Только изображения!')])
@@ -56,4 +55,22 @@ class EditUserForm(FlaskForm):
     role_id = SelectField(u'Роль', coerce=int, choices=get_list(Role()))
 
 class DelUserForm(FlaskForm):
+    del_id = TextField('id', validators = [Required()])
+
+class AddRoleForm(FlaskForm):
+    name = TextField(u'Название', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Название должно быть в диапазоне от 1 до 15 символов')])
+
+class DelRoleForm(FlaskForm):
+    del_id = TextField('id', validators = [Required()])
+
+class AddDepartmentForm(FlaskForm):
+    name = TextField(u'Название', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Название должно быть в диапазоне от 1 до 15 символов')])
+
+class DelDepartmentForm(FlaskForm):
+    del_id = TextField('id', validators = [Required()])
+
+class AddPostForm(FlaskForm):
+    name = TextField(u'Название', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Название должно быть в диапазоне от 1 до 15 символов')])
+
+class DelPostForm(FlaskForm):
     del_id = TextField('id', validators = [Required()])

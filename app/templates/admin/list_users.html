@@ -15,15 +15,16 @@
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-                <li class=""><a href="{{url_for('admin_users')}}">Список  <span class="badge">{{users_all_count}}</span></a></li>
+                <li class=""><a href="{{url_for('admin_users')}}">Список  <span class="badge">{{ all_counters.get('user_count') }}</span></a></li>
                 <li><a href="{{url_for('new_user')}}">Создать</a></li>
                 <li><a href="">Разрешения</a></li>
+                <li><a href="">История действий</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">С выбранным<span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#" onclick="disable_rows()">Выключить</a></li>
                         <li role="separator" class="divider"></li>
-                        <li><a class="delete" onclick="delete_rows()"  href="">Удалить</a></li>
+                        <li><a class="delete" onclick="delete_users()"  href="">Удалить</a></li>
                     </ul>
                 </li>
             </ul>
@@ -96,24 +97,13 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.phone }}</td>
                     <td>{{ user.last_login }}</td>
-                    <td>
+                    <td><a href="#" id="status{{ user.id }}" data-name="status" >
                         {% if  user.status == 1 %}
-                        <a href="#" id="status{{ user.id }}" ><i style="color:green; font-size:2em" class="fa fa-toggle-on" aria-hidden="true"></i></a>
+                        <i style="color:green; font-size:2em" class="fa fa-toggle-on" aria-hidden="true"></i>
                         {% else %}
-                        <a href="#" id="status{{ user.id }}" ><i style="color:red; font-size:2em" class="fa fa-toggle-off" aria-hidden="true"></i></a>
+                        <i style="color:red; font-size:2em" class="fa fa-toggle-off" aria-hidden="true"></i>
                         {% endif %}
-                        <script>
-                            $('#status{{ user.id }}').editable({
-                                type: 'select',
-                                pk: {{ user.id }},
-                                url: '/post',
-                                title: 'Выберите состояние',
-                                source: [
-                                  {value: 0, text: 'Выкл.'},
-                                  {value: 1, text: 'Вкл.'}
-                                ]
-                            });
-                        </script>
+                        </a>
                     </td>
                     <td>{{ user.department.name }}</td>
                     <td>{{ user.post.name }}</td>
