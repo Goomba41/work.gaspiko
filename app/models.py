@@ -63,4 +63,4 @@ class Important_news(db.Model):
     expired = db.Column(db.DateTime)
 
     def __repr__(self):
-        return '<Good news everyone! %r >' % (self.name)
+        return '<Good news everyone! %r >' % (self.text)

@@ -74,3 +74,6 @@ class AddPostForm(FlaskForm):
 
 class DelPostForm(FlaskForm):
     del_id = TextField('id', validators = [Required()])
+
+class DelImportantForm(FlaskForm):
+    del_id = TextField('id', validators = [Required()])

@@ -6825,6 +6825,13 @@ button.close {
     padding-right: 1em;
 }
 
+.important-delete{
+    border: 0;
+    background: 0;
+    margin: 0;
+    padding: 0;
+}
+
 @font-face {
     font-family: PT Sans Narrow Regular;
     src: url(../fonts/PT_Sans-Narrow-Web-Regular.ttf);
