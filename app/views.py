@@ -3,7 +3,7 @@
 from app import app, db
 from models import User, Department, Role, Post, Important_news
 from forms import LoginForm, DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm
-from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify
+from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response
 from functools import wraps
 from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER
 from flask_paginate import Pagination
@@ -146,7 +146,6 @@ def admin():
         important_id = form_delete.del_id.data
         Important_news.query.filter(Important_news.id == important_id).delete()
         db.session.commit()
-        flash(u"Важная новость удалена", 'success')
         return redirect(url_for('admin'))
 
     return render_template("admin/admin.html",  current_user=current_user, last_login=session['last_login'], time_worked = time_worked, birth_celebrate=birth_celebrate,
@@ -168,6 +167,23 @@ def fast_important_edit():
         db.session.commit()
     response = app.response_class(
         response=json.dumps({"Успешно изменено!":edit_data.id}),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
+#Добавление важной новости
+@app.route('/new_important', methods = ['POST'])
+def new_important():
+    request_data = request.form
+    current_user = get_current_user()
+    if request.method  == 'POST':
+        data = Important_news(text=request_data['value'], author = current_user.id, expired=datetime.datetime.now()+datetime.timedelta(days=30))
+        db.session.add(data)
+        db.session.commit()
+    destination = url_for('admin')
+    response = Response(
+        response=json.dumps({'url':destination,'plus':'<i class="fa fa-plus fa-control" aria-hidden="true"></i>'}),
         status=200,
         mimetype='application/json'
     )
@@ -423,26 +439,6 @@ def edit_user():
             #~ width: 200,
             #~ placeholder: 'Select country',
             #~ allowClear: true
-        #~ }
-    #~ });
-
-    #~ $('#address').editable({
-        #~ url: '/post',
-        #~ value: {
-            #~ city: "Moscow",
-            #~ street: "Lenina",
-            #~ building: "12"
-        #~ },
-        #~ validate: function(value) {
-            #~ if(value.city == '') return 'city is required!';
-        #~ },
-        #~ display: function(value) {
-            #~ if(!value) {
-                #~ $(this).empty();
-                #~ return;
-            #~ }
-            #~ var html = '<b>' + $('<div>').text(value.city).html() + '</b>, ' + $('<div>').text(value.street).html() + ' st., bld. ' + $('<div>').text(value.building).html();
-            #~ $(this).html(html);
         #~ }
     #~ });
 

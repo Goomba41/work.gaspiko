@@ -156,10 +156,20 @@
                             <h3 class="panel-title"><strong>Важная информация</strong>
                                 {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
                                     <i class="fa fa-unlock" aria-hidden="true"></i>
-<!--
-                                    <i class="fa fa-pencil" aria-hidden="true"></i>
--->
-                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                    <a href="#" id="text" data-type="textarea" data-pk="" data-title="Важная информация" data-placeholder="Введите текст сюда..."><i class="fa fa-plus fa-control" aria-hidden="true"></i></a>
+                                    <script>
+                                        $('#text').editable({
+                                            url: '/new_important',
+                                            escape: false,
+                                            ajaxOptions: {
+                                                dataType: 'json'
+                                            },
+                                            success: function(response, newValue) {
+                                                location.reload();
+                                                return {newValue: response.plus}
+                                            }
+                                        });
+                                    </script>
                                 {% else %}
                                     <i class="fa fa-lock" aria-hidden="true"></i>
                                 {% endif %}
