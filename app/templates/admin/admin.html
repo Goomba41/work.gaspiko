@@ -97,7 +97,7 @@
                                     <li>Ваша должность: <strong>{{ current_user.post.name }}</strong></li>
                                     <li>Ваш отдел: <strong>{{ current_user.department.name }}</strong></li>
                                     <li>Ваш стаж: <strong>{{ time_worked[0] }} лет {{ time_worked[1] }} месяцев {{ time_worked[2] }} дней</strong></li>
-                                    <li><i class="fa fa-history" aria-hidden="true"></i><a href="">История действий</a></li>
+                                    <li><i class="fa fa-history" aria-hidden="true"></i><a href="{{ url_for('admin_history') }}">История действий пользователя</a></li>
                                 </ul>
                             </div>
                             <div class = "col-sm-5 ">
