@@ -6840,9 +6840,6 @@ button.close {
     bottom: 0;
     z-index: 100;
     background-color: white;
-    background-image: url(../img/fon_top_1920.jpg);
-    background-repeat: no-repeat;
-    background-position: top center;
 }
 
 #page-preloader .spinner {

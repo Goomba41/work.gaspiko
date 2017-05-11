@@ -66,7 +66,9 @@
             <li><a href="#tf-team" class="page-scroll">Сотрудники</a></li>
             <li><a href="#tf-services" class="page-scroll">Ресурсы</a></li>
             <li><a href="#tf-works" class="page-scroll">Новости</a></li>
+<!--
             <li><a href="#tf-contact" class="page-scroll">Контакты</a></li>
+-->
             <li><a href="{{url_for('admin')}}" class="page-scroll">Войти</a></li>
           </ul>
         </div><!-- /.navbar-collapse -->
@@ -106,7 +108,7 @@
                         <ul class="about-list">
                             <li>
                                 <span class="fa fa-dot-circle-o"></span>
-                                <strong>Миссия</strong> - <em>Популяризация открытого программного обеспечения и развитие информационных технологий в архиве</em>
+                                <em>Популяризация открытого программного обеспечения и развитие информационных технологий в архиве</em>
                             </li>
                         </ul>
                     </div>
@@ -135,8 +137,8 @@
                             <img src="{{ url_for('static', filename='admin/upload/users/'+user.photo) }}" alt="..." class="img-circle team-img">
                             <div class="caption">
                                 <h3>{{ user.name }} {{ user.surname }}</h3>
-                                <p>{{ user.post.name }}</p>
                                 <p>{{ user.department.name }}</p>
+                                <p>{{ user.post.name }}</p>
                             </div>
                         </div>
                     </div>
@@ -153,20 +155,22 @@
     <div id="tf-services" class="text-center">
         <div class="container">
             <div class="section-title center">
-                <h2>Take a look at <strong>our services</strong></h2>
+                <h2>Наши <strong>ресурсы</strong></h2>
                 <div class="line">
                     <hr>
                 </div>
                 <div class="clearfix"></div>
-                <small><em>Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</em></small>
+                <small><em>Информационные системы и их модули, разработанные отделом ИПС ГАСПИ КО</em></small>
             </div>
             <div class="space"></div>
             <div class="row">
+                <a href="http://afweb.gaspiko.a" class="a-main">
                 <div class="col-md-3 col-sm-6 service">
                     <i class="fa fa-desktop"></i>
-                    <h4><strong>Web design</strong></h4>
-                    <p>The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>
+                    <h4><strong>ИПС ЭНСА</strong></h4>
+                    <p>Основная информационная система архива - Информационно-поисковая система "Электронный научно-справочный аппарат"</p>
                 </div>
+                </a>
 
                 <div class="col-md-3 col-sm-6 service">
                     <i class="fa fa-mobile"></i>
@@ -234,22 +238,22 @@
     <div id="tf-works">
         <div class="container"> <!-- Container -->
             <div class="section-title text-center center">
-                <h2>Take a look at <strong>our services</strong></h2>
+                <h2>Последние <strong>новости архива</strong></h2>
                 <div class="line">
                     <hr>
                 </div>
                 <div class="clearfix"></div>
-                <small><em>Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</em></small>
+                <small><em>Последние новости</em></small>
             </div>
             <div class="space"></div>
 
             <div class="categories">
 
                 <ul class="cat">
-                    <li class="pull-left"><h4>Filter by Type:</h4></li>
+                    <li class="pull-left"><h4>Фильтр по типу:</h4></li>
                     <li class="pull-right">
                         <ol class="type">
-                            <li><a href="#" data-filter="*" class="active">All</a></li>
+                            <li><a href="#" data-filter="*" class="active">Все</a></li>
                             <li><a href="#" data-filter=".web">Web Design</a></li>
                             <li><a href="#" data-filter=".photography">Photography</a></li>
                             <li><a href="#" data-filter=".app" >Mobile App</a></li>
@@ -272,7 +276,7 @@
                                     <div class="clearfix"></div>
                                     <i class="fa fa-plus"></i>
                                 </div>
-                                <img src="work/img/portfolio/01.jpg" class="img-responsive" alt="...">
+                                <img src="{{ url_for('static', filename='work/img/portfolio/01.jpg') }}" class="img-responsive" alt="...">
                             </a>
                         </div>
                     </div>
@@ -283,12 +287,12 @@
                         <div class="hover-bg">
                             <a href="#">
                                 <div class="hover-text">
-                                    <h4>Logo Design</h4>
-                                    <small>Branding</small>
+                                    <h4>Заголовок новости</h4>
+                                    <normal>Текст новости1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111Текст новости1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111Текст новости1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111</normal>
                                     <div class="clearfix"></div>
                                     <i class="fa fa-plus"></i>
                                 </div>
-                                <img src="work/img/portfolio/02.jpg" class="img-responsive" alt="...">
+                                <img src="{{ url_for('static', filename='work/img/portfolio/02.jpg') }}" class="img-responsive" alt="...">
                             </a>
                         </div>
                     </div>
@@ -432,6 +436,7 @@
 
     <!-- Contact Section
     ==========================================-->
+<!--
     <div id="tf-contact" class="text-center">
         <div class="container">
 
@@ -475,6 +480,7 @@
 
         </div>
     </div>
+-->
 
     <nav id="footer">
         <div class="container">
