@@ -283,6 +283,20 @@ def get_post_javascript_data_id_disable():
         return jsonify(ids)
     return jsonify("Не выбраны записи")
 
+#Отлючение одной записи
+@app.route('/user_disable', methods = ['POST'])
+def user_disable():
+    id = request.json
+    if id:
+        user = User.query.filter(User.id==id).first()
+        if user.status == 0:
+            user.status = 1
+        else:
+            user.status = 0
+        db.session.commit()
+        return jsonify("Успешно изменена запись")
+    return jsonify("Непредвиденная ошибка")
+
 #Форма добавления нового пользователя
 @app.route('/admin/users/new', methods=['GET', 'POST'])
 @login_required

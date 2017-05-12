@@ -120,7 +120,7 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.phone }}</td>
                     <td>{{ user.last_login }}</td>
-                    <td><a href="#" id="status{{ user.id }}" data-name="status" >
+                    <td><a href="#" id="status{{ user.id }}" onclick="disable({{user.id}})" data-name="status" >
                         {% if  user.status == 1 %}
                         <i style="color:green; font-size:2em" class="fa fa-toggle-on" aria-hidden="true"></i>
                         {% else %}

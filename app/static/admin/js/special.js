@@ -73,3 +73,16 @@
         })
         location.reload();
     }
+    function disable(id) {
+         $.ajax({
+            type : "POST",
+            url : "{{url_for('user_disable')}}",
+            contentType: 'application/json;charset=UTF-8',
+            data : JSON.stringify(id),
+            dataType: 'json',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
+        });
+    }
