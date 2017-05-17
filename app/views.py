@@ -46,13 +46,35 @@ def get_current_user():
     return current_user
 
 #Разрешения пользователя
-def get_permissions(role_id, user_id, url):
+def get_permissions(role_id, user_id, url, operation):
+
     table_id = Table.query.filter(Table.url == url).first().id
-    perm_by_role = Permission.query.filter((Permission.role_id ==role_id)&(Permission.table_id == table_id)).first()
-    perm_by_user = Permission.query.filter((Permission.user_id ==user_id)&(Permission.table_id == table_id)).first()
-    #~ if not perm_by_role.enter:
-        #~ return forbidden(403)
-    return perm_by_role, perm_by_user
+    perm= Permission.query.filter(((Permission.role_id==role_id)|(Permission.user_id==user_id))&(Permission.table_id == table_id)).all()
+
+    list = []
+    temp = False
+
+    if operation == "enter":
+        for p in perm:
+            print p, p.enter
+            list.append(p.enter)
+    if operation == "insert":
+        for p in perm:
+            print p, p.insert
+            list.append(p.insert)
+    if operation == "update":
+        for p in perm:
+            print p, p.update
+            list.append(p.update)
+    if operation == "delete":
+        for p in perm:
+            print p, p.delete
+            list.append(p.delete)
+
+    for l in list:
+        temp = temp or l
+
+    return temp
 
 #Добавление в историю
 def make_history(str_table, str_action, current_user_id):
@@ -138,6 +160,10 @@ def admin():
 
     permissions = Permission.query.filter(((Permission.user_id == current_user.id)&(Permission.enter == 1))|((Permission.role_id == current_user.role.id)&(Permission.enter == 1))).all()
 
+    url = 'important'
+    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    print "delete "+str(delete)
+
     time_worked = standing(current_user.work_date)
 
     users_all = User.query.all()
@@ -161,11 +187,14 @@ def admin():
 
     form_delete = DelImportantForm()
 
-    if form_delete.validate_on_submit():
-        important_id = form_delete.del_id.data
-        Important_news.query.filter(Important_news.id == important_id).delete()
-        make_history("important", "удаление", current_user.id)
-        db.session.commit()
+    if form_delete.validate_on_submit() and delete:
+            important_id = form_delete.del_id.data
+            Important_news.query.filter(Important_news.id == important_id).delete()
+            make_history("important", "удаление", current_user.id)
+            db.session.commit()
+            return redirect(url_for('admin'))
+    elif form_delete.validate_on_submit() and not delete:
+        flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('admin'))
 
     return render_template("admin/admin.html",  current_user=current_user, permissions = permissions, last_login=session['last_login'], time_worked = time_worked, birth_celebrate=birth_celebrate,
@@ -175,41 +204,67 @@ def admin():
 @app.route('/fast_important_edit', methods = ['POST'])
 def fast_important_edit():
     current_user = get_current_user()
-    request_data = request.form
-    edit_data= Important_news.query.get(request_data['pk'])
-    if request.method  == 'POST':
-        if request_data['name'] == 'text':
-            edit_data.text = request_data['value']
-        else:
-            if request_data['value']:
-                edit_data.expired = request_data['value']
+
+    url = 'important'
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
+
+    if update:
+        request_data = request.form
+        edit_data= Important_news.query.get(request_data['pk'])
+        if request.method  == 'POST':
+            if request_data['name'] == 'text':
+                edit_data.text = request_data['value']
             else:
-                edit_data.expired = None
-        make_history("important", "редактирование", current_user.id)
-        db.session.commit()
-    response = app.response_class(
-        response=json.dumps({"Успешно изменено!":edit_data.id}),
-        status=200,
-        mimetype='application/json'
-    )
+                if request_data['value']:
+                    edit_data.expired = request_data['value']
+                else:
+                    edit_data.expired = None
+            make_history("important", "редактирование", current_user.id)
+            db.session.commit()
+            response = app.response_class(
+                response=json.dumps({"Успешно изменено!":edit_data.id}),
+                status=200,
+                mimetype='application/json'
+            )
+    else:
+        flash(u"Вам запрещено данное действие", 'error')
+        response = app.response_class(
+            response=json.dumps({"Вам запрещено данное действие!":0}),
+            status=200,
+            mimetype='application/json'
+        )
     return response
 
 #Добавление важной новости
 @app.route('/new_important', methods = ['POST'])
 def new_important():
-    request_data = request.form
     current_user = get_current_user()
-    if request.method  == 'POST':
-        data = Important_news(text=request_data['value'], author = current_user.id, expired=datetime.datetime.now()+datetime.timedelta(days=30))
-        db.session.add(data)
-        make_history("important", "вставку", current_user.id)
-        db.session.commit()
-    destination = url_for('admin')
-    response = Response(
-        response=json.dumps({'url':destination,'plus':'<i class="fa fa-plus fa-control" aria-hidden="true"></i>'}),
-        status=200,
-        mimetype='application/json'
-    )
+
+    url = 'important'
+    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    print "insert "+str(insert)
+
+    if insert:
+        request_data = request.form
+        if request.method  == 'POST':
+            data = Important_news(text=request_data['value'], author = current_user.id, expired=datetime.datetime.now()+datetime.timedelta(days=30))
+            db.session.add(data)
+            make_history("important", "вставку", current_user.id)
+            db.session.commit()
+        destination = url_for('admin')
+        response = Response(
+            response=json.dumps({'url':destination,'plus':'<i class="fa fa-plus fa-control" aria-hidden="true"></i>'}),
+            status=200,
+            mimetype='application/json'
+        )
+    else:
+        flash(u"Вам запрещено данное действие", 'error')
+        response = app.response_class(
+            response=json.dumps({"Вам запрещено данное действие!":0}),
+            status=200,
+            mimetype='application/json'
+        )
     return response
 
 #Страница со списком пользователей
@@ -224,8 +279,9 @@ def admin_users(page = 1, *args):
     url = url_for(inspect.getframeinfo(func).function)
     url = url.split('/')[2]
 
-    permissions = get_permissions(current_user.role.id, current_user.id, url)
-    if not permissions[0].enter and not permissions[1].enter:
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    print "enter "+str(enter)
+    if not enter:
         return forbidden(403)
 
     users_all = User.query.order_by(User.id.asc()).paginate(page, PER_PAGE, False)
@@ -234,15 +290,17 @@ def admin_users(page = 1, *args):
     pagination = Pagination(page=page, total = all_counters.get('user_count'), per_page = PER_PAGE, css_framework='bootstrap3')
 
     form_delete = DelUserForm()
+    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    print "delete "+str(delete)
 
-    if form_delete.validate_on_submit() and (permissions[0].delete or permissions[1].delete):
+    if form_delete.validate_on_submit() and delete:
         user_id = form_delete.del_id.data
         User.query.filter(User.id == user_id).delete()
         make_history("users", "удаление", current_user.id)
         db.session.commit()
         flash(u"Пользователь удален", 'success')
         return redirect(url_for('admin_users', page = page))
-    elif form_delete.validate_on_submit() and (not permissions[0].delete and not permissions[1].delete):
+    elif form_delete.validate_on_submit() and not delete:
         flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('admin_users', page = page))
 
@@ -255,11 +313,10 @@ def get_post_javascript_data_password():
     current_user = get_current_user()
     url = 'users'
 
-    permissions = get_permissions(current_user.role.id, current_user.id, url)
-    if not permissions[0].enter and not permissions[1].enter:
-        return forbidden(403)
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
 
-    if permissions[0].update or permissions[1].update:
+    if update:
         new_password = request.form['new_password']
         user = request.form['user']
 
@@ -282,11 +339,9 @@ def get_post_javascript_data_id_delete():
     table = request.form.getlist('table')
     if ids:
         url = table[0]
-        permissions = get_permissions(current_user.role.id, current_user.id, url)
-        print permissions
-        if not permissions[0].enter and not permissions[1].enter:
-            return forbidden(403)
-        if permissions[0].delete or permissions[1].delete:
+        delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+        print "delete "+str(delete)
+        if delete:
             if table[0] == 'users':
                 users = User.query.filter(User.id.in_(ids)).all()
                 for user in users:
@@ -321,11 +376,10 @@ def get_post_javascript_data_id_disable():
     current_user = get_current_user()
     url = 'users'
 
-    permissions = get_permissions(current_user.role.id, current_user.id, url)
-    if not permissions[0].enter and not permissions[1].enter:
-        return forbidden(403)
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
 
-    if permissions[0].update or permissions[1].update:
+    if update:
         ids = request.form.getlist('param[]')
         if ids:
             users = User.query.filter(User.id.in_(ids)).all()
@@ -344,11 +398,10 @@ def user_disable():
     current_user = get_current_user()
     url = 'users'
 
-    permissions = get_permissions(current_user.role.id, current_user.id, url)
-    if not permissions[0].enter and not permissions[1].enter:
-        return forbidden(403)
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
 
-    if permissions[0].update or permissions[1].update:
+    if update:
         id = request.json
         if id:
             user = User.query.filter(User.id==id).first()
@@ -373,8 +426,12 @@ def new_user():
     url = url_for(inspect.getframeinfo(func).function)
     url = url.split('/')[2]
 
-    permissions = get_permissions(current_user.role.id, current_user.id, url)
-    if (not permissions[0].enter and not permissions[1].enter) or (not permissions[0].insert and not permissions[1].insert):
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    print "enter "+str(enter)
+    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    print "insert "+str(insert)
+
+    if not enter or not insert:
         return forbidden(403)
 
     today = time.strftime("%Y-%m-%d")
@@ -432,8 +489,12 @@ def edit_user():
     url = url_for(inspect.getframeinfo(func).function)
     url = url.split('/')[2]
 
-    permissions = get_permissions(current_user.role.id, current_user.id, url)
-    if (not permissions[0].enter and not permissions[1].enter) or (not permissions[0].update and not permissions[1].update):
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    print "enter "+str(enter)
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
+
+    if not enter or not update:
         return forbidden(403)
 
     all_counters = get_counters()
@@ -526,11 +587,10 @@ def get_post_user():
     current_user = get_current_user()
     url = 'users'
 
-    permissions = get_permissions(current_user.role.id, current_user.id, url)
-    if not permissions[0].enter and not permissions[1].enter:
-        return forbidden(403)
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
 
-    if permissions[0].update or permissions[1].update:
+    if update:
         request_user = request.form
         #~ print request.form
         #~ print request.form['name']
