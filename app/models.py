@@ -25,6 +25,7 @@ class User(db.Model):
 
     important_news = db.relationship('Important_news', backref = 'user',lazy = 'dynamic')
     history = db.relationship('History', backref = 'user_parent',lazy = 'dynamic')
+    permission = db.relationship('Permission', backref = 'user',lazy = 'dynamic')
 
     def __repr__(self):
         return '<Users %r>' % (self.name)
@@ -52,6 +53,7 @@ class Role(db.Model):
     name = db.Column(db.String(50))
 
     users = db.relationship('User', backref = 'role',lazy = 'dynamic')
+    permission = db.relationship('Permission', backref = 'role',lazy = 'dynamic')
 
     def __repr__(self):
         return '<Role %r >' % (self.name)
@@ -82,6 +84,7 @@ class Table(db.Model):
     url = db.Column(db.String(15))
 
     history = db.relationship('History', backref = 'table_parent',lazy = 'dynamic')
+    permission = db.relationship('Permission', backref = 'table',lazy = 'dynamic')
 
     def __repr__(self):
         return 'Table %r >' % (self.name)
@@ -94,4 +97,18 @@ class History(db.Model):
     table = db.Column(db.Integer, db.ForeignKey("table.id"))
 
     def __repr__(self):
-        return 'Table %r >' % (self.name)
+        return 'History %r >' % (self.table)
+
+class Permission(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
+    table_id = db.Column(db.Integer, db.ForeignKey("table.id"))
+    cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
+    insert = db.Column(db.Boolean)
+    update = db.Column(db.Boolean)
+    delete = db.Column(db.Boolean)
+    enter = db.Column(db.Boolean)
+
+    def __repr__(self):
+        return 'Permission %r >' % (self.id)

@@ -8,6 +8,7 @@
                 user: user_id,
             })
         }else {alert( 'Не выполнены требования к паролю! Пароль должен состоять из цифр и букв, и быть длиной не менее 8 символов.' )};
+        location.reload();
     }
     function delete_users() {
        alert("Вы уверены, что хотите УДАЛИТЬ выбранные записи?");
@@ -17,7 +18,7 @@
         });
         $.post( "/rows_delete", {
             param: yourArray,
-            table: 'user'
+            table: 'users'
         })
         location.reload();
     }
@@ -45,7 +46,7 @@
         });
         $.post( "/rows_delete", {
             param: yourArray,
-            table: 'role'
+            table: 'roles'
         })
         location.reload();
     }
@@ -57,7 +58,7 @@
         });
         $.post( "/rows_delete", {
             param: yourArray,
-            table: 'department'
+            table: 'departments'
         })
         location.reload();
     }
@@ -69,14 +70,14 @@
         });
         $.post( "/rows_delete", {
             param: yourArray,
-            table: 'post'
+            table: 'posts'
         })
         location.reload();
     }
     function disable(id) {
          $.ajax({
             type : "POST",
-            url : "{{url_for('user_disable')}}",
+            url : "/user_disable",
             contentType: 'application/json;charset=UTF-8',
             data : JSON.stringify(id),
             dataType: 'json',

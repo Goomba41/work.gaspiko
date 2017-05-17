@@ -89,34 +89,54 @@
                                     {% endif %}
                                 </div>
                             </a>
-                            <div class = "col-sm-4 ">
+                            <div class = "col-sm-9">
                                 <ul class="">
                                     <li>ФИО: <strong>{{ current_user.surname }} {{ current_user.name }} {{ current_user.patronymic }}</strong></li>
                                     <li>Последний раз вход совершен: <strong>{{ last_login }}</strong></li>
                                     <li>Вам присвоена роль: <strong>{{ current_user.role.name }}</strong></li>
-                                    <li>Ваша должность: <strong>{{ current_user.post.name }}</strong></li>
                                     <li>Ваш отдел: <strong>{{ current_user.department.name }}</strong></li>
+                                    <li>Ваша должность: <strong>{{ current_user.post.name }}</strong></li>
                                     <li>Ваш стаж: <strong>{{ time_worked[0] }} лет {{ time_worked[1] }} месяцев {{ time_worked[2] }} дней</strong></li>
                                     <li><i class="fa fa-history" aria-hidden="true"></i><a href="{{ url_for('admin_history') }}">История действий пользователя</a></li>
                                 </ul>
                             </div>
-                            <div class = "col-sm-5 ">
-                                <h3 style="margin-top:0px;">Вы можете:</h3>
-                                <ul class="">
-                                    <li>Здесь будут записи с полномочиями в работе</li>
-                                    <li>Здесь будут записи с полномочиями в работе</li>
-                                    <li>Здесь будут записи с полномочиями в работе</li>
-                                    <li>Здесь будут записи с полномочиями в работе</li>
-                                    <li>Здесь будут записи с полномочиями в работе</li>
-                                    <li>Здесь будут записи с полномочиями в работе</li>
-                                </ul>
-                                <h3>Вы имеете доступ к:</h3>
-                                <ul class="">
-                                    <li>Здесь будут записи о доступе к модулям</li>
-                                    <li>Здесь будут записи о доступе к модулям</li>
-                                    <li>Здесь будут записи о доступе к модулям</li>
-                                    <li>Здесь будут записи о доступе к модулям</li>
-                                </ul>
+                            <br style="clear:both"/>
+                            <div class = "col-sm-12 ">
+                                <div class="panel panel-info">
+                                  <!-- Default panel contents -->
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#collapse1"><strong>Ваши полномочия</strong></a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapse1" class="panel-collapse collapse">
+
+                                            <table class="table">
+                                                <th>Как</th>
+                                                <th>Можете осуществлять</th>
+                                                <th>В таблице</th>
+                                                <th>Модуля</th>
+                                                <tbody>
+                                                    {% for permission in permissions %}
+
+                                                    <tr>
+                                                        <td>{{ permission.role.name }}{{ permission.user.name }}</td>
+                                                        <td>
+                                                            {% if permission.enter %}<span class="label label-primary">просмотр</span> {% endif %}
+                                                            {% if permission.insert %}<span class="label label-success">вставку</span> {% endif %}
+                                                            {% if permission.update %}<span class="label label-warning">изменение</span> {% endif %}
+                                                            {% if permission.delete %}<span class="label label-danger">удаление</span> {% endif %}
+                                                        </td>
+                                                        <td>{{ permission.table.name }}</td>
+                                                        <td>{{ permission.table.module_parent.name }}</td>
+                                                    </tr>
+
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -155,7 +175,6 @@
                         <div class="panel-heading">
                             <h3 class="panel-title"><strong>Важная информация</strong>
                                 {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
-                                    <i class="fa fa-unlock" aria-hidden="true"></i>
                                     <a href="#" id="text" data-type="textarea" data-pk="" data-title="Важная информация" data-placeholder="Введите текст сюда..."><i class="fa fa-plus fa-control" aria-hidden="true"></i></a>
                                     <script>
                                         $('#text').editable({
@@ -170,8 +189,6 @@
                                             }
                                         });
                                     </script>
-                                {% else %}
-                                    <i class="fa fa-lock" aria-hidden="true"></i>
                                 {% endif %}
                             </h3>
                         </div>

@@ -1,14 +1,15 @@
 ﻿#! venv/bin/python
 
 from app import app, db
-from models import User, Department, Role, Post, Important_news, Table, History
+from models import User, Department, Role, Post, Important_news, Table, History, Permission
 from forms import LoginForm, DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response
 from functools import wraps
 from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
-import time, calendar, os, hashlib, shutil, uuid, json, datetime
+import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect
+from collections import defaultdict
 
 #Функция счета стажа
 def standing(f):
@@ -43,6 +44,15 @@ def standing(f):
 def get_current_user():
     current_user = User.query.filter(User.id == session['user_id']).first()
     return current_user
+
+#Разрешения пользователя
+def get_permissions(role_id, user_id, url):
+    table_id = Table.query.filter(Table.url == url).first().id
+    perm_by_role = Permission.query.filter((Permission.role_id ==role_id)&(Permission.table_id == table_id)).first()
+    perm_by_user = Permission.query.filter((Permission.user_id ==user_id)&(Permission.table_id == table_id)).first()
+    #~ if not perm_by_role.enter:
+        #~ return forbidden(403)
+    return perm_by_role, perm_by_user
 
 #Добавление в историю
 def make_history(str_table, str_action, current_user_id):
@@ -125,6 +135,9 @@ def index():
 @login_required
 def admin():
     current_user = get_current_user()
+
+    permissions = Permission.query.filter(((Permission.user_id == current_user.id)&(Permission.enter == 1))|((Permission.role_id == current_user.role.id)&(Permission.enter == 1))).all()
+
     time_worked = standing(current_user.work_date)
 
     users_all = User.query.all()
@@ -155,7 +168,7 @@ def admin():
         db.session.commit()
         return redirect(url_for('admin'))
 
-    return render_template("admin/admin.html",  current_user=current_user, last_login=session['last_login'], time_worked = time_worked, birth_celebrate=birth_celebrate,
+    return render_template("admin/admin.html",  current_user=current_user, permissions = permissions, last_login=session['last_login'], time_worked = time_worked, birth_celebrate=birth_celebrate,
     worktime_celebrate=worktime_celebrate, today=today, all_counters=all_counters, important_news_all=important_news_all, form_delete=form_delete)
 
 #Быстрое изменение данных записи
@@ -206,7 +219,13 @@ def new_important():
 def admin_users(page = 1, *args):
 
     current_user = get_current_user()
-    if current_user.role.id != 1:
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    permissions = get_permissions(current_user.role.id, current_user.id, url)
+    if not permissions[0].enter and not permissions[1].enter:
         return forbidden(403)
 
     users_all = User.query.order_by(User.id.asc()).paginate(page, PER_PAGE, False)
@@ -216,12 +235,15 @@ def admin_users(page = 1, *args):
 
     form_delete = DelUserForm()
 
-    if form_delete.validate_on_submit():
+    if form_delete.validate_on_submit() and (permissions[0].delete or permissions[1].delete):
         user_id = form_delete.del_id.data
         User.query.filter(User.id == user_id).delete()
         make_history("users", "удаление", current_user.id)
         db.session.commit()
         flash(u"Пользователь удален", 'success')
+        return redirect(url_for('admin_users', page = page))
+    elif form_delete.validate_on_submit() and (not permissions[0].delete and not permissions[1].delete):
+        flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('admin_users', page = page))
 
     return render_template("admin/list_users.html", users_all = users_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today,
@@ -230,78 +252,131 @@ def admin_users(page = 1, *args):
 #Сброс и установка нового пароля для пользователя
 @app.route('/password_reset', methods = ['POST'])
 def get_post_javascript_data_password():
-    new_password = request.form['new_password']
-    user = request.form['user']
+    current_user = get_current_user()
+    url = 'users'
 
-    user_change = User.query.filter(User.id == user).first()
-    password_hash = hashlib.md5(new_password).hexdigest()
-    user_change.password = password_hash
-    db.session.commit()
+    permissions = get_permissions(current_user.role.id, current_user.id, url)
+    if not permissions[0].enter and not permissions[1].enter:
+        return forbidden(403)
 
-    return jsonify(password_hash)
+    if permissions[0].update or permissions[1].update:
+        new_password = request.form['new_password']
+        user = request.form['user']
+
+        user_change = User.query.filter(User.id == user).first()
+        password_hash = hashlib.md5(new_password).hexdigest()
+        user_change.password = password_hash
+        db.session.commit()
+
+        return jsonify("Успешно")
+    else:
+        flash(u"Вам запрещено данное действие", 'error')
+        return jsonify("Запрещено данное действие")
 
 #Удаление нескольких записей
 @app.route('/rows_delete', methods = ['POST'])
 def get_post_javascript_data_id_delete():
     current_user = get_current_user()
+
     ids = request.form.getlist('param[]')
     table = request.form.getlist('table')
     if ids:
-        if table[0] == 'user':
-            users = User.query.filter(User.id.in_(ids)).all()
-            for user in users:
-                db.session.delete(user)
-            make_history("users", "удаление", current_user.id)
-        if table[0] == 'role':
-            roles = Role.query.filter(Role.id.in_(ids)).all()
-            for role in roles:
-                db.session.delete(role)
-            make_history("roles", "удаление", current_user.id)
-        if table[0] == 'department':
-            departments = Department.query.filter(Department.id.in_(ids)).all()
-            for department in departments:
-                db.session.delete(department)
-            make_history("departments", "удаление", current_user.id)
-        if table[0] == 'post':
-            posts = Post.query.filter(Post.id.in_(ids)).all()
-            for post in posts:
-                db.session.delete(post)
-            make_history("posts", "удаление", current_user.id)
-        db.session.commit()
-        return jsonify(ids)
+        url = table[0]
+        permissions = get_permissions(current_user.role.id, current_user.id, url)
+        print permissions
+        if not permissions[0].enter and not permissions[1].enter:
+            return forbidden(403)
+        if permissions[0].delete or permissions[1].delete:
+            if table[0] == 'users':
+                users = User.query.filter(User.id.in_(ids)).all()
+                for user in users:
+                    db.session.delete(user)
+                make_history("users", "удаление", current_user.id)
+            if table[0] == 'roles':
+                roles = Role.query.filter(Role.id.in_(ids)).all()
+                for role in roles:
+                    db.session.delete(role)
+                make_history("roles", "удаление", current_user.id)
+            if table[0] == 'departments':
+                departments = Department.query.filter(Department.id.in_(ids)).all()
+                for department in departments:
+                    db.session.delete(department)
+                make_history("departments", "удаление", current_user.id)
+            if table[0] == 'posts':
+                posts = Post.query.filter(Post.id.in_(ids)).all()
+                for post in posts:
+                    db.session.delete(post)
+                make_history("posts", "удаление", current_user.id)
+            db.session.commit()
+            return jsonify(ids)
+        else:
+            flash(u"Вам запрещено данное действие", 'error')
+            return jsonify("Запрещено данное действие")
+    flash(u"Не выбраны записи", 'error')
     return jsonify("Не выбраны записи")
 
 #Отлючение нескольких записей
 @app.route('/rows_disable', methods = ['POST'])
 def get_post_javascript_data_id_disable():
-    ids = request.form.getlist('param[]')
-    if ids:
-        users = User.query.filter(User.id.in_(ids)).all()
-        for user in users:
-            user.status = 0
-            db.session.commit()
-        return jsonify(ids)
-    return jsonify("Не выбраны записи")
+    current_user = get_current_user()
+    url = 'users'
+
+    permissions = get_permissions(current_user.role.id, current_user.id, url)
+    if not permissions[0].enter and not permissions[1].enter:
+        return forbidden(403)
+
+    if permissions[0].update or permissions[1].update:
+        ids = request.form.getlist('param[]')
+        if ids:
+            users = User.query.filter(User.id.in_(ids)).all()
+            for user in users:
+                user.status = 0
+                db.session.commit()
+            return jsonify(ids)
+        return jsonify("Не выбраны записи")
+    else:
+        flash(u"Вам запрещено данное действие", 'error')
+        return jsonify("Запрещено данное действие")
 
 #Отлючение одной записи
 @app.route('/user_disable', methods = ['POST'])
 def user_disable():
-    id = request.json
-    if id:
-        user = User.query.filter(User.id==id).first()
-        if user.status == 0:
-            user.status = 1
-        else:
-            user.status = 0
-        db.session.commit()
-        return jsonify("Успешно изменена запись")
-    return jsonify("Непредвиденная ошибка")
+    current_user = get_current_user()
+    url = 'users'
+
+    permissions = get_permissions(current_user.role.id, current_user.id, url)
+    if not permissions[0].enter and not permissions[1].enter:
+        return forbidden(403)
+
+    if permissions[0].update or permissions[1].update:
+        id = request.json
+        if id:
+            user = User.query.filter(User.id==id).first()
+            if user.status == 0:
+                user.status = 1
+            else:
+                user.status = 0
+            db.session.commit()
+            return jsonify("Успешно изменена запись")
+        return jsonify("Непредвиденная ошибка")
+    else:
+        flash(u"Вам запрещено данное действие", 'error')
+        return jsonify("Запрещено данное действие")
 
 #Форма добавления нового пользователя
 @app.route('/admin/users/new', methods=['GET', 'POST'])
 @login_required
 def new_user():
     current_user = get_current_user()
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    permissions = get_permissions(current_user.role.id, current_user.id, url)
+    if (not permissions[0].enter and not permissions[1].enter) or (not permissions[0].insert and not permissions[1].insert):
+        return forbidden(403)
+
     today = time.strftime("%Y-%m-%d")
 
     form_user_add = AddUserForm()
@@ -352,6 +427,15 @@ def new_user():
 @login_required
 def edit_user():
     current_user = get_current_user()
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    permissions = get_permissions(current_user.role.id, current_user.id, url)
+    if (not permissions[0].enter and not permissions[1].enter) or (not permissions[0].update and not permissions[1].update):
+        return forbidden(403)
+
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
 
@@ -439,22 +523,33 @@ def edit_user():
 #Быстрое изменение данных записи
 @app.route('/post', methods = ['POST'])
 def get_post_user():
-    request_user = request.form
-    #~ print request.form
-    #~ print request.form['name']
-    #~ print request_user['pk']
-    #~ print request_user['value']
-    edit_user = User.query.get(request_user['pk'])
-    if request_user['name'] == 'role':
-        edit_user.role_id = int(request_user['value'])
-    if request_user['name'] == 'department':
-        edit_user.department_id = int(request_user['value'])
-    if request_user['name'] == 'post':
-        edit_user.post_id = int(request_user['value'])
-    db.session.commit()
-    return jsonify(u'Успешно')
+    current_user = get_current_user()
+    url = 'users'
 
-#Получение данных из таблицы и возвращение json в javascript
+    permissions = get_permissions(current_user.role.id, current_user.id, url)
+    if not permissions[0].enter and not permissions[1].enter:
+        return forbidden(403)
+
+    if permissions[0].update or permissions[1].update:
+        request_user = request.form
+        #~ print request.form
+        #~ print request.form['name']
+        #~ print request_user['pk']
+        #~ print request_user['value']
+        edit_user = User.query.get(request_user['pk'])
+        if request_user['name'] == 'role':
+            edit_user.role_id = int(request_user['value'])
+        if request_user['name'] == 'department':
+            edit_user.department_id = int(request_user['value'])
+        if request_user['name'] == 'post':
+            edit_user.post_id = int(request_user['value'])
+        db.session.commit()
+        return jsonify(u'Успешно')
+    else:
+        flash(u"Вам запрещено данное действие", 'error')
+        return jsonify("Запрещено данное действие")
+
+#Получение данных из таблицы и возвращение json в javascript для составления списков в выпадающих списках
 @app.route('/get', methods = ['GET'])
 def get_bootstap_editable():
     posts = Post.query.all()
@@ -478,8 +573,6 @@ def get_bootstap_editable():
 def admin_roles(page = 1, *args):
 
     current_user = get_current_user()
-    if current_user.role.id != 1:
-        return forbidden(403)
 
     roles_all = Role.query.order_by(Role.id.asc()).paginate(page, PER_PAGE, False)
     all_counters = get_counters()
@@ -691,8 +784,6 @@ def admin_history(page = 1, *args):
 def admin_history_all(page = 1, *args):
 
     current_user = get_current_user()
-    if current_user.role.id != 1:
-        return forbidden(403)
 
     all_counters = get_counters()
 

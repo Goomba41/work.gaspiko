@@ -133,12 +133,21 @@
                     <script>
                         $('#post{{ user.id }}').editable({
                             source: posts,
+                            success: function (e) {
+                                location.reload();
+                            }
                         });
                         $('#department{{ user.id }}').editable({
                             source: departments,
+                            success: function (e) {
+                                location.reload();
+                            }
                         });
                         $('#role{{ user.id }}').editable({
                             source: roles,
+                            success: function (e) {
+                                location.reload();
+                            }
                         });
                     </script>
                 </tr>
@@ -153,6 +162,7 @@
     {% endwith %}
 
     {{ pagination.links }}
+    <br style="clear:both"/>
 {% endif %}
 
 {% endblock %}
