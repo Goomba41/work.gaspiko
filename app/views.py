@@ -634,6 +634,18 @@ def admin_roles(page = 1, *args):
 
     current_user = get_current_user()
 
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    print "enter "+str(enter)
+    print "delete "+str(delete)
+
+    if not enter:
+        return forbidden(403)
+
     roles_all = Role.query.order_by(Role.id.asc()).paginate(page, PER_PAGE, False)
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
@@ -641,12 +653,15 @@ def admin_roles(page = 1, *args):
 
     form_delete = DelRoleForm()
 
-    if form_delete.validate_on_submit():
+    if form_delete.validate_on_submit() and delete:
         role_id = form_delete.del_id.data
         Role.query.filter(Role.id == role_id).delete()
         make_history("roles", "удаление", current_user.id)
         db.session.commit()
         flash(u"Роль удалена", 'success')
+        return redirect(url_for('admin_roles', page = page))
+    elif form_delete.validate_on_submit() and not delete:
+        flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('admin_roles', page = page))
 
     return render_template("admin/list_roles.html", roles_all = roles_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, form_delete=form_delete)
@@ -655,24 +670,46 @@ def admin_roles(page = 1, *args):
 @app.route('/fast_role_edit', methods = ['POST'])
 def fast_role_edit():
     current_user = get_current_user()
-    request_user = request.form
-    edit_role = Role.query.get(request_user['pk'])
-    if request.method  == 'POST':
-        edit_role.name = request_user['value']
-        make_history("roles", "редактирование", current_user.id)
-        db.session.commit()
-    response = app.response_class(
-        response=json.dumps({"Успешно изменено!":edit_role.id}),
-        status=200,
-        mimetype='application/json'
-    )
-    return response
+    url = 'roles'
+
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
+
+    if update:
+        request_user = request.form
+        edit_role = Role.query.get(request_user['pk'])
+        if request.method  == 'POST':
+            edit_role.name = request_user['value']
+            make_history("roles", "редактирование", current_user.id)
+            db.session.commit()
+        response = app.response_class(
+            response=json.dumps({"Успешно изменено!":edit_role.id}),
+            status=200,
+            mimetype='application/json'
+        )
+        return response
+    else:
+        flash(u"Вам запрещено данное действие", 'error')
+        return jsonify("Запрещено данное действие")
 
 #Форма добавления новой роли
 @app.route('/admin/roles/new', methods=['GET', 'POST'])
 @login_required
 def new_role():
     current_user = get_current_user()
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    print "enter "+str(enter)
+    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    print "insert "+str(insert)
+
+    if not enter or not insert:
+        return forbidden(403)
+
     today = time.strftime("%Y-%m-%d")
 
     form_role_add = AddRoleForm()
@@ -694,9 +731,18 @@ def new_role():
 @app.route('/admin/departments/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_departments(page = 1, *args):
-
     current_user = get_current_user()
-    if current_user.role.id != 1:
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    print "enter "+str(enter)
+    print "delete "+str(delete)
+
+    if not enter:
         return forbidden(403)
 
     departments_all = Department.query.order_by(Department.id.asc()).paginate(page, PER_PAGE, False)
@@ -706,12 +752,15 @@ def admin_departments(page = 1, *args):
 
     form_delete = DelDepartmentForm()
 
-    if form_delete.validate_on_submit():
+    if form_delete.validate_on_submit() and delete:
         department_id = form_delete.del_id.data
         Department.query.filter(Department.id == department_id).delete()
         make_history("departments", "удаление", current_user.id)
         db.session.commit()
         flash(u"Отдел удален", 'success')
+        return redirect(url_for('admin_departments', page = page))
+    elif form_delete.validate_on_submit() and not delete:
+        flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('admin_departments', page = page))
 
     return render_template("admin/list_departments.html", departments_all = departments_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, form_delete=form_delete)
@@ -720,24 +769,46 @@ def admin_departments(page = 1, *args):
 @app.route('/fast_department_edit', methods = ['POST'])
 def fast_department_edit():
     current_user = get_current_user()
-    request_user = request.form
-    edit_department = Department.query.get(request_user['pk'])
-    if request.method  == 'POST':
-        edit_department.name = request_user['value']
-        make_history("departments", "редактирование", current_user.id)
-        db.session.commit()
-    response = app.response_class(
-        response=json.dumps({u'Успешно изменено!':edit_department.id}),
-        status=200,
-        mimetype='application/json'
-    )
-    return response
+    url = 'departments'
+
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
+
+    if update:
+        request_user = request.form
+        edit_department = Department.query.get(request_user['pk'])
+        if request.method  == 'POST':
+            edit_department.name = request_user['value']
+            make_history("departments", "редактирование", current_user.id)
+            db.session.commit()
+        response = app.response_class(
+            response=json.dumps({u'Успешно изменено!':edit_department.id}),
+            status=200,
+            mimetype='application/json'
+        )
+        return response
+    else:
+        flash(u"Вам запрещено данное действие", 'error')
+        return jsonify("Запрещено данное действие")
 
 #Форма добавления нового отдела
 @app.route('/admin/departments/new', methods=['GET', 'POST'])
 @login_required
 def new_department():
     current_user = get_current_user()
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    print "enter "+str(enter)
+    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    print "insert "+str(insert)
+
+    if not enter or not insert:
+        return forbidden(403)
+
     today = time.strftime("%Y-%m-%d")
 
     form_department_add = AddDepartmentForm()
@@ -759,9 +830,18 @@ def new_department():
 @app.route('/admin/posts/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_posts(page = 1, *args):
-
     current_user = get_current_user()
-    if current_user.role.id != 1:
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    print "enter "+str(enter)
+    print "delete "+str(delete)
+
+    if not enter:
         return forbidden(403)
 
     posts_all = Post.query.order_by(Post.id.asc()).paginate(page, PER_PAGE, False)
@@ -771,12 +851,15 @@ def admin_posts(page = 1, *args):
 
     form_delete = DelPostForm()
 
-    if form_delete.validate_on_submit():
+    if form_delete.validate_on_submit() and delete:
         post_id = form_delete.del_id.data
         Post.query.filter(Post.id == post_id).delete()
         make_history("posts", "удаление", current_user.id)
         db.session.commit()
         flash(u"Должность удалена", 'success')
+        return redirect(url_for('admin_posts', page = page))
+    elif form_delete.validate_on_submit() and not delete:
+        flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('admin_posts', page = page))
 
     return render_template("admin/list_posts.html", posts_all = posts_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, form_delete=form_delete)
@@ -785,24 +868,46 @@ def admin_posts(page = 1, *args):
 @app.route('/fast_post_edit', methods = ['POST'])
 def fast_post_edit():
     current_user = get_current_user()
-    request_post = request.form
-    edit_post = Post.query.get(request_post['pk'])
-    if request.method  == 'POST':
-        edit_post.name = request_post['value']
-        make_history("posts", "редактирование", current_user.id)
-        db.session.commit()
-    response = app.response_class(
-        response=json.dumps({u'Успешно изменено!':edit_post.id}),
-        status=200,
-        mimetype='application/json'
-    )
-    return response
+    url = 'posts'
+
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
+
+    if update:
+        request_post = request.form
+        edit_post = Post.query.get(request_post['pk'])
+        if request.method  == 'POST':
+            edit_post.name = request_post['value']
+            make_history("posts", "редактирование", current_user.id)
+            db.session.commit()
+        response = app.response_class(
+            response=json.dumps({u'Успешно изменено!':edit_post.id}),
+            status=200,
+            mimetype='application/json'
+        )
+        return response
+    else:
+        flash(u"Вам запрещено данное действие", 'error')
+        return jsonify("Запрещено данное действие")
 
 #Форма добавления нового должности
 @app.route('/admin/posts/new', methods=['GET', 'POST'])
 @login_required
 def new_post():
     current_user = get_current_user()
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    print "enter "+str(enter)
+    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    print "insert "+str(insert)
+
+    if not enter or not insert:
+        return forbidden(403)
+
     today = time.strftime("%Y-%m-%d")
 
     form_posts_add = AddPostForm()
@@ -854,3 +959,42 @@ def admin_history_all(page = 1, *args):
     pagination = Pagination(page=page, total = all_count, per_page = 100, css_framework='bootstrap3')
 
     return render_template("admin/list_history.html", actions_all = actions_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today)
+
+#Страница с разрешениями всех пользователей
+@app.route('/admin/permissions', methods=['GET', 'POST'])
+@login_required
+def admin_permissions():
+    current_user = get_current_user()
+    all_counters = get_counters()
+    today = time.strftime("%Y-%m-%d")
+
+    permissions_list_roles = Permission.query.order_by(Permission.role_id.asc(),Permission.table_id.asc())
+
+    return render_template("admin/list_permissions.html",  all_counters = all_counters,  current_user=current_user, today=today, permissions_list_roles=permissions_list_roles)
+
+#Сброс и установка нового пароля для пользователя
+@app.route('/update_permission', methods = ['POST'])
+def get_post_javascript_data_show():
+
+    permission = request.form['permission']
+    state = request.form['state']
+    if state=='true':
+        state = True
+    else:
+        state = False
+
+    update_permission = Permission.query.get(permission.split('-')[0])
+    if permission.split('-')[1] == "enter":
+        update_permission.enter=state
+    elif permission.split('-')[1] == "insert":
+        update_permission.insert=state
+    elif permission.split('-')[1] == "update":
+        update_permission.update=state
+    elif permission.split('-')[1] == "delete":
+        update_permission.delete=state
+
+    db.session.add(update_permission)
+    db.session.commit()
+
+    return jsonify("Успешно")
+

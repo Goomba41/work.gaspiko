@@ -66,7 +66,9 @@
                     <td><a href="#" id="name{{ department.id }}" data-name="name" data-type="text" data-pk="{{ department.id }}" data-url="/fast_department_edit" data-title="Введите название">{{ department.name }}</a></td>
                     <script>
                         $('#name{{ department.id }}').editable({
-
+                            success: function (e) {
+                                location.reload();
+                            }
                         });
                     </script>
                 </tr>
