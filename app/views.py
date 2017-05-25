@@ -2,7 +2,7 @@
 
 from app import app, db
 from models import User, Department, Role, Post, Important_news, Table, History, Permission
-from forms import LoginForm, DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm
+from forms import LoginForm, DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response
 from functools import wraps
 from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER
@@ -56,19 +56,19 @@ def get_permissions(role_id, user_id, url, operation):
 
     if operation == "enter":
         for p in perm:
-            print p, p.enter
+            #~ print p, p.enter
             list.append(p.enter)
     if operation == "insert":
         for p in perm:
-            print p, p.insert
+            #~ print p, p.insert
             list.append(p.insert)
     if operation == "update":
         for p in perm:
-            print p, p.update
+            #~ print p, p.update
             list.append(p.update)
     if operation == "delete":
         for p in perm:
-            print p, p.delete
+            #~ print p, p.delete
             list.append(p.delete)
 
     for l in list:
@@ -968,33 +968,87 @@ def admin_permissions():
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
 
-    permissions_list_roles = Permission.query.order_by(Permission.role_id.asc(),Permission.table_id.asc())
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
 
-    return render_template("admin/list_permissions.html",  all_counters = all_counters,  current_user=current_user, today=today, permissions_list_roles=permissions_list_roles)
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+
+    if not enter:
+        return forbidden(403)
+
+    permissions_list_roles = Permission.query.filter(Permission.role_id != None).order_by(Permission.role_id.asc(),Permission.table_id.asc())
+    permissions_list_users = Permission.query.filter(Permission.user_id != None).order_by(Permission.role_id.asc(),Permission.table_id.asc())
+
+    form_delete = DelPermissionForm()
+    form_permission_add = AddPermissionForm()
+
+    if form_delete.validate_on_submit()  and delete:
+        permission_id = form_delete.del_id.data
+        Permission.query.filter(Permission.id == permission_id).delete()
+        make_history("permissions", "удаление", current_user.id)
+        db.session.commit()
+        flash(u"Разрешение удалено", 'success')
+        return redirect(url_for('admin_permissions'))
+    elif form_delete.validate_on_submit() and not delete:
+        flash(u"Вам запрещено данное действие", 'error')
+        return redirect(url_for('admin_permissions'))
+
+    if form_permission_add.validate_on_submit() and insert:
+        if request.method  == 'POST':
+
+            if Permission.query.filter((Permission.user_id == form_permission_add.user_id.data.id)&(Permission.table_id == form_permission_add.table_id.data.id)).first():
+                flash(u"Разрешение для данной таблицы и пользователя уже существует. Пожалуйста, найдите его в списке и отредактируйте", 'error')
+                return redirect(url_for('admin_permissions'))
+            else:
+                form_vals = request.form.to_dict()
+                permission = Permission(user_id = form_permission_add.user_id.data.id, table_id = form_permission_add.table_id.data.id, enter = form_vals.get('enter'), insert = form_vals.get('insert'), update = form_vals.get('update'), delete = form_vals.get('delete'))
+                db.session.add(permission)
+                make_history("permissions", "вставку", current_user.id)
+                db.session.commit()
+
+                flash(u"Разрешение добавлено", 'success')
+                return redirect(url_for('admin_permissions'))
+    elif form_permission_add.validate_on_submit() and not insert:
+        flash(u"Вам запрещено данное действие", 'error')
+        return redirect(url_for('admin_permissions'))
+
+    return render_template("admin/list_permissions.html",  all_counters = all_counters,  current_user=current_user, today=today, permissions_list_roles=permissions_list_roles, permissions_list_users=permissions_list_users, form_delete=form_delete, form_permission_add=form_permission_add)
 
 #Сброс и установка нового пароля для пользователя
 @app.route('/update_permission', methods = ['POST'])
 def get_post_javascript_data_show():
 
-    permission = request.form['permission']
-    state = request.form['state']
-    if state=='true':
-        state = True
+    current_user = get_current_user()
+    url = 'permissions'
+
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
+
+    if update:
+        permission = request.form['permission']
+        state = request.form['state']
+        if state=='true':
+            state = True
+        else:
+            state = False
+
+        update_permission = Permission.query.get(permission.split('-')[0])
+        if permission.split('-')[1] == "enter":
+            update_permission.enter=state
+        elif permission.split('-')[1] == "insert":
+            update_permission.insert=state
+        elif permission.split('-')[1] == "update":
+            update_permission.update=state
+        elif permission.split('-')[1] == "delete":
+            update_permission.delete=state
+
+        db.session.add(update_permission)
+        db.session.commit()
+
+        return jsonify("Успешно")
     else:
-        state = False
-
-    update_permission = Permission.query.get(permission.split('-')[0])
-    if permission.split('-')[1] == "enter":
-        update_permission.enter=state
-    elif permission.split('-')[1] == "insert":
-        update_permission.insert=state
-    elif permission.split('-')[1] == "update":
-        update_permission.update=state
-    elif permission.split('-')[1] == "delete":
-        update_permission.delete=state
-
-    db.session.add(update_permission)
-    db.session.commit()
-
-    return jsonify("Успешно")
-
+        flash(u"Вам запрещено данное действие", 'error')
+        return jsonify("Запрещено данное действие")

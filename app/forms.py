@@ -2,10 +2,10 @@
 
 from flask_wtf import FlaskForm
 from werkzeug.utils import secure_filename
-from wtforms import TextField, PasswordField, DateField, SelectField
+from wtforms import TextField, PasswordField, DateField, SelectField, BooleanField
 from wtforms.validators import Required, regexp, Length
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-from models import Department, Role, Post
+from models import Department, Role, Post, User, Table
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.fields.html5 import TelField
 
@@ -77,3 +77,14 @@ class DelPostForm(FlaskForm):
 
 class DelImportantForm(FlaskForm):
     del_id = TextField('id', validators = [Required()])
+
+class DelPermissionForm(FlaskForm):
+    del_id = TextField('id', validators = [Required()])
+
+class AddPermissionForm(FlaskForm):
+    user_id = QuerySelectField(u'Пользователь', get_label=lambda x: x.surname+' '+x.name+' '+x.patronymic, query_factory=lambda: User.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
+    table_id = QuerySelectField(u'Таблица', get_label=lambda x: x.module_parent.name+' / '+x.name,  query_factory=lambda: Table.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
+    enter = BooleanField(u'Доступ')
+    insert = BooleanField(u'Вставка')
+    update = BooleanField(u'Изменение')
+    delete = BooleanField(u'Удаление')
