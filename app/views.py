@@ -1,8 +1,8 @@
 ﻿#! venv/bin/python
 
 from app import app, db
-from models import User, Department, Role, Post, Important_news, Table, History, Permission
-from forms import LoginForm, DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm
+from models import User, Department, Role, Post, Important_news, Table, History, Permission, Module, News
+from forms import LoginForm, DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, AddNewsForm, EditNewsForm
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response
 from functools import wraps
 from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER
@@ -89,8 +89,9 @@ def get_counters():
     role_count = Role.query.count()
     department_count = Department.query.count()
     post_count = Post.query.count()
+    news_count = News.query.count()
     counters_dict={}
-    for name in ['user_count','role_count','department_count','post_count']:
+    for name in ['user_count','role_count','department_count','post_count','news_count']:
         counters_dict.update({name:eval(name)})
     return counters_dict
 
@@ -150,7 +151,14 @@ def logout():
 @app.route('/index')
 def index():
     users_all = User.query.all()
-    return render_template("work/index.html", users_all = users_all)
+    modules_all = Module.query.all()
+    news_all = News.query.order_by(News.id.desc())
+    return render_template("work/index.html", users_all = users_all, modules_all=modules_all, news_all=news_all)
+
+@app.route('/news/<int:id>')
+def news(id):
+    news = News.query.filter(News.id==id).first()
+    return render_template("work/news.html", news=news)
 
 #Админка основной экран
 @app.route('/admin', methods=['GET', 'POST'])
@@ -295,8 +303,10 @@ def admin_users(page = 1, *args):
 
     if form_delete.validate_on_submit() and delete:
         user_id = form_delete.del_id.data
-        User.query.filter(User.id == user_id).delete()
+        user = User.query.filter(User.id == user_id).first()
         make_history("users", "удаление", current_user.id)
+        os.remove(os.path.join(app.config['AVATARS_FOLDER'], user.photo))
+        db.session.delete(user)
         db.session.commit()
         flash(u"Пользователь удален", 'success')
         return redirect(url_for('admin_users', page = page))
@@ -346,6 +356,7 @@ def get_post_javascript_data_id_delete():
                 users = User.query.filter(User.id.in_(ids)).all()
                 for user in users:
                     db.session.delete(user)
+                    os.remove(os.path.join(app.config['AVATARS_FOLDER'], user.photo))
                 make_history("users", "удаление", current_user.id)
             if table[0] == 'roles':
                 roles = Role.query.filter(Role.id.in_(ids)).all()
@@ -362,6 +373,12 @@ def get_post_javascript_data_id_delete():
                 for post in posts:
                     db.session.delete(post)
                 make_history("posts", "удаление", current_user.id)
+            if table[0] == 'news':
+                news = News.query.filter(News.id.in_(ids)).all()
+                for new in news:
+                    db.session.delete(new)
+                    os.remove(os.path.join(app.config['COVERS_FOLDER'], new.cover))
+                make_history("news", "удаление", current_user.id)
             db.session.commit()
             return jsonify(ids)
         else:
@@ -554,10 +571,7 @@ def edit_user():
             else:
                 photo = request.files['photo']
                 if photo:
-                    hashname = uuid.uuid4().hex + '.' + photo.filename.rsplit('.', 1)[1]
-                    photo.save(os.path.join(app.config['AVATARS_FOLDER'], hashname))
-                else:
-                    hashname = edit_user.photo
+                    photo.save(os.path.join(app.config['AVATARS_FOLDER'], edit_user.photo))
 
                 edit_user.login = login
                 edit_user.password = password
@@ -572,7 +586,7 @@ def edit_user():
                 edit_user.department_id = form_user_edit.department_id.data
                 edit_user.post_id = form_user_edit.post_id.data
                 edit_user.role_id = form_user_edit.role_id.data
-                edit_user.photo = hashname
+
 
                 make_history("users", "редактирование", current_user.id)
                 db.session.commit()
@@ -1051,4 +1065,166 @@ def get_post_javascript_data_show():
         return jsonify("Успешно")
     else:
         flash(u"Вам запрещено данное действие", 'error')
+        response = app.response_class(
+                response=json.dumps({"Запрещено данное действие":0}),
+                status=403,
+                mimetype='application/json'
+            )
+        return response
+
+#Страница со списком новостей
+@app.route('/admin/news', methods=['GET', 'POST'])
+@app.route('/admin/news/<int:page>', methods=['GET', 'POST'])
+@login_required
+def admin_news(page = 1, *args):
+
+    current_user = get_current_user()
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    print "enter "+str(enter)
+    if not enter:
+        return forbidden(403)
+
+    news_all = News.query.order_by(News.id.desc()).paginate(page, PER_PAGE, False)
+    all_counters = get_counters()
+    today = time.strftime("%Y-%m-%d")
+    pagination = Pagination(page=page, total = all_counters.get('news_count'), per_page = PER_PAGE, css_framework='bootstrap3')
+
+    form_delete = DelNewsForm()
+    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    print "delete "+str(delete)
+
+    if form_delete.validate_on_submit() and delete:
+        news_id = form_delete.del_id.data
+        news = News.query.filter(News.id == news_id).first()
+        os.remove(os.path.join(app.config['COVERS_FOLDER'], news.cover))
+        db.session.delete(news)
+        make_history("news", "удаление", current_user.id)
+        db.session.commit()
+        flash(u"Новость удалена", 'success')
+        return redirect(url_for('admin_news', page = page))
+    elif form_delete.validate_on_submit() and not delete:
+        flash(u"Вам запрещено данное действие", 'error')
+        return redirect(url_for('admin_news', page = page))
+
+    return render_template("admin/list_news.html", news_all = news_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, form_delete=form_delete)
+
+#Быстрое изменение данных записи
+@app.route('/fast_news_edit', methods = ['POST'])
+def fast_news_edit():
+    current_user = get_current_user()
+    url = 'news'
+
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
+
+    if update:
+        request_post = request.form
+        edit_news = News.query.get(request_post['pk'])
+        if request.method  == 'POST':
+            edit_news.header = request_post['value']
+            make_history("news", "редактирование", current_user.id)
+            db.session.commit()
+            flash(u"Запись изменена", 'success')
+        response = app.response_class(
+            response=json.dumps({u'Успешно изменено!':edit_news.id}),
+            status=200,
+            mimetype='application/json'
+        )
+        return response
+    else:
+        flash(u"Вам запрещено данное действие", 'error')
         return jsonify("Запрещено данное действие")
+
+#Форма добавления нового пользователя
+@app.route('/admin/news/new', methods=['GET', 'POST'])
+@login_required
+def new_news():
+    current_user = get_current_user()
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    print "enter "+str(enter)
+    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    print "insert "+str(insert)
+
+    if not enter or not insert:
+        return forbidden(403)
+
+    today = time.strftime("%Y-%m-%d")
+
+    form_news_add = AddNewsForm()
+    all_counters = get_counters()
+
+    if form_news_add.validate_on_submit():
+        if request.method  == 'POST':
+
+            cover = request.files['cover']
+            if cover:
+                hashname = uuid.uuid4().hex + '.' + cover.filename.rsplit('.', 1)[1]
+                cover.save(os.path.join(app.config['COVERS_FOLDER'], hashname))
+            else:
+                hashname = None
+
+            news = News(
+            header = form_news_add.header.data,
+            text = form_news_add.text.data,
+            user_id = current_user.id,
+            cover = hashname )
+
+            db.session.add(news)
+            make_history("news", "вставку", current_user.id)
+            db.session.commit()
+
+            flash(u"Новость добавлена", 'success')
+            return redirect(url_for('admin_news'))
+    return render_template("admin/add_news.html", form_news_add = form_news_add, all_counters = all_counters, current_user=current_user, today=today)
+
+#Форма изменения новости
+@app.route('/admin/news/edit', methods=['GET', 'POST'])
+@login_required
+def edit_news():
+    current_user = get_current_user()
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    print "enter "+str(enter)
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print "update "+str(update)
+
+    if not enter or not update:
+        return forbidden(403)
+
+    all_counters = get_counters()
+    today = time.strftime("%Y-%m-%d")
+
+    edit_news = News.query.get(request.args.get('id'))
+
+    form_news_edit = EditNewsForm(header=edit_news.header, text=edit_news.text)
+
+    if form_news_edit.validate_on_submit():
+        if request.method  == 'POST':
+
+            cover = request.files['cover']
+            if cover:
+                cover.save(os.path.join(app.config['COVERS_FOLDER'], edit_news.cover))
+
+            edit_news.header = form_news_edit.header.data
+            edit_news.text = form_news_edit.text.data
+
+            make_history("news", "редактирование", current_user.id)
+            db.session.commit()
+
+            flash(u"Новость изменена", 'success')
+            return redirect(url_for('admin_news'))
+    return render_template("admin/edit_news.html", form_news_edit = form_news_edit, all_counters = all_counters, current_user=current_user, today=today)

@@ -16,5 +16,6 @@ SQLALCHEMY_TRACK_MODIFICATIONS = 'true'
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 AVATARS_FOLDER = os.path.join(basedir, 'app/static/admin/upload/users')
+COVERS_FOLDER = os.path.join(basedir, 'app/static/work/uploads')
 
 PER_PAGE = 5

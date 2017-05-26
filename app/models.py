@@ -26,6 +26,7 @@ class User(db.Model):
     important_news = db.relationship('Important_news', backref = 'user',lazy = 'dynamic')
     history = db.relationship('History', backref = 'user_parent',lazy = 'dynamic')
     permission = db.relationship('Permission', backref = 'user',lazy = 'dynamic')
+    news = db.relationship('News', backref = 'user',lazy = 'dynamic')
 
     def __repr__(self):
         return '<Users %r>' % (self.name)
@@ -71,6 +72,7 @@ class Important_news(db.Model):
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(50))
+    url = db.Column(db.String(15))
 
     tables = db.relationship('Table', backref = 'module_parent',lazy = 'dynamic')
 
@@ -112,3 +114,14 @@ class Permission(db.Model):
 
     def __repr__(self):
         return 'Permission %r >' % (self.id)
+
+class News(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    header = db.Column(db.String(255))
+    text = db.Column(db.Text)
+    cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
+    cover = db.Column(db.String(50))
+
+    def __repr__(self):
+        return 'News %r >' % (self.id)

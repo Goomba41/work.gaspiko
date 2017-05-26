@@ -33,6 +33,7 @@
         })
         location.reload();
     }
+    //~  Выделение всех чекбоксов
     $(document).ready(function () {
     $('input[name="rowtoggle"]').change(function () {
             $('input[name=rowdelete]').attr('checked', this.checked);
@@ -71,6 +72,18 @@
         $.post( "/rows_delete", {
             param: yourArray,
             table: 'posts'
+        })
+        location.reload();
+    }
+    function delete_news() {
+       alert("Вы уверены, что хотите УДАЛИТЬ выбранные записи?");
+       var yourArray = [];
+       $("input:checkbox[name=rowdelete]:checked").each(function(){
+            yourArray.push($(this).val());
+        });
+        $.post( "/rows_delete", {
+            param: yourArray,
+            table: 'news'
         })
         location.reload();
     }

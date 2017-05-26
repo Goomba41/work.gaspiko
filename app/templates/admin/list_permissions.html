@@ -2,13 +2,6 @@
 {% block content %}
 
 {% if session['logged_in'] %}
-
-    {% from "admin/_formhelpers.html" import flash_msg %}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {{flash_msg(messages)}}
-        {% endif %}
-    {% endwith %}
         <nav class="navbar navbar-default">
         <div class="container" style ="margin-right: initial; margin-left: initial;">
           <div class="navbar-header">
@@ -35,6 +28,12 @@
         </div>
     </nav>
 
+    {% from "admin/_formhelpers.html" import flash_msg %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
 
     <div class="tab-content">
         <div id="roles" class="tab-pane fade in active">
@@ -104,10 +103,10 @@
             {{ form_permission_add.csrf_token }}
             {{ render_field(form_permission_add.user_id, class ="form-control") }}
             {{ render_field(form_permission_add.table_id, class ="form-control") }}
-            {{ render_field(form_permission_add.enter, class ="form-control") }}
-            {{ render_field(form_permission_add.insert) }}
-            {{ render_field(form_permission_add.update) }}
-            {{ render_field(form_permission_add.delete) }}
+            {{ render_field(form_permission_add.enter, class ="form-control", style="margin-top:0;") }}
+            {{ render_field(form_permission_add.insert, class ="form-control", style="margin-top:0;") }}
+            {{ render_field(form_permission_add.update, class ="form-control", style="margin-top:0;") }}
+            {{ render_field(form_permission_add.delete, class ="form-control", style="margin-top:0;") }}
             </div>
             <div class="col-sm-8">
                 <input type="submit" value="Добавить" class="btn btn-lg btn-success">
@@ -127,7 +126,11 @@
                 $.post( "/update_permission", {
                     permission: this.id,
                     state: this.checked,
-                    success: function (e) {
+                    //~ success: function (e) {
+                        //~ location.reload();
+                    //~ }
+                    error: function (e) {
+                        alert("Запрещено данное действие");
                         location.reload();
                     }
                 })

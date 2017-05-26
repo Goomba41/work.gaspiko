@@ -2,7 +2,7 @@
 
 from flask_wtf import FlaskForm
 from werkzeug.utils import secure_filename
-from wtforms import TextField, PasswordField, DateField, SelectField, BooleanField
+from wtforms import TextField, TextAreaField, PasswordField, DateField, SelectField, BooleanField
 from wtforms.validators import Required, regexp, Length
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from models import Department, Role, Post, User, Table
@@ -88,3 +88,17 @@ class AddPermissionForm(FlaskForm):
     insert = BooleanField(u'Вставка')
     update = BooleanField(u'Изменение')
     delete = BooleanField(u'Удаление')
+
+class DelNewsForm(FlaskForm):
+    del_id = TextField('id', validators = [Required()])
+
+class AddNewsForm(FlaskForm):
+    header = TextField(u'Заголовок', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=255, message = u'Заголовок должен быть в диапазоне от 1 до 255 символов')])
+    text = TextAreaField(u'Текст', validators = [Required(message = u'Поле не может быть пустым')])
+    cover = FileField(u'Выберите обложку', validators = [Required(message = u'Поле не может быть пустым'), FileAllowed(['jpg', 'jpeg', 'png'], u'Только изображения!')])
+
+class EditNewsForm(FlaskForm):
+    header = TextField(u'Заголовок', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=255, message = u'Заголовок должен быть в диапазоне от 1 до 255 символов')])
+    text = TextAreaField(u'Текст', validators = [Required(message = u'Поле не может быть пустым')])
+    cover = FileField(u'Выберите обложку', validators = [FileAllowed(['jpg', 'jpeg', 'png'], u'Только изображения!')])
+

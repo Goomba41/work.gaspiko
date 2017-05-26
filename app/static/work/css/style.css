@@ -337,6 +337,8 @@ img.img-circle.team-img {
 ==============================*/
 #tf-works{
     padding: 80px 0;
+    background: url(../img/04.jpg);
+    color:#ffffff;
 }
 .categories{
     padding: 10px 0;

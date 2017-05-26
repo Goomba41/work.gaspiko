@@ -34,6 +34,7 @@
         <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-formhelpers.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-datetimepicker.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-editable.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/ckeditor/ckeditor.js') }}"></script>
 
     </head>
 
@@ -67,7 +68,7 @@
                             <li><a href="{{url_for('admin_departments')}}"><span class="badge">{{ all_counters.get('department_count') }}</span> Отделы </a></li>
                             <li><a href="{{url_for('admin_posts')}}"><span class="badge">{{ all_counters.get('post_count') }}</span> Должности </a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="#"><span class="badge">0</span> Новости отдела </a></li>
+                            <li><a href="{{url_for('admin_news')}}"><span class="badge">{{ all_counters.get('news_count') }}</span> Новости отдела </a></li>
                         </ul>
                     </li>
                 </ul>
