@@ -148,12 +148,20 @@ def logout():
 
 #Главная (и единственная) страница
 @app.route('/')
-@app.route('/index')
-def index():
+@app.route('/page/<int:page>')
+def index(page=1):
+    all_counters = get_counters()
     users_all = User.query.all()
     modules_all = Module.query.all()
-    news_all = News.query.order_by(News.id.desc())
-    return render_template("work/index.html", users_all = users_all, modules_all=modules_all, news_all=news_all)
+    news_all = News.query.order_by(News.id.desc()).paginate(page, 4, False).items
+    #~ pagination = Pagination(page=page, total = all_counters.get('news_count'), per_page = 4, css_framework='bootstrap3')
+    tmpl_name = ''
+    if page == 1:
+        tmpl_name = 'work/index.html'
+    else:
+        tmpl_name = 'work/items.html'
+    print tmpl_name, news_all
+    return render_template(tmpl_name, users_all = users_all, modules_all=modules_all, news_all=news_all, page=page)
 
 @app.route('/news/<int:id>')
 def news(id):
