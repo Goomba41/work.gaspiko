@@ -20,21 +20,21 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/css-reset.css') }}" type="text/css" media="screen" >
         <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap.css') }}" type="text/css" media="screen" >
         <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-datetimepicker.min.css') }}" type="text/css" media="screen" >
-        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-datetimepicker2.min.css') }}" type="text/css" media="screen" >
         <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-editable.css') }}" type="text/css" media="screen" >
         <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-theme.css') }}" type="text/css" media="screen" >
         <link rel="stylesheet" href="{{ url_for('static', filename='admin/fonts/font-awesome-4.7.0/css/font-awesome.css') }}"  >
 
-        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/jquery-3.2.1.min.js') }}"></script>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
-        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/special.js') }}"></script>
+
         <script type="text/javascript" src="{{ url_for('static', filename='admin/js/moment-with-locales.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-formhelpers.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-datetimepicker.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-editable.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='admin/js/ckeditor/ckeditor.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/special.js') }}"></script>
 
     </head>
 
@@ -52,7 +52,7 @@
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/index" title="Единая Информационная Система Архива">ЕИСА</a>
+                <a class="navbar-brand" href="{{url_for('index')}}" title="Единая Информационная Система Архива">ЕИСА</a>
               </div>
               <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">

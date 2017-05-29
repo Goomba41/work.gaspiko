@@ -73,6 +73,7 @@ class Module(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(50))
     url = db.Column(db.String(15))
+    comment = db.Column(db.String(50))
 
     tables = db.relationship('Table', backref = 'module_parent',lazy = 'dynamic')
 

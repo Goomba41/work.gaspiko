@@ -70,7 +70,7 @@ class DelDepartmentForm(FlaskForm):
     del_id = TextField('id', validators = [Required()])
 
 class AddPostForm(FlaskForm):
-    name = TextField(u'Название', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=50, message = u'Название должно быть в диапазоне от 1 до 50 символов')])
+    name = TextField(u'Название', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=100, message = u'Название должно быть в диапазоне от 1 до 100 символов')])
 
 class DelPostForm(FlaskForm):
     del_id = TextField('id', validators = [Required()])

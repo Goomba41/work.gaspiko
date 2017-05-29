@@ -55,7 +55,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="index.html">КОГБУ ГАСПИ КО</a>
+          <a class="navbar-brand" href="{{ url_for('index') }}">КОГБУ ГАСПИ КО</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -83,7 +83,7 @@
                 <h1>Добро пожаловать на <strong><span class="color">Внутренний сайт</span></strong></h1>
                 <p class="lead">КОГБУ <strong>ГАСПИ КО</strong> и отдела <strong>ИПС</strong></p>
         <p class="intro">На сайте будут размещаться новости отделов, сообщения о событиях внутри и вне архива, а также различная информация о работе отдела ИПС</p>
-                <a href="#tf-about" class="fa fa-angle-down page-scroll"></a>
+                <a title="К новостям" href="#tf-works" class="fa fa-angle-down page-scroll"></a>
             </div>
         </div>
     </div>
@@ -104,7 +104,7 @@
                             <hr>
                             <div class="clearfix"></div>
                         </div>
-                        <p class="intro">Отдел ИПС в КОГБУ ГАСПИ КО занимается развитием информационных технологий в архиве, а так же оцифровкой хранящихся докуметов. В данный момент ведется разработка единой информационной системы архива.</p>
+                        <p class="intro">Отдел ИПС в КОГБУ ГАСПИ КО занимается развитием информационных технологий в архиве, а так же оцифровкой хранящихся докуметов.</p>
                         <ul class="about-list">
                             <li>
                                 <span class="fa fa-dot-circle-o"></span>
@@ -169,6 +169,7 @@
                     <div class="col-md-3 col-sm-6 service">
                         <i class="fa fa-desktop"></i>
                         <h4><strong>{{ module.name }}</strong></h4>
+                        <p>{{ module.comment }}</p>
 <!--
                         <p>{{ request.url_root }}{{ module.url }}</p>
 -->
@@ -331,6 +332,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='work/js/jquery.jscroll.js') }}"></script>
     <script>$('.scroll').jscroll({
     nextSelector: 'a.jscroll-next',
+    padding: 10,
     });
     </script>
   </body>
