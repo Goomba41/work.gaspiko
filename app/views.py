@@ -8,6 +8,7 @@ from functools import wraps
 from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
+from sqlalchemy.sql.functions import func
 import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect
 from collections import defaultdict
 
@@ -579,7 +580,12 @@ def edit_user():
             else:
                 photo = request.files['photo']
                 if photo:
-                    photo.save(os.path.join(app.config['AVATARS_FOLDER'], edit_user.photo))
+                    if edit_user.photo is not None:
+                        photo.save(os.path.join(app.config['AVATARS_FOLDER'], edit_user.photo))
+                    else:
+                        hashname = uuid.uuid4().hex + '.' + photo.filename.rsplit('.', 1)[1]
+                        photo.save(os.path.join(app.config['AVATARS_FOLDER'], hashname))
+                        edit_user.photo = hashname
 
                 edit_user.login = login
                 edit_user.password = password
@@ -977,10 +983,31 @@ def admin_history_all(page = 1, *args):
     actions_all = History.query.order_by(History.id.desc()).paginate(page, 100, False)
     all_count = History.query.count()
 
+    count_table_uses = History.query.with_entities(History.table, Table.name, Module.name,func.count(History.table).label('count')).group_by('table').join(Table).join(Module)
+    count_action_uses = History.query.with_entities(History.action, func.count(History.action).label('count')).group_by('action')
+    count_users_activity = History.query.with_entities(History.user_id, User.name, User.surname, func.count(History.user_id).label('count')).group_by('user_id').join(User)
+
+    list_for_return = []
+    list_for_return1 = []
+    list_for_return2 = []
+
+    for use in count_table_uses:
+        list_for_return.append({"name":use[1]+' ('+use[2]+')', "y":use[3]})
+
+    for use1 in count_action_uses:
+        list_for_return1.append({"name":use1[0], "y":use1[1]})
+
+    for use2 in count_users_activity:
+        list_for_return2.append({"name":use2[1]+' '+use2[2], "y":use2[3]})
+
+    response=json.dumps(list_for_return, ensure_ascii=False)
+    response2=json.dumps(list_for_return1, ensure_ascii=False)
+    response3=json.dumps(list_for_return2, ensure_ascii=False)
+
     today = time.strftime("%Y-%m-%d")
     pagination = Pagination(page=page, total = all_count, per_page = 100, css_framework='bootstrap3')
 
-    return render_template("admin/list_history.html", actions_all = actions_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today)
+    return render_template("admin/list_history.html", actions_all = actions_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, response = response, response2 = response2, response3=response3)
 
 #Страница с разрешениями всех пользователей
 @app.route('/admin/permissions', methods=['GET', 'POST'])

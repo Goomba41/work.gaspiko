@@ -162,14 +162,14 @@
                                 <li class="list-group-item list-group-item-danger">В этом месяце никто не празднует дней рождений</li>
                             {% else %}
                                 {% for key, value in  birth_celebrate.items() %}
-                                    <li class="list-group-item list-group-item-success"><strong>{{ key }}</strong><br/> празднует день рождения <strong>{{ value }} числа</strong></li>
+                                    <li class="list-group-item list-group-item-success"><strong>{{ key }}</strong><br/> празднует день рождения <strong>{{ value[0] }} числа</strong></li>
                                 {% endfor %}
                             {% endif %}
                             {% if not worktime_celebrate %}
                                 <li class="list-group-item list-group-item-danger">В этом месяце никто не празднует очередной год работы</li>
                             {% else %}
                                 {% for key, value in  worktime_celebrate.items() %}
-                                    <li class="list-group-item list-group-item-warning"><strong>{{ key }}</strong><br/> празднует очередной год стажа <strong>{{ value }} числа</strong></li>
+                                    <li class="list-group-item list-group-item-warning"><strong>{{ key }}</strong><br/>  очередной год стажа <strong>{{ value[0] }} числа</strong></li>
                                 {% endfor %}
                             {% endif %}
                         </ul>

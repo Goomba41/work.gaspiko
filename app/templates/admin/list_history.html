@@ -10,7 +10,9 @@
         {% endif %}
     {% endwith %}
 
-    <div class="col-sm-12">
+    {{ pagination.links }}
+
+    <div class="col-sm-9">
         <table class="table table-striped table-bordered table-hover model-list" >
             <tr>
                 <th>ID</th>
@@ -26,7 +28,109 @@
             {% endfor %}
         </table>
     </div>
+    <div class="col-sm-3">
+        <div id="frequently_table" ></div>
+        <div id="frequently_operation" ></div>
+        <div id="users_activity" ></div>
+    </div>
     <br style="clear: both;"/>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            // Build the chart
+            Highcharts.chart('frequently_table', {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Наиболее часто используемая таблица'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: false
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    name: 'Частота',
+                    colorByPoint: true,
+                    data: {{ response|safe }}
+                }]
+            });
+
+            Highcharts.chart('frequently_operation', {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Наиболее часто выполняемая операция'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: false
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    name: 'Частота',
+                    colorByPoint: true,
+                    data: {{ response2|safe }}
+                }]
+            });
+
+            Highcharts.chart('users_activity', {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Наиболее активные пользователи'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: false
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    name: 'Частота',
+                    colorByPoint: true,
+                    data: {{ response3|safe }}
+                }]
+            });
+        });
+    </script>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -35,6 +139,7 @@
     {% endwith %}
 
     {{ pagination.links }}
+    <br style="clear: both;"/>
 {% endif %}
 
 {% endblock %}
