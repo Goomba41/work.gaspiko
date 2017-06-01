@@ -144,7 +144,12 @@
                     {% for user in users_all %}
                     <div class="item">
                         <div class="thumbnail">
+                            {% if user.photo %}
                             <img src="{{ url_for('static', filename='admin/upload/users/'+user.photo) }}" alt="..." class="img-circle team-img">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle team-img">
+                            {% endif %}
+
                             <div class="caption">
                                 <h3>{{ user.name }} {{ user.surname }}</h3>
                                 <p>{{ user.department.name }}</p>

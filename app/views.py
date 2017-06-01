@@ -331,7 +331,8 @@ def admin_users(page = 1, *args):
         user_id = form_delete.del_id.data
         user = User.query.filter(User.id == user_id).first()
         make_history("users", "удаление", current_user.id)
-        os.remove(os.path.join(app.config['AVATARS_FOLDER'], user.photo))
+        if user.photo:
+            os.remove(os.path.join(app.config['AVATARS_FOLDER'], user.photo))
         db.session.delete(user)
         db.session.commit()
         flash(u"Пользователь удален", 'success')
