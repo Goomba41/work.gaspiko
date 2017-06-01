@@ -101,4 +101,3 @@ class EditNewsForm(FlaskForm):
     header = TextField(u'Заголовок', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=255, message = u'Заголовок должен быть в диапазоне от 1 до 255 символов')])
     text = TextAreaField(u'Текст', validators = [Required(message = u'Поле не может быть пустым')])
     cover = FileField(u'Выберите обложку', validators = [FileAllowed(['jpg', 'jpeg', 'png'], u'Только изображения!')])
-

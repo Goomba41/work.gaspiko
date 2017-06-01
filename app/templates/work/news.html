@@ -45,7 +45,7 @@
   <body>
     <!-- Navigation
     ==========================================-->
-    <nav id="tf-menu" class="navbar navbar-default navbar-fixed-top" style="background-color: rgba(0, 0, 0, 1);">
+    <nav id="tf-menu" class="navbar navbar-default navbar-fixed-top" style="padding:0;background-color: rgba(0, 0, 0, 1);">
       <div class="container">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
@@ -73,10 +73,10 @@
     ==========================================-->
     <div id="tf-home" class="text-center" style="background:url({{ url_for('static', filename='work/uploads/'+news.cover) }}); color:#000000;background-repeat: no-repeat;background-size: cover;">
         <div class="overlay" style="background:0; height:100%;">
-            <div class="content" style="padding:6% 0 0; width:70%; margin:auto; background: white; border-radius:20px; margin-bottom: 5%;">
+            <div class="content" style="padding:6% 0 0; width:70%; margin:auto; background: white; border-radius:20px; margin-bottom: 5%; box-shadow: 0 0 50px 20px rgb(0, 0, 0);">
                 <h1><strong>{{ news.header }}</strong></h1>
-                <p style="font-size: 1.4em;"><span class="color">Автор: {{ news.user.name }} {{ news.user.surname }}, {{ news.user.post.name }} {{ news.user.department.name }}</span>{% if session['logged_in'] %}<a class = "edit" href="{{url_for('edit_news', id = news.id)}}"><i class="fa fa-pencil" style="padding-left: 15px;" aria-hidden="true"></i></a>{% endif %}</p>
-                <div style="padding: 10%; text-align: justify; " class="intro">{{ news.text|safe }}</div>
+                <p style="font-size: 1.4em;"><span class="color">Автор: {{ news.user.name }} {{ news.user.surname }}, {{ news.user.post.name }} {{ news.user.department.name }}<br/>{{ news.cdate }}</span>{% if session['logged_in'] %}<a class = "edit" href="{{url_for('edit_news', id = news.id)}}"><i class="fa fa-pencil" style="padding-left: 15px;" aria-hidden="true"></i></a>{% endif %}</p>
+                <div style="padding: 10%; text-align: justify; font-family: 'Open Sans';" class="intro">{{ news.text|safe }}</div>
             </div>
         </div>
     </div>

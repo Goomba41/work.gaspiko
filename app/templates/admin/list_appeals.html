@@ -1,0 +1,106 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+    <nav class="navbar navbar-default">
+        <div class="container" style ="margin-right: initial; margin-left: initial;">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+              <span class="sr-only">Навигация</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Управление</a>
+          </div>
+          <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
+            <ul class="nav navbar-nav">
+<!--
+                <li class=""><a href="{{url_for('admin_appeals')}}">Список  <span class="badge">{{ all_counters.get('appeals_count_all') }}</span></a></li>
+-->
+                <li><a href="#" id="text" data-type="textarea" data-pk="" data-title="Новое обращение" data-placeholder="Введите текст вашего обращения сюда..."><i class="fa fa-plus fa-control" aria-hidden="true"></i></a></li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+    <script>
+        $('#text').editable({
+            url: '/new_appeals',
+            escape: false,
+            placement: 'bottom',
+            ajaxOptions: {
+                dataType: 'json'
+            },
+            success: function(response, newValue) {
+                location.reload();
+                return {newValue: response.plus}
+            }
+        });
+    </script>
+
+    {% from "admin/_formhelpers.html" import flash_msg %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+    <div class="alert alert-info" role="alert" style="margin-top:20px;">
+        Пожалуйста, формулируйте свое обращение коротко и по существу, обязательно укажите модуль и таблицу, если необходимо внести изменения в них.<br/>После написания текста не спешите его отправлять, прочтите его и убедитесь, что вас поймут те, кто будет читать ваше обращение.<br/> Пишите текст <strong>внимательно</strong>, поскольку <strong>текст вашего обращения нельзя исправить после отправки</strong>!
+    </div>
+
+    <div class="admin_wrapper">
+        <table class="table table-striped table-bordered table-hover model-list" >
+            <tr>
+                <th width="1%">Управление</th>
+                <th width="1%">ID</th>
+                <th width="1%">Автор</th>
+                <th width="50%">Текст обращения</th>
+                <th width="10%">Дата создания</th>
+                <th width="1%">Статус обращения</th>
+            </tr>
+            {% for appeal in appeals_all.items %}
+                <tr>
+                    <td style="vertical-align: middle;">
+                        <div class = "control">
+                            <form action="" method="post" name="deluser">
+                                <div>
+                                    {% if current_user.post.name == "Программист" and appeal.status == 1 %}
+                                    <button class="btn-warning" title="Принято" onclick="get({{appeal.id}})"><i class="fa fa-check fa-control"></i></button>
+                                    <button class="btn-danger" title="Отклонить" onclick="reject({{appeal.id}})"><i class="fa fa-times fa-control"></i></button>
+                                    {% elif current_user.post.name != "Программист" and appeal.status == 2 %}
+                                    <button class="btn-success" title="Выполнено" onclick="done({{appeal.id}})"><i class="fa fa-check fa-control"></i></button>
+                                    {% endif %}
+                                </div>
+                            </form>
+                        </div>
+                    </td>
+                    <td>{{ appeal.id }}</td>
+                    <td>{{ appeal.user.surname }}<br/>{{ appeal.user.name }}</td>
+                    <td>{{ appeal.text }}</td>
+                    <td>{{ appeal.cdate }}</td>
+                    {% if appeal.status==3 %}
+                    <td style="text-align: center;vertical-align: middle;" class="btn-success">Исполнено</td>
+                    {% elif appeal.status==2 %}
+                    <td style="text-align: center;vertical-align: middle;" class="btn-warning">Принято</td>
+                    {% elif appeal.status==1 %}
+                    <td style="text-align: center;vertical-align: middle;" class="btn-primary">Новое</td>
+                    {% elif appeal.status==4 %}
+                    <td style="text-align: center;vertical-align: middle;" class="btn-danger">Отклонено</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+    {{ pagination.links }}
+    <br style="clear:both"/>
+{% endif %}
+
+{% endblock %}

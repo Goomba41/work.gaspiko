@@ -1,7 +1,7 @@
 ﻿#! venv/bin/python
 
 from app import app, db
-from models import User, Department, Role, Post, Important_news, Table, History, Permission, Module, News
+from models import User, Department, Role, Post, Important_news, Table, History, Permission, Module, News, Appeals
 from forms import LoginForm, DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, AddNewsForm, EditNewsForm
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response
 from functools import wraps
@@ -91,8 +91,11 @@ def get_counters():
     department_count = Department.query.count()
     post_count = Post.query.count()
     news_count = News.query.count()
+    appeals_count_all = Appeals.query.count()
+    appeals_count_done = Appeals.query.filter(Appeals.status==3).count()
+    appeals_count_new = Appeals.query.filter(Appeals.status==1).count()
     counters_dict={}
-    for name in ['user_count','role_count','department_count','post_count','news_count']:
+    for name in ['user_count','role_count','department_count','post_count','news_count', 'appeals_count_all', 'appeals_count_done', 'appeals_count_new']:
         counters_dict.update({name:eval(name)})
     return counters_dict
 
@@ -145,7 +148,7 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect('index')
+    return redirect(url_for('index'))
 
 #Главная (и единственная) страница
 @app.route('/')
@@ -161,13 +164,27 @@ def index(page=1):
         tmpl_name = 'work/index.html'
     else:
         tmpl_name = 'work/items.html'
-    print tmpl_name, news_all
-    return render_template(tmpl_name, users_all = users_all, modules_all=modules_all, news_all=news_all, page=page)
+    #~ print tmpl_name, news_all
+    if request.cookies.get('news_visited'):
+        news_visited = request.cookies.get('news_visited').split(' ')
+    else:
+        news_visited = []
+    return render_template(tmpl_name, users_all = users_all, modules_all=modules_all, news_all=news_all, page=page, news_visited=news_visited)
 
 @app.route('/news/<int:id>')
 def news(id):
     news = News.query.filter(News.id==id).first()
-    return render_template("work/news.html", news=news)
+    news_visited = ""
+    resp = make_response(render_template("work/news.html", news=news))
+    if request.cookies.get('news_visited'):
+        if str(news.id) not in request.cookies.get('news_visited').split(' '):
+            news_visited = request.cookies.get('news_visited') + ' ' + str(news.id)
+        else:
+            news_visited = request.cookies.get('news_visited')
+    else:
+        news_visited =  str(news.id)
+    resp.set_cookie('news_visited',news_visited)
+    return resp
 
 #Админка основной экран
 @app.route('/admin', methods=['GET', 'POST'])
@@ -1024,6 +1041,8 @@ def admin_permissions():
     enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
     insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
     delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    print update
 
     if not enter:
         return forbidden(403)
@@ -1066,7 +1085,7 @@ def admin_permissions():
 
     return render_template("admin/list_permissions.html",  all_counters = all_counters,  current_user=current_user, today=today, permissions_list_roles=permissions_list_roles, permissions_list_users=permissions_list_users, form_delete=form_delete, form_permission_add=form_permission_add)
 
-#Сброс и установка нового пароля для пользователя
+#Быстрое изменение разрешений
 @app.route('/update_permission', methods = ['POST'])
 def get_post_javascript_data_show():
 
@@ -1097,7 +1116,12 @@ def get_post_javascript_data_show():
         db.session.add(update_permission)
         db.session.commit()
 
-        return jsonify("Успешно")
+        response = app.response_class(
+                response=json.dumps({"Успешно":update_permission.id}),
+                status=200,
+                mimetype='application/json'
+            )
+        return response
     else:
         flash(u"Вам запрещено данное действие", 'error')
         response = app.response_class(
@@ -1263,3 +1287,80 @@ def edit_news():
             flash(u"Новость изменена", 'success')
             return redirect(url_for('admin_news'))
     return render_template("admin/edit_news.html", form_news_edit = form_news_edit, all_counters = all_counters, current_user=current_user, today=today)
+
+#Страница со списком обращений
+@app.route('/admin/appeals', methods=['GET', 'POST'])
+@app.route('/admin/appeals/<int:page>', methods=['GET', 'POST'])
+@login_required
+def admin_appeals(page = 1, *args):
+
+    current_user = get_current_user()
+
+    func = inspect.currentframe()
+    url = url_for(inspect.getframeinfo(func).function)
+    url = url.split('/')[2]
+
+    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    print "enter "+str(enter)
+    if not enter:
+        return forbidden(403)
+
+    appeals_all = Appeals.query.order_by(Appeals.id.desc()).paginate(page, PER_PAGE, False)
+    all_counters = get_counters()
+    today = time.strftime("%Y-%m-%d")
+    pagination = Pagination(page=page, total = all_counters.get('appeals_count_all'), per_page = PER_PAGE, css_framework='bootstrap3')
+
+    return render_template("admin/list_appeals.html", appeals_all = appeals_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today)
+
+#Форма добавления нового обращения
+@app.route('/new_appeals', methods = ['POST'])
+def new_appeals():
+    current_user = get_current_user()
+
+    url = 'appeals'
+    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    print "insert "+str(insert)
+
+    if insert:
+        request_data = request.form
+        print request_data['value']
+        if request.method  == 'POST':
+            data = Appeals(text=request_data['value'], author = current_user.id)
+            db.session.add(data)
+            make_history("appeals", "вставку", current_user.id)
+            db.session.commit()
+        destination = url_for('admin_appeals')
+        response = Response(
+            response=json.dumps({'url':destination,'plus':'<i class="fa fa-plus fa-control" aria-hidden="true"></i>'}),
+            status=200,
+            mimetype='application/json'
+        )
+    else:
+        flash(u"Вам запрещено данное действие", 'error')
+        response = app.response_class(
+            response=json.dumps({"Вам запрещено данное действие!":0}),
+            status=403,
+            mimetype='application/json'
+        )
+    return response
+
+#Отлючение одной записи
+@app.route('/appeals_status_change', methods = ['POST'])
+def appeals_status_change():
+    operation = request.json.items()[0][0]
+    id = request.json.items()[0][1]
+    appeal = Appeals.query.filter(Appeals.id==id).first()
+    print operation, id, appeal
+
+    if operation=="done":
+        appeal.status = 3
+        appeal.ddate = datetime.datetime.now()
+    elif operation=="get":
+        appeal.status = 2
+    elif operation=="reject":
+        appeal.status = 4
+
+    db.session.commit()
+    return jsonify("Успешно изменена запись")
+
+

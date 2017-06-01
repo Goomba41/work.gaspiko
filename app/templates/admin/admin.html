@@ -155,21 +155,21 @@
                 <div class="col-sm-4">
                     <div class="panel panel-info">
                         <div class="panel-heading">
-                            <h3 class="panel-title"><strong>В этом месяце празднуют:</strong></h3>
+                            <h3 class="panel-title"><strong>События в текущем месяце:</strong></h3>
                         </div>
                         <ul class="list-group">
                             {% if not birth_celebrate %}
-                                <li class="list-group-item list-group-item-danger">В этом месяце никто не празднует дней рождений</li>
+                                <li class="list-group-item list-group-item-danger">В этом месяце нет дней рождений</li>
                             {% else %}
                                 {% for key, value in  birth_celebrate.items() %}
                                     <li class="list-group-item list-group-item-success"><strong>{{ key }}</strong><br/> празднует день рождения <strong>{{ value[0] }} числа</strong></li>
                                 {% endfor %}
                             {% endif %}
                             {% if not worktime_celebrate %}
-                                <li class="list-group-item list-group-item-danger">В этом месяце никто не празднует очередной год работы</li>
+                                <li class="list-group-item list-group-item-danger">В этом месяце никто не отработал очередной год работы</li>
                             {% else %}
                                 {% for key, value in  worktime_celebrate.items() %}
-                                    <li class="list-group-item list-group-item-warning"><strong>{{ key }}</strong><br/>  очередной год стажа <strong>{{ value[0] }} числа</strong></li>
+                                    <li class="list-group-item list-group-item-warning"><strong>{{ key }}</strong><br/>  очередной год работы в архиве <strong>{{ value[0] }} числа</strong></li>
                                 {% endfor %}
                             {% endif %}
                         </ul>
@@ -213,7 +213,7 @@
                                             Автор: {{ news.user.surname }} {{ news.user.name }}, {{ news.user.role.name }} | Истекает: <a href="#" id="expired{{ news.id }}" data-url="/fast_important_edit" data-name="expired" data-type="combodate" data-template="YYYY-MM-DD HH:mm" data-format="YYYY-MM-DD HH:mm" data-viewformat="YYYY-MM-DD HH:mm" data-pk="{{ news.id }}" data-title="Установите дату и время, когда новость будет удалена">{% if news.expired is not none %}{{ news.expired }}{% endif %}</a>
                                             {{form_delete.del_id(id="del-"+news.id|string,value=news.id, style = "display:none;")}}
                                     </form>
-                                    <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> <a href="#" id="text{{ news.id }}" data-name="text" data-type="text" data-pk="{{ news.id }}" data-url="/fast_important_edit" data-title="Введите текст новости">{{ news.text }}</a>
+                                    <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> <a href="#" id="text{{ news.id }}" data-name="text" data-type="textarea" data-pk="{{ news.id }}" data-url="/fast_important_edit" data-title="Введите текст новости">{{ news.text }}</a>
                                     <script>
                                         $('#text{{ news.id }}').editable({
                                             success: function(e) {

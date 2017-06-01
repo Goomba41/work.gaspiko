@@ -35,8 +35,8 @@
     }
     //~  Выделение всех чекбоксов
     $(document).ready(function () {
-    $('input[name="rowtoggle"]').change(function () {
-            $('input[name=rowdelete]').attr('checked', this.checked);
+    $('.action-rowtoggle').change(function () {
+            $('input.action-checkbox').prop('checked', this.checked);
         });
     });
     function delete_roles() {
@@ -93,6 +93,46 @@
             url : "/user_disable",
             contentType: 'application/json;charset=UTF-8',
             data : JSON.stringify(id),
+            dataType: 'json',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
+        });
+    }
+
+    function get(id) {
+         $.ajax({
+            type : "POST",
+            url : "/appeals_status_change",
+            contentType: 'application/json;charset=UTF-8',
+            data : JSON.stringify({"get":id}),
+            dataType: 'json',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
+        });
+    }
+    function reject(id) {
+         $.ajax({
+            type : "POST",
+            url : "/appeals_status_change",
+            contentType: 'application/json;charset=UTF-8',
+            data : JSON.stringify({"reject":id}),
+            dataType: 'json',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
+        });
+    }
+    function done(id) {
+         $.ajax({
+            type : "POST",
+            url : "/appeals_status_change",
+            contentType: 'application/json;charset=UTF-8',
+            data : JSON.stringify({"done":id}),
             dataType: 'json',
             success: function (e) {
                 console.log(e);

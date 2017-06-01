@@ -126,11 +126,7 @@
                 $.post( "/update_permission", {
                     permission: this.id,
                     state: this.checked,
-                    //~ success: function (e) {
-                        //~ location.reload();
-                    //~ }
-                    error: function (e) {
-                        alert("Запрещено данное действие");
+                    success: function (e) {
                         location.reload();
                     }
                 })

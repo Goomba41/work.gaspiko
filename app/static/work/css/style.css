@@ -67,7 +67,7 @@ a:focus{
 * html .clearfix { height: 1%; }
 .clearfix { display: block; }
 ul, ol{
-    padding: 0;
+    padding: 10px 0 10px 50px;
     webkit-padding: 0;
     moz-padding: 0;
 }
@@ -337,7 +337,7 @@ img.img-circle.team-img {
 ==============================*/
 #tf-works{
     padding: 80px 0;
-    background: url(../img/04.jpg);
+    background: url(../img/04_3.jpg);
     color:#ffffff;
 }
 .categories{
@@ -583,3 +583,4 @@ nav#footer p{
 .a-main {
     color: #5a5a5a;
 }
+
