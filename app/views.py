@@ -92,10 +92,11 @@ def get_counters():
     post_count = Post.query.count()
     news_count = News.query.count()
     appeals_count_all = Appeals.query.count()
-    appeals_count_done = Appeals.query.filter(Appeals.status==3).count()
+    appeals_count_done = Appeals.query.filter((Appeals.status==3)|(Appeals.status==5)).count()
     appeals_count_new = Appeals.query.filter(Appeals.status==1).count()
+    appeals_count_checked = Appeals.query.filter(Appeals.status==5).count()
     counters_dict={}
-    for name in ['user_count','role_count','department_count','post_count','news_count', 'appeals_count_all', 'appeals_count_done', 'appeals_count_new']:
+    for name in ['user_count','role_count','department_count','post_count','news_count', 'appeals_count_all', 'appeals_count_done', 'appeals_count_new','appeals_count_checked']:
         counters_dict.update({name:eval(name)})
     return counters_dict
 
@@ -1360,6 +1361,8 @@ def appeals_status_change():
         appeal.status = 2
     elif operation=="reject":
         appeal.status = 4
+    elif operation=="checked":
+        appeal.status = 5
 
     db.session.commit()
     return jsonify("Успешно изменена запись")

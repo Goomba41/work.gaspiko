@@ -140,3 +140,16 @@
             }
         });
     }
+    function checked(id) {
+         $.ajax({
+            type : "POST",
+            url : "/appeals_status_change",
+            contentType: 'application/json;charset=UTF-8',
+            data : JSON.stringify({"checked":id}),
+            dataType: 'json',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
+        });
+    }

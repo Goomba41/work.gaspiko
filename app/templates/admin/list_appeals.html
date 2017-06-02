@@ -69,8 +69,11 @@
                                     {% if current_user.post.name == "Программист" and appeal.status == 1 %}
                                     <button class="btn-warning" title="Принято" onclick="get({{appeal.id}})"><i class="fa fa-check fa-control"></i></button>
                                     <button class="btn-danger" title="Отклонить" onclick="reject({{appeal.id}})"><i class="fa fa-times fa-control"></i></button>
-                                    {% elif current_user.post.name != "Программист" and appeal.status == 2 %}
+                                    {% elif current_user.post.name == "Программист" and appeal.status == 2 %}
                                     <button class="btn-success" title="Выполнено" onclick="done({{appeal.id}})"><i class="fa fa-check fa-control"></i></button>
+                                    <button class="btn-danger" title="Отклонить" onclick="reject({{appeal.id}})"><i class="fa fa-times fa-control"></i></button>
+                                    {% elif current_user.post.name != "Программист" and appeal.status == 3 and current_user.id == appeal.author %}
+                                    <button class="btn-info" title="Выполнено" onclick="checked({{appeal.id}})"><i class="fa fa-check fa-control"></i></button>
                                     {% endif %}
                                 </div>
                             </form>
@@ -88,6 +91,8 @@
                     <td style="text-align: center;vertical-align: middle;" class="btn-primary">Новое</td>
                     {% elif appeal.status==4 %}
                     <td style="text-align: center;vertical-align: middle;" class="btn-danger">Отклонено</td>
+                    {% elif appeal.status==5 %}
+                    <td style="text-align: center;vertical-align: middle;" class="btn-info">Проверено автором</td>
                     {% endif %}
                     <td>
                     {% if current_user.post.name == "Программист" %}
