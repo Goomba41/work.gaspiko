@@ -82,6 +82,29 @@
                 {% endif %}
 #}
 
+                    <!--Панель с поздравлением-->
+                    {% for key, value in celebration.items() %}
+                        {% if (key | date)[0] == (today.split('-')[1])|int and (key | date)[1] == (today.split('-')[2])|int %}
+                            <div class="col-sm-12">
+                                <div class="panel panel-warning">
+                                    <div class="panel-heading">
+                                        <a style="color:#8a6d3b; text-decoration: none;" data-toggle="collapse" href="#collapse2"><h3 class="panel-title"><strong style="text-transform: uppercase;">Сегодня праздник: {{ value[0] }} <i class="fa fa-caret-down" aria-hidden="true"></i></strong></h3></a>
+                                    </div>
+                                    <div id="collapse2" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <div style="text-align:justify;">
+                                                {{ value[1]|safe }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+
+
+
                 <!--Панель с информацией о пользователе-->
                 <div class="col-sm-12">
                     <div class="panel panel-primary">
@@ -115,7 +138,7 @@
                                   <!-- Default panel contents -->
                                     <div class="panel-heading">
                                         <h4 class="panel-title">
-                                            <a data-toggle="collapse" href="#collapse1"><strong>Ваши полномочия</strong></a>
+                                            <a style="text-decoration: none;" data-toggle="collapse" href="#collapse1"><strong>Ваши полномочия <i class="fa fa-caret-down" aria-hidden="true"></i></strong></a>
                                         </h4>
                                     </div>
                                     <div id="collapse1" class="panel-collapse collapse">
@@ -166,6 +189,11 @@
                                     <li class="list-group-item list-group-item-success"><strong>{{ key }}</strong><br/> празднует день рождения <strong>{{ value[0] }} числа</strong></li>
                                 {% endfor %}
                             {% endif %}
+                            {% for key, value in celebration.items() %}
+                                {% if (key | date)[0] == (today.split('-')[1])|int %}
+                                    <li class="list-group-item list-group-item-warning"><strong>{{ value[0] }}</strong> {{ (key | date)[1] }} числа</li>
+                                {% endif %}
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>

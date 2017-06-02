@@ -9,7 +9,7 @@ from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
-import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect
+import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, ast, unicodedata
 from collections import defaultdict
 
 #Функция счета стажа
@@ -99,6 +99,12 @@ def get_counters():
     for name in ['user_count','role_count','department_count','post_count','news_count', 'appeals_count_all', 'appeals_count_done', 'appeals_count_new','appeals_count_checked']:
         counters_dict.update({name:eval(name)})
     return counters_dict
+
+#Счетчики
+@app.template_filter('date')
+def get_date(date):
+    date = datetime.datetime.strptime(date, '%m-%d')
+    return date.month, date.day
 
 #Проверка сессии на логин
 def login_required(f):
@@ -204,7 +210,7 @@ def admin():
     users_all = User.query.all()
     all_counters = get_counters()
     birth_celebrate = {}
-    worktime_celebrate = {}
+    #~ worktime_celebrate = {}
     today = time.strftime("%Y-%m-%d")
 
     important_news_all = Important_news.query.all()
@@ -217,8 +223,12 @@ def admin():
     for user in users_all:
         if user.birth_date.month ==  int(time.strftime("%m")):
             birth_celebrate.update({'%s %s %s'%(user.surname, user.name, user.patronymic):[user.birth_date.day, user.post.id]})
-        if user.work_date.month ==  int(time.strftime("%m")):
-            worktime_celebrate.update({'%s %s %s'%(user.surname, user.name, user.patronymic):[user.work_date.day, user.post.id]})
+        #~ if user.work_date.month ==  int(time.strftime("%m")):
+            #~ worktime_celebrate.update({'%s %s %s'%(user.surname, user.name, user.patronymic):[user.work_date.day, user.post.id]})
+
+    with open(os.path.join(basedir, 'app/static/admin/celebration'), 'r') as jsonfile:
+        celebration = json.load(jsonfile)
+    print celebration
 
     form_delete = DelImportantForm()
 
@@ -233,7 +243,7 @@ def admin():
         return redirect(url_for('admin'))
 
     return render_template("admin/admin.html",  current_user=current_user, permissions = permissions, last_login=session['last_login'], time_worked = time_worked, birth_celebrate=birth_celebrate,
-    worktime_celebrate=worktime_celebrate, today=today, all_counters=all_counters, important_news_all=important_news_all, form_delete=form_delete)
+    today=today, all_counters=all_counters, important_news_all=important_news_all, form_delete=form_delete, celebration=celebration)
 
 #Быстрое изменение данных записи
 @app.route('/fast_important_edit', methods = ['POST'])
