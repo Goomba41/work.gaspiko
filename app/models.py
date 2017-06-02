@@ -132,6 +132,7 @@ class Appeals(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     author = db.Column(db.Integer, db.ForeignKey("user.id"))
     text = db.Column(db.Text)
+    answer = db.Column(db.Text)
     cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
     ddate = db.Column(db.DateTime)
     status = db.Column(db.SmallInteger, default=time.strftime("1"))

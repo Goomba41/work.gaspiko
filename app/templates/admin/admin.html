@@ -45,6 +45,7 @@
                     {% endfor %}
                 {% endif %}
 
+{#
                 {% if not worktime_celebrate %}
                 {% else %}
                     {% for key, value in  worktime_celebrate.items() %}
@@ -79,7 +80,7 @@
                         {% endif %}
                     {% endfor %}
                 {% endif %}
-
+#}
 
                 <!--Панель с информацией о пользователе-->
                 <div class="col-sm-12">
@@ -163,13 +164,6 @@
                             {% else %}
                                 {% for key, value in  birth_celebrate.items() %}
                                     <li class="list-group-item list-group-item-success"><strong>{{ key }}</strong><br/> празднует день рождения <strong>{{ value[0] }} числа</strong></li>
-                                {% endfor %}
-                            {% endif %}
-                            {% if not worktime_celebrate %}
-                                <li class="list-group-item list-group-item-danger">В этом месяце никто не отработал очередной год работы</li>
-                            {% else %}
-                                {% for key, value in  worktime_celebrate.items() %}
-                                    <li class="list-group-item list-group-item-warning"><strong>{{ key }}</strong><br/>  очередной год работы в архиве <strong>{{ value[0] }} числа</strong></li>
                                 {% endfor %}
                             {% endif %}
                         </ul>

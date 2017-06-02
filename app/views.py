@@ -183,7 +183,7 @@ def news(id):
             news_visited = request.cookies.get('news_visited')
     else:
         news_visited =  str(news.id)
-    resp.set_cookie('news_visited',news_visited)
+    resp.set_cookie('news_visited',news_visited, expires=datetime.datetime.now()+datetime.timedelta(days=365))
     return resp
 
 #Админка основной экран
@@ -1345,7 +1345,7 @@ def new_appeals():
         )
     return response
 
-#Отлючение одной записи
+#Изменение статуса обращения
 @app.route('/appeals_status_change', methods = ['POST'])
 def appeals_status_change():
     operation = request.json.items()[0][0]
@@ -1361,6 +1361,15 @@ def appeals_status_change():
     elif operation=="reject":
         appeal.status = 4
 
+    db.session.commit()
+    return jsonify("Успешно изменена запись")
+
+#Ответ на обращение
+@app.route('/answer_appeals', methods = ['POST'])
+def answer_appeals():
+    id = request.form['pk']
+    appeal = Appeals.query.filter(Appeals.id==id).first()
+    appeal.answer = request.form['value']
     db.session.commit()
     return jsonify("Успешно изменена запись")
 

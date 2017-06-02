@@ -58,6 +58,7 @@
                 <th width="50%">Текст обращения</th>
                 <th width="10%">Дата создания</th>
                 <th width="1%">Статус обращения</th>
+                <th width="50%">Ответ</th>
             </tr>
             {% for appeal in appeals_all.items %}
                 <tr>
@@ -88,10 +89,32 @@
                     {% elif appeal.status==4 %}
                     <td style="text-align: center;vertical-align: middle;" class="btn-danger">Отклонено</td>
                     {% endif %}
+                    <td>
+                    {% if current_user.post.name == "Программист" %}
+                        <a href="#" id="answer{{ appeal.id }}" data-type="textarea" data-pk="{{ appeal.id }}" data-title="Ответ на обращение" data-placeholder="Введите текст вашего ответа сюда...">{% if appeal.answer is not none %}{{ appeal.answer }}{% endif %}</a>
+                    {% else %}
+                        {% if appeal.answer is not none %}{{ appeal.answer }}{% else %}<a href="#" class=editable-empty>Нет ответа</a>{% endif %}
+                    {% endif %}
+                    </td>
                 </tr>
+                <script>
+                    $('#answer{{ appeal.id }}').editable({
+                        url: '/answer_appeals',
+                        escape: false,
+                        emptytext: 'Нет ответа',
+                        placement: 'bottom',
+                        ajaxOptions: {
+                            dataType: 'json'
+                        },
+                        success: function(response, newValue) {
+                            location.reload();
+                        }
+                    });
+                </script>
             {% endfor %}
         </table>
     </div>
+
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
