@@ -9,7 +9,8 @@ from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
-import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, ast, unicodedata
+import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, ast, redis
+from flask_sse import sse
 from collections import defaultdict
 
 #Функция счета стажа
@@ -228,7 +229,6 @@ def admin():
 
     with open(os.path.join(basedir, 'app/static/admin/celebration'), 'r') as jsonfile:
         celebration = json.load(jsonfile)
-    print celebration
 
     form_delete = DelImportantForm()
 
@@ -1362,28 +1362,45 @@ def appeals_status_change():
     operation = request.json.items()[0][0]
     id = request.json.items()[0][1]
     appeal = Appeals.query.filter(Appeals.id==id).first()
-    print operation, id, appeal
+    appeal_text = ""
 
     if operation=="done":
         appeal.status = 3
         appeal.ddate = datetime.datetime.now()
+        appeal_text = "Исполнено"
+        sse.publish({"message": "Статус вашего обращения №_%s изменился на %s"%(appeal.id, appeal_text), "author":appeal.author}, type='message')
     elif operation=="get":
         appeal.status = 2
+        appeal_text = "Принято"
+        sse.publish({"message": "Статус вашего обращения №_%s изменился на %s"%(appeal.id, appeal_text), "author":appeal.author}, type='message')
     elif operation=="reject":
         appeal.status = 4
+        appeal_text = "Отклонено"
+        sse.publish({"message": "Статус вашего обращения №_%s изменился на '%s'"%(appeal.id, appeal_text), "author":appeal.author}, type='message')
     elif operation=="checked":
         appeal.status = 5
-
     db.session.commit()
-    return jsonify("Успешно изменена запись")
+    return Response(status=204)
 
 #Ответ на обращение
-@app.route('/answer_appeals', methods = ['POST'])
+@app.route('/answer_appeals', methods = ['POST', 'GET'])
 def answer_appeals():
+    current_user = get_current_user()
     id = request.form['pk']
     appeal = Appeals.query.filter(Appeals.id==id).first()
     appeal.answer = request.form['value']
     db.session.commit()
-    return jsonify("Успешно изменена запись")
+    print appeal.author, current_user.id
+    #~ if current_user.id == appeal.author:
+    sse.publish({"message": "На ваше обращение №_%s получен ответ"%(appeal.id), "author":appeal.author}, type='message')
+    response = app.response_class(
+        response=json.dumps({"author":appeal.author},{"cuid":current_user.id}),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
 
-
+@app.route('/hello')
+def publish_hello():
+    sse.publish({"message": "Hello!"}, type='greeting')
+    return "Message sent!"

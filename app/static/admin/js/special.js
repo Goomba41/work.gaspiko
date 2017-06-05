@@ -108,10 +108,6 @@
             contentType: 'application/json;charset=UTF-8',
             data : JSON.stringify({"get":id}),
             dataType: 'json',
-            success: function (e) {
-                console.log(e);
-                location.reload();
-            }
         });
     }
     function reject(id) {
@@ -121,10 +117,6 @@
             contentType: 'application/json;charset=UTF-8',
             data : JSON.stringify({"reject":id}),
             dataType: 'json',
-            success: function (e) {
-                console.log(e);
-                location.reload();
-            }
         });
     }
     function done(id) {
@@ -134,10 +126,6 @@
             contentType: 'application/json;charset=UTF-8',
             data : JSON.stringify({"done":id}),
             dataType: 'json',
-            success: function (e) {
-                console.log(e);
-                location.reload();
-            }
         });
     }
     function checked(id) {
@@ -147,9 +135,5 @@
             contentType: 'application/json;charset=UTF-8',
             data : JSON.stringify({"checked":id}),
             dataType: 'json',
-            success: function (e) {
-                console.log(e);
-                location.reload();
-            }
         });
     }
