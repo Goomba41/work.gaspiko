@@ -1,8 +1,12 @@
 ﻿#! venv/bin/python
 
 from app import app, db
+
+from app.authentication.views import login_required
+from app.authentication.forms import LoginForm
+
 from models import User, Department, Role, Post, Important_news, Table, History, Permission, Module, News, Appeals
-from forms import LoginForm, DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, AddNewsForm, EditNewsForm
+from forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, AddNewsForm, EditNewsForm
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response
 from functools import wraps
 from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER
@@ -107,56 +111,10 @@ def get_date(date):
     date = datetime.datetime.strptime(date, '%m-%d')
     return date.month, date.day
 
-#Проверка сессии на логин
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('logged_in'):
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
-
 #Обработчик ошибки 403 - доступ запрещен
 @app.errorhandler(403)
 def forbidden(e):
     return render_template('403.html'), 403
-
-#Функция проверки доступа пользователя и логин
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form_login = LoginForm()
-
-    if form_login.validate_on_submit():
-        login_user = form_login.login.data
-        login_password = form_login.password.data
-
-        user_data = User.query.filter(User.login == login_user).first()
-        if (user_data):
-            if ((user_data.status==1) or (user_data.role.id==1)):
-                password_hash = hashlib.md5(login_password)
-                if ((user_data.login==login_user) and (user_data.password==password_hash.hexdigest())):
-                    session['logged_in'] = True
-                    session['user_id'] = user_data.id
-                    session['last_login'] = user_data.last_login
-
-                    user_data.last_login = time.strftime("%Y-%m-%d %H:%M:%S")
-                    db.session.commit()
-
-                    return redirect(url_for('admin'))
-                else:
-                    flash(u"Неправильное сочетание логина и пароля, повторите ввод", 'error')
-            else:
-                flash(u"Ваш пользователь отключен. Пожалуйста, обратитесь к системному администратору", 'error')
-        else:
-            flash(u"Пользователя с таким логином не существует", 'error')
-
-    return render_template('admin/login.html', form_login=form_login)
-
-#Функция выхода пользователя из сессии
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for('index'))
 
 #Главная (и единственная) страница
 @app.route('/')
@@ -241,6 +199,26 @@ def admin():
     elif form_delete.validate_on_submit() and not delete:
         flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('admin'))
+
+    # Попытка сделать напоминание за день до дня рождения пользователя: проблема - как запомнить что сообщение уже отработало
+    #~ if request.cookies.get('reminder_birthday'):
+        #~ reminder_birthday_state = request.cookies.get('reminder_birthday')
+    #~ else:
+        #~ reminder_birthday_state =  'off'
+    #~ if reminder_birthday_state == 'on':
+        #~ birth_celebrate_wth_nxt_mnt = dict(birth_celebrate)
+        #~ for user in users_all:
+            #~ if user.birth_date.month ==  int(time.strftime("%m"))+1:
+                #~ birth_celebrate_wth_nxt_mnt.update({'%s %s %s'%(user.surname, user.name, user.patronymic):[user.birth_date.day, user.id]})
+        #~ days = calendar.monthrange(int(time.strftime("%Y")), int(time.strftime("%m")))
+        #~ tmp_d =  int(time.strftime("%m")) + 1
+        #~ if tmp_d > days[1]:
+            #~ tmp_d = 1
+        #~ for key, value in birth_celebrate_wth_nxt_mnt.iteritems():
+            #~ if value[0] ==  tmp_d:
+                #~ congrats = "У пользователя " + str(key.encode('utf-8')+" завтра день рождения, не забудьте поздравить!")
+                #~ sse.publish({"message": congrats, "exclude":value[1], "retry":30000}, type='birthday', retry=30)
+                #~ sse.publish({"message": "У пользователя %s завтра день рождения, не забудьте поздравить!"%(key.encode('utf-8')), "exclude":value[1], "retry":30000}, type='birthday', retry=30)
 
     return render_template("admin/admin.html",  current_user=current_user, permissions = permissions, last_login=session['last_login'], time_worked = time_worked, birth_celebrate=birth_celebrate,
     today=today, all_counters=all_counters, important_news_all=important_news_all, form_delete=form_delete, celebration=celebration)
@@ -1325,7 +1303,7 @@ def admin_appeals(page = 1, *args):
     return render_template("admin/list_appeals.html", appeals_all = appeals_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today)
 
 #Форма добавления нового обращения
-@app.route('/new_appeals', methods = ['POST'])
+@app.route('/new_appeals', methods = ['POST', 'GET'])
 def new_appeals():
     current_user = get_current_user()
 
@@ -1341,6 +1319,7 @@ def new_appeals():
             db.session.add(data)
             make_history("appeals", "вставку", current_user.id)
             db.session.commit()
+            sse.publish({"message": "Поступило новое обращение!"}, type='new', retry=30000)
         destination = url_for('admin_appeals')
         response = Response(
             response=json.dumps({'url':destination,'plus':'<i class="fa fa-plus fa-control" aria-hidden="true"></i>'}),
@@ -1368,19 +1347,19 @@ def appeals_status_change():
         appeal.status = 3
         appeal.ddate = datetime.datetime.now()
         appeal_text = "Исполнено"
-        sse.publish({"message": "Статус вашего обращения №_%s изменился на %s"%(appeal.id, appeal_text), "author":appeal.author}, type='message')
+        sse.publish({"message": "Статус вашего обращения №_%s изменился на %s"%(appeal.id, appeal_text), "author":appeal.author}, type='message', retry=30)
     elif operation=="get":
         appeal.status = 2
         appeal_text = "Принято"
-        sse.publish({"message": "Статус вашего обращения №_%s изменился на %s"%(appeal.id, appeal_text), "author":appeal.author}, type='message')
+        sse.publish({"message": "Статус вашего обращения №_%s изменился на %s"%(appeal.id, appeal_text), "author":appeal.author}, type='message', retry=30)
     elif operation=="reject":
         appeal.status = 4
         appeal_text = "Отклонено"
-        sse.publish({"message": "Статус вашего обращения №_%s изменился на '%s'"%(appeal.id, appeal_text), "author":appeal.author}, type='message')
+        sse.publish({"message": "Статус вашего обращения №_%s изменился на '%s'"%(appeal.id, appeal_text), "author":appeal.author, "retry":1}, type='message', retry=30)
     elif operation=="checked":
         appeal.status = 5
     db.session.commit()
-    return Response(status=204)
+    return Response(status=200)
 
 #Ответ на обращение
 @app.route('/answer_appeals', methods = ['POST', 'GET'])
@@ -1390,9 +1369,7 @@ def answer_appeals():
     appeal = Appeals.query.filter(Appeals.id==id).first()
     appeal.answer = request.form['value']
     db.session.commit()
-    print appeal.author, current_user.id
-    #~ if current_user.id == appeal.author:
-    sse.publish({"message": "На ваше обращение №_%s получен ответ"%(appeal.id), "author":appeal.author}, type='message')
+    sse.publish({"message": "На ваше обращение №_%s получен ответ"%(appeal.id), "author":appeal.author, "retry":30000}, type='message', retry=30)
     response = app.response_class(
         response=json.dumps({"author":appeal.author},{"cuid":current_user.id}),
         status=200,
@@ -1400,7 +1377,11 @@ def answer_appeals():
     )
     return response
 
-@app.route('/hello')
-def publish_hello():
-    sse.publish({"message": "Hello!"}, type='greeting')
-    return "Message sent!"
+#Настройки (Придумать потом какие-нибудь настройки)
+#~ @app.route('/options', methods = ['POST', 'GET'])
+#~ def options():
+    #~ current_user = get_current_user()
+    #~ operation = request.json.items()
+    #~ resp = make_response()
+    #~ resp.set_cookie(operation[0][0],operation[0][1], expires=datetime.datetime.now()+datetime.timedelta(days=365))
+    #~ return resp

@@ -9,10 +9,6 @@ from models import Department, Role, Post, User, Table
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.fields.html5 import TelField
 
-class LoginForm(FlaskForm):
-    login = TextField(u'Логин', validators = [Required(message = u'Введите логин')])
-    password = PasswordField(u'Пароль', validators = [Required(message = u'Введите пароль')])
-
 class AddUserForm(FlaskForm):
     login = TextField(u'Логин', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Логин должен быть в диапазоне от 1 до 15 символов')])
     password = PasswordField(u'Пароль', validators = [Required(message = u'Введите пароль'), Length(min=1, message = u'Пароль должен быть более 8 символов')])

@@ -14,3 +14,7 @@ migrate = Migrate (app, db)
 from config import basedir
 from app import views, models
 
+from app.authentication.views import authentication as authentication_module
+
+app.register_blueprint(authentication_module)
+

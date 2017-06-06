@@ -137,3 +137,25 @@
             dataType: 'json',
         });
     }
+
+    $(document).ready(function () {
+    $('.reminder_birthday').change(function () {
+            if ($('.reminder_birthday').is(':checked')) {
+                $.ajax({
+                    type : "POST",
+                    url : "/options",
+                    contentType: 'application/json;charset=UTF-8',
+                    data : JSON.stringify({"reminder_birthday":"on"}),
+                    dataType: 'json',
+                });
+            } else {
+                $.ajax({
+                    type : "POST",
+                    url : "/options",
+                    contentType: 'application/json;charset=UTF-8',
+                    data : JSON.stringify({"reminder_birthday":"off"}),
+                    dataType: 'json',
+                });
+            }
+        });
+    });

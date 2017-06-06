@@ -85,7 +85,7 @@
                             <li><a href="#">Картотека запросов</a></li>
                         </ul>
                     </li>
-                    <li class=""><a href="{{url_for('logout')}}">Выйти</a></li>
+                    <li class=""><a href="{{url_for('login.logout')}}">Выйти</a></li>
                 </ul>
               </div>
             </div>
@@ -135,9 +135,22 @@
             //~ alert("Connection open");
             //~ console.log(event.data);
         //~ }, false);
+        source.addEventListener('new', function(event) {
+            var data = JSON.parse(event.data);
+            if ( '{{ current_user.post.name }}' == 'Программист') {
+            alert(data.message);
+            console.log(event.data);
+            }
+        }, false);
+        //~ source.addEventListener('birthday', function(event) {
+            //~ var data = JSON.parse(event.data);
+            //~ if (data.exclude != {{ current_user.id }}) {
+                //~ alert(data.message);
+            //~ }
+            //~ console.log(event.data);
+        //~ }, false);
         //~ source.addEventListener('error', function(event) {
             //~ alert("Failed to connect to event stream. Is Redis running?");
-            //~ console.log(event.data);
         //~ }, false);
     </script>
 </html>
