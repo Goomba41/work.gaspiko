@@ -15,6 +15,8 @@ from config import basedir
 from app import views, models
 
 from app.authentication.views import authentication as authentication_module
+from app.admin.views import administration as admin_module
 
 app.register_blueprint(authentication_module)
+app.register_blueprint(admin_module)
 

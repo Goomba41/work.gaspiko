@@ -1,8 +1,10 @@
 ﻿#! venv/bin/python
 
 from app import app, db
+
 from app.authentication.models import User
 from app.authentication.forms import LoginForm
+
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint
 from functools import wraps
 from config import basedir, SQLALCHEMY_DATABASE_URI

@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 from wtforms import TextField, TextAreaField, PasswordField, DateField, SelectField, BooleanField
 from wtforms.validators import Required, regexp, Length
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-from models import Department, Role, Post, User, Table
+from app.admin.models import Department, Role, Post, User, Table
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.fields.html5 import TelField
 

@@ -129,7 +129,7 @@
                                     <li>Вам присвоена роль: <strong>{{ current_user.role.name }}</strong></li>
                                     <li>Ваш отдел: <strong>{{ current_user.department.name }}</strong></li>
                                     <li>Ваша должность: <strong>{{ current_user.post.name }}</strong></li>
-                                    <li>Ваш стаж: <strong>{{ time_worked[0] }} лет {{ time_worked[1] }} месяцев {{ time_worked[2] }} дней</strong></li>
+                                    <li>Ваш стаж: <strong>{{ time_worked[0][0] }} {{ time_worked[0][1] }} {{ time_worked[1][0] }} {{ time_worked[1][1] }} {{ time_worked[2][0] }} {{ time_worked[2][1] }}</strong></li>
                                     <li><i class="fa fa-history" aria-hidden="true"></i><a href="{{ url_for('admin_history') }}">История действий пользователя</a></li>
                                 </ul>
                             </div>
