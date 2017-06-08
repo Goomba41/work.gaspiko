@@ -3,7 +3,7 @@
         numbers = password.match(/\d+/g);
 
         if (password != null && password.length>=8 && numbers!=null) {
-            $.post( "/password_reset", {
+            $.post( "/admin/password_reset", {
                 new_password: password,
                 user: user_id,
             })
@@ -16,7 +16,7 @@
        $("input:checkbox[name=rowdelete]:checked").each(function(){
             yourArray.push($(this).val());
         });
-        $.post( "/rows_delete", {
+        $.post( "/admin/rows_delete", {
             param: yourArray,
             table: 'users'
         })
@@ -28,7 +28,7 @@
        $("input:checkbox[name=rowdelete]:checked").each(function(){
             yourArray.push($(this).val());
         });
-        $.post( "/rows_disable", {
+        $.post( "/admin/rows_disable", {
             param: yourArray
         })
         location.reload();
@@ -45,7 +45,7 @@
        $("input:checkbox[name=rowdelete]:checked").each(function(){
             yourArray.push($(this).val());
         });
-        $.post( "/rows_delete", {
+        $.post( "/admin/rows_delete", {
             param: yourArray,
             table: 'roles'
         })
@@ -57,7 +57,7 @@
        $("input:checkbox[name=rowdelete]:checked").each(function(){
             yourArray.push($(this).val());
         });
-        $.post( "/rows_delete", {
+        $.post( "/admin/rows_delete", {
             param: yourArray,
             table: 'departments'
         })
@@ -69,7 +69,7 @@
        $("input:checkbox[name=rowdelete]:checked").each(function(){
             yourArray.push($(this).val());
         });
-        $.post( "/rows_delete", {
+        $.post( "/admin/rows_delete", {
             param: yourArray,
             table: 'posts'
         })
@@ -81,7 +81,7 @@
        $("input:checkbox[name=rowdelete]:checked").each(function(){
             yourArray.push($(this).val());
         });
-        $.post( "/rows_delete", {
+        $.post( "/admin/rows_delete", {
             param: yourArray,
             table: 'news'
         })
@@ -90,7 +90,7 @@
     function disable(id) {
          $.ajax({
             type : "POST",
-            url : "/user_disable",
+            url : "/admin/user_disable",
             contentType: 'application/json;charset=UTF-8',
             data : JSON.stringify(id),
             dataType: 'json',
@@ -104,7 +104,7 @@
     function get(id) {
          $.ajax({
             type : "POST",
-            url : "/appeals_status_change",
+            url : "/admin/appeals_status_change",
             contentType: 'application/json;charset=UTF-8',
             data : JSON.stringify({"get":id}),
             dataType: 'json',
@@ -113,7 +113,7 @@
     function reject(id) {
          $.ajax({
             type : "POST",
-            url : "/appeals_status_change",
+            url : "/admin/appeals_status_change",
             contentType: 'application/json;charset=UTF-8',
             data : JSON.stringify({"reject":id}),
             dataType: 'json',
@@ -122,7 +122,7 @@
     function done(id) {
          $.ajax({
             type : "POST",
-            url : "/appeals_status_change",
+            url : "/admin/appeals_status_change",
             contentType: 'application/json;charset=UTF-8',
             data : JSON.stringify({"done":id}),
             dataType: 'json',
@@ -131,7 +131,7 @@
     function checked(id) {
          $.ajax({
             type : "POST",
-            url : "/appeals_status_change",
+            url : "/admin/appeals_status_change",
             contentType: 'application/json;charset=UTF-8',
             data : JSON.stringify({"checked":id}),
             dataType: 'json',

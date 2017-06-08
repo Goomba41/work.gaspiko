@@ -42,7 +42,7 @@ def login():
                     user_data.last_login = time.strftime("%Y-%m-%d %H:%M:%S")
                     db.session.commit()
 
-                    return redirect(url_for('admin'))
+                    return redirect(url_for('admin.admin'))
                 else:
                     flash(u"Неправильное сочетание логина и пароля, повторите ввод", 'error')
             else:

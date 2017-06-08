@@ -15,9 +15,6 @@
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-<!--
-                <li class=""><a href="{{url_for('admin_appeals')}}">Список  <span class="badge">{{ all_counters.get('appeals_count_all') }}</span></a></li>
--->
                 <li><a href="#" id="text" data-type="textarea" data-pk="" data-title="Новое обращение" data-placeholder="Введите текст вашего обращения сюда..."><i class="fa fa-plus fa-control" aria-hidden="true"></i></a></li>
             </ul>
           </div>
@@ -25,7 +22,7 @@
     </nav>
     <script>
         $('#text').editable({
-            url: '/new_appeals',
+            url: "{{ url_for('admin.new_appeals') }}",
             escape: false,
             placement: 'bottom',
             ajaxOptions: {
@@ -104,7 +101,7 @@
                 </tr>
                 <script>
                     $('#answer{{ appeal.id }}').editable({
-                        url: '/answer_appeals',
+                        url: "{{ url_for('admin.answer_appeals') }}",
                         escape: false,
                         emptytext: 'Нет ответа',
                         placement: 'bottom',

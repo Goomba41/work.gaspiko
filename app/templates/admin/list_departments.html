@@ -15,8 +15,8 @@
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-                <li class=""><a href="{{url_for('admin_departments')}}">Список  <span class="badge">{{ all_counters.get('department_count') }}</span></a></li>
-                <li><a href="{{url_for('new_department')}}">Создать</a></li>
+                <li class=""><a href="{{url_for('admin.admin_departments')}}">Список  <span class="badge">{{ all_counters.get('department_count') }}</span></a></li>
+                <li><a href="{{url_for('admin.new_department')}}">Создать</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">С выбранным<span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -63,7 +63,7 @@
                         <br/>
                     </td>
                     <td>{{ department.id }}</td>
-                    <td><a href="#" id="name{{ department.id }}" data-name="name" data-type="text" data-pk="{{ department.id }}" data-url="/fast_department_edit" data-title="Введите название">{{ department.name }}</a></td>
+                    <td><a href="#" id="name{{ department.id }}" data-name="name" data-type="text" data-pk="{{ department.id }}" data-url="{{ url_for('admin.fast_department_edit') }}" data-title="Введите название">{{ department.name }}</a></td>
                     <script>
                         $('#name{{ department.id }}').editable({
                             success: function (e) {

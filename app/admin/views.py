@@ -35,6 +35,8 @@ def get_com(x, y):
     return (x,y)
 
 #Функция счета стажа
+@app.template_filter('standing')
+#~ @administration.context_processor
 def standing(f):
     now = str(time.strftime("%Y-%m-%d"))
     first = str(f)
@@ -61,7 +63,13 @@ def standing(f):
         if date_result[1] == 12:
             date_result[0] += 1
             date_result[1] = 0
-    return date_result
+
+    time_worked = [
+    get_com(date_result[0], [u"год", u"года", u"лет"]),
+    get_com(date_result[1], [u"месяц", u"месяца", u"месяцев"]),
+    get_com(date_result[2],  [u"день", u"дня", u"дней"])]
+
+    return time_worked
 
 #Текущий пользователь
 def get_current_user():
@@ -134,7 +142,7 @@ def forbidden(e):
     return render_template('403.html'), 403
 
 #Админка основной экран
-@app.route('/admin', methods=['GET', 'POST'])
+@administration.route('/', methods=['GET', 'POST'])
 @login_required
 def admin():
     current_user = get_current_user()
@@ -146,11 +154,6 @@ def admin():
     print "delete "+str(delete)
 
     time_worked = standing(current_user.work_date)
-
-    time_worked = [
-    get_com(time_worked[0], [u"год", u"года", u"лет"]),
-    get_com(time_worked[1], [u"месяц", u"месяца", u"месяцев"]),
-    get_com(time_worked[2],  [u"день", u"дня", u"дней"])]
 
     users_all = User.query.all()
     all_counters = get_counters()
@@ -181,10 +184,10 @@ def admin():
             Important_news.query.filter(Important_news.id == important_id).delete()
             make_history("important", "удаление", current_user.id)
             db.session.commit()
-            return redirect(url_for('admin'))
+            return redirect(url_for('admin.admin'))
     elif form_delete.validate_on_submit() and not delete:
         flash(u"Вам запрещено данное действие", 'error')
-        return redirect(url_for('admin'))
+        return redirect(url_for('admin.admin'))
 
     # Попытка сделать напоминание за день до дня рождения пользователя: проблема - как запомнить что сообщение уже отработало
     #~ if request.cookies.get('reminder_birthday'):
@@ -210,7 +213,7 @@ def admin():
     today=today, all_counters=all_counters, important_news_all=important_news_all, form_delete=form_delete, celebration=celebration)
 
 #Быстрое изменение данных записи
-@app.route('/fast_important_edit', methods = ['POST'])
+@administration.route('/fast_important_edit', methods = ['POST'])
 def fast_important_edit():
     current_user = get_current_user()
 
@@ -246,7 +249,7 @@ def fast_important_edit():
     return response
 
 #Добавление важной новости
-@app.route('/new_important', methods = ['POST'])
+@administration.route('/new_important', methods = ['POST'])
 def new_important():
     current_user = get_current_user()
 
@@ -261,7 +264,7 @@ def new_important():
             db.session.add(data)
             make_history("important", "вставку", current_user.id)
             db.session.commit()
-        destination = url_for('admin')
+        destination = url_for('admin.admin')
         response = Response(
             response=json.dumps({'url':destination,'plus':'<i class="fa fa-plus fa-control" aria-hidden="true"></i>'}),
             status=200,
@@ -277,18 +280,14 @@ def new_important():
     return response
 
 #Страница со списком пользователей
-@app.route('/admin/users', methods=['GET', 'POST'])
-@app.route('/admin/users/<int:page>', methods=['GET', 'POST'])
+@administration.route('/users', methods=['GET', 'POST'])
+@administration.route('/users/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_users(page = 1, *args):
 
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
     print "enter "+str(enter)
     if not enter:
         return forbidden(403)
@@ -299,7 +298,7 @@ def admin_users(page = 1, *args):
     pagination = Pagination(page=page, total = all_counters.get('user_count'), per_page = PER_PAGE, css_framework='bootstrap3')
 
     form_delete = DelUserForm()
-    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    delete = get_permissions(current_user.role.id, current_user.id, "users", "delete")
     print "delete "+str(delete)
 
     if form_delete.validate_on_submit() and delete:
@@ -311,16 +310,16 @@ def admin_users(page = 1, *args):
         db.session.delete(user)
         db.session.commit()
         flash(u"Пользователь удален", 'success')
-        return redirect(url_for('admin_users', page = page))
+        return redirect(url_for('admin.admin_users', page = page))
     elif form_delete.validate_on_submit() and not delete:
         flash(u"Вам запрещено данное действие", 'error')
-        return redirect(url_for('admin_users', page = page))
+        return redirect(url_for('admin.admin_users', page = page))
 
     return render_template("admin/list_users.html", users_all = users_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today,
      form_delete=form_delete)
 
 #Сброс и установка нового пароля для пользователя
-@app.route('/password_reset', methods = ['POST'])
+@administration.route('/password_reset', methods = ['POST'])
 def get_post_javascript_data_password():
     current_user = get_current_user()
     url = 'users'
@@ -343,7 +342,7 @@ def get_post_javascript_data_password():
         return jsonify("Запрещено данное действие")
 
 #Удаление нескольких записей
-@app.route('/rows_delete', methods = ['POST'])
+@administration.route('/rows_delete', methods = ['POST'])
 def get_post_javascript_data_id_delete():
     current_user = get_current_user()
 
@@ -390,7 +389,7 @@ def get_post_javascript_data_id_delete():
     return jsonify("Не выбраны записи")
 
 #Отлючение нескольких записей
-@app.route('/rows_disable', methods = ['POST'])
+@administration.route('/rows_disable', methods = ['POST'])
 def get_post_javascript_data_id_disable():
     current_user = get_current_user()
     url = 'users'
@@ -412,7 +411,7 @@ def get_post_javascript_data_id_disable():
         return jsonify("Запрещено данное действие")
 
 #Отлючение одной записи
-@app.route('/user_disable', methods = ['POST'])
+@administration.route('/user_disable', methods = ['POST'])
 def user_disable():
     current_user = get_current_user()
     url = 'users'
@@ -436,18 +435,14 @@ def user_disable():
         return jsonify("Запрещено данное действие")
 
 #Форма добавления нового пользователя
-@app.route('/admin/users/new', methods=['GET', 'POST'])
+@administration.route('/users/new', methods=['GET', 'POST'])
 @login_required
 def new_user():
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
     print "enter "+str(enter)
-    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    insert = get_permissions(current_user.role.id, current_user.id, "users", "insert")
     print "insert "+str(insert)
 
     if not enter or not insert:
@@ -495,22 +490,18 @@ def new_user():
                 db.session.commit()
 
                 flash(u"Пользователь добавлен", 'success')
-                return redirect(url_for('admin_users'))
+                return redirect(url_for('admin.admin_users'))
     return render_template("admin/add_users.html", form_user_add = form_user_add, all_counters = all_counters, current_user=current_user, today=today)
 
 #Форма изменения пользователя
-@app.route('/admin/users/edit', methods=['GET', 'POST'])
+@administration.route('/users/edit', methods=['GET', 'POST'])
 @login_required
 def edit_user():
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
     print "enter "+str(enter)
-    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    update = get_permissions(current_user.role.id, current_user.id, "users", "update")
     print "update "+str(update)
 
     if not enter or not update:
@@ -599,11 +590,11 @@ def edit_user():
                 db.session.commit()
 
                 flash(u"Пользователь изменен", 'success')
-                return redirect(url_for('admin_users'))
+                return redirect(url_for('admin.admin_users'))
     return render_template("admin/edit_users.html", form_user_edit = form_user_edit, all_counters = all_counters, current_user=current_user, today=today)
 
 #Быстрое изменение данных записи
-@app.route('/post', methods = ['POST'])
+@administration.route('/post', methods = ['POST'])
 def get_post_user():
     current_user = get_current_user()
     url = 'users'
@@ -631,7 +622,7 @@ def get_post_user():
         return jsonify("Запрещено данное действие")
 
 #Получение данных из таблицы и возвращение json в javascript для составления списков в выпадающих списках
-@app.route('/get', methods = ['GET'])
+@administration.route('/get', methods = ['GET'])
 def get_bootstap_editable():
     posts = Post.query.all()
     Posts_list ={}
@@ -648,19 +639,15 @@ def get_bootstap_editable():
     return jsonify(Posts_list, Departments_list, Roles_list)
 
 #Страница со списком ролей
-@app.route('/admin/roles', methods=['GET', 'POST'])
-@app.route('/admin/roles/<int:page>', methods=['GET', 'POST'])
+@administration.route('/roles', methods=['GET', 'POST'])
+@administration.route('/roles/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_roles(page = 1, *args):
 
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
-    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    enter = get_permissions(current_user.role.id, current_user.id, "roles", "enter")
+    delete = get_permissions(current_user.role.id, current_user.id, "roles", "delete")
     print "enter "+str(enter)
     print "delete "+str(delete)
 
@@ -680,15 +667,15 @@ def admin_roles(page = 1, *args):
         make_history("roles", "удаление", current_user.id)
         db.session.commit()
         flash(u"Роль удалена", 'success')
-        return redirect(url_for('admin_roles', page = page))
+        return redirect(url_for('admin.admin_roles', page = page))
     elif form_delete.validate_on_submit() and not delete:
         flash(u"Вам запрещено данное действие", 'error')
-        return redirect(url_for('admin_roles', page = page))
+        return redirect(url_for('admin.admin_roles', page = page))
 
     return render_template("admin/list_roles.html", roles_all = roles_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, form_delete=form_delete)
 
 #Быстрое изменение данных записи
-@app.route('/fast_role_edit', methods = ['POST'])
+@administration.route('/fast_role_edit', methods = ['POST'])
 def fast_role_edit():
     current_user = get_current_user()
     url = 'roles'
@@ -714,18 +701,14 @@ def fast_role_edit():
         return jsonify("Запрещено данное действие")
 
 #Форма добавления новой роли
-@app.route('/admin/roles/new', methods=['GET', 'POST'])
+@administration.route('/roles/new', methods=['GET', 'POST'])
 @login_required
 def new_role():
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    enter = get_permissions(current_user.role.id, current_user.id, "roles", "enter")
     print "enter "+str(enter)
-    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    insert = get_permissions(current_user.role.id, current_user.id, "roles", "insert")
     print "insert "+str(insert)
 
     if not enter or not insert:
@@ -744,22 +727,18 @@ def new_role():
             db.session.commit()
 
             flash(u"Роль добавлена", 'success')
-            return redirect(url_for('admin_roles'))
+            return redirect(url_for('admin.admin_roles'))
     return render_template("admin/add_roles.html", form_role_add = form_role_add, all_counters = all_counters, current_user=current_user, today=today)
 
 #Страница со списком отделов
-@app.route('/admin/departments', methods=['GET', 'POST'])
-@app.route('/admin/departments/<int:page>', methods=['GET', 'POST'])
+@administration.route('/departments', methods=['GET', 'POST'])
+@administration.route('/departments/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_departments(page = 1, *args):
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
-    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    enter = get_permissions(current_user.role.id, current_user.id, "departments", "enter")
+    delete = get_permissions(current_user.role.id, current_user.id, "departments", "delete")
     print "enter "+str(enter)
     print "delete "+str(delete)
 
@@ -779,15 +758,15 @@ def admin_departments(page = 1, *args):
         make_history("departments", "удаление", current_user.id)
         db.session.commit()
         flash(u"Отдел удален", 'success')
-        return redirect(url_for('admin_departments', page = page))
+        return redirect(url_for('admin.admin_departments', page = page))
     elif form_delete.validate_on_submit() and not delete:
         flash(u"Вам запрещено данное действие", 'error')
-        return redirect(url_for('admin_departments', page = page))
+        return redirect(url_for('admin.admin_departments', page = page))
 
     return render_template("admin/list_departments.html", departments_all = departments_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, form_delete=form_delete)
 
 #Быстрое изменение данных записи
-@app.route('/fast_department_edit', methods = ['POST'])
+@administration.route('/fast_department_edit', methods = ['POST'])
 def fast_department_edit():
     current_user = get_current_user()
     url = 'departments'
@@ -813,18 +792,14 @@ def fast_department_edit():
         return jsonify("Запрещено данное действие")
 
 #Форма добавления нового отдела
-@app.route('/admin/departments/new', methods=['GET', 'POST'])
+@administration.route('/departments/new', methods=['GET', 'POST'])
 @login_required
 def new_department():
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    enter = get_permissions(current_user.role.id, current_user.id, "departments", "enter")
     print "enter "+str(enter)
-    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    insert = get_permissions(current_user.role.id, current_user.id, "departments", "insert")
     print "insert "+str(insert)
 
     if not enter or not insert:
@@ -843,22 +818,18 @@ def new_department():
             db.session.commit()
 
             flash(u"Отдел добавлен", 'success')
-            return redirect(url_for('admin_departments'))
+            return redirect(url_for('admin.admin_departments'))
     return render_template("admin/add_departments.html", form_department_add = form_department_add, all_counters = all_counters, current_user=current_user, today=today)
 
 #Страница со списком должностей
-@app.route('/admin/posts', methods=['GET', 'POST'])
-@app.route('/admin/posts/<int:page>', methods=['GET', 'POST'])
+@administration.route('/posts', methods=['GET', 'POST'])
+@administration.route('/posts/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_posts(page = 1, *args):
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
-    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    enter = get_permissions(current_user.role.id, current_user.id, "posts", "enter")
+    delete = get_permissions(current_user.role.id, current_user.id, "posts", "delete")
     print "enter "+str(enter)
     print "delete "+str(delete)
 
@@ -878,15 +849,15 @@ def admin_posts(page = 1, *args):
         make_history("posts", "удаление", current_user.id)
         db.session.commit()
         flash(u"Должность удалена", 'success')
-        return redirect(url_for('admin_posts', page = page))
+        return redirect(url_for('admin.admin_posts', page = page))
     elif form_delete.validate_on_submit() and not delete:
         flash(u"Вам запрещено данное действие", 'error')
-        return redirect(url_for('admin_posts', page = page))
+        return redirect(url_for('admin.admin_posts', page = page))
 
     return render_template("admin/list_posts.html", posts_all = posts_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, form_delete=form_delete)
 
 #Быстрое изменение данных записи
-@app.route('/fast_post_edit', methods = ['POST'])
+@administration.route('/fast_post_edit', methods = ['POST'])
 def fast_post_edit():
     current_user = get_current_user()
     url = 'posts'
@@ -912,18 +883,14 @@ def fast_post_edit():
         return jsonify("Запрещено данное действие")
 
 #Форма добавления нового должности
-@app.route('/admin/posts/new', methods=['GET', 'POST'])
+@administration.route('/posts/new', methods=['GET', 'POST'])
 @login_required
 def new_post():
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    enter = get_permissions(current_user.role.id, current_user.id, "posts", "enter")
     print "enter "+str(enter)
-    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    insert = get_permissions(current_user.role.id, current_user.id, "posts", "insert")
     print "insert "+str(insert)
 
     if not enter or not insert:
@@ -942,12 +909,12 @@ def new_post():
             db.session.commit()
 
             flash(u"Должность добавлена", 'success')
-            return redirect(url_for('admin_posts'))
+            return redirect(url_for('admin.admin_posts'))
     return render_template("admin/add_posts.html", form_posts_add = form_posts_add, all_counters = all_counters, current_user=current_user, today=today)
 
 #Страница с историей действий
-@app.route('/admin/history', methods=['GET', 'POST'])
-@app.route('/admin/history/<int:page>', methods=['GET', 'POST'])
+@administration.route('/history', methods=['GET', 'POST'])
+@administration.route('/history/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_history(page = 1, *args):
 
@@ -964,8 +931,8 @@ def admin_history(page = 1, *args):
     return render_template("admin/list_history.html", actions_all = actions_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today)
 
 #Страница с историей действий всех пользователей
-@app.route('/admin/history/all', methods=['GET', 'POST'])
-@app.route('/admin/history/all/<int:page>', methods=['GET', 'POST'])
+@administration.route('/history/all', methods=['GET', 'POST'])
+@administration.route('/history/all/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_history_all(page = 1, *args):
 
@@ -1003,21 +970,17 @@ def admin_history_all(page = 1, *args):
     return render_template("admin/list_history.html", actions_all = actions_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, response = response, response2 = response2, response3=response3)
 
 #Страница с разрешениями всех пользователей
-@app.route('/admin/permissions', methods=['GET', 'POST'])
+@administration.route('/permissions', methods=['GET', 'POST'])
 @login_required
 def admin_permissions():
     current_user = get_current_user()
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
-    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
-    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
-    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    enter = get_permissions(current_user.role.id, current_user.id, "permissions", "enter")
+    insert = get_permissions(current_user.role.id, current_user.id, "permissions", "insert")
+    delete = get_permissions(current_user.role.id, current_user.id, "permissions", "delete")
+    update = get_permissions(current_user.role.id, current_user.id, "permissions", "update")
     print update
 
     if not enter:
@@ -1035,17 +998,17 @@ def admin_permissions():
         make_history("permissions", "удаление", current_user.id)
         db.session.commit()
         flash(u"Разрешение удалено", 'success')
-        return redirect(url_for('admin_permissions'))
+        return redirect(url_for('admin.admin_permissions'))
     elif form_delete.validate_on_submit() and not delete:
         flash(u"Вам запрещено данное действие", 'error')
-        return redirect(url_for('admin_permissions'))
+        return redirect(url_for('admin.admin_permissions'))
 
     if form_permission_add.validate_on_submit() and insert:
         if request.method  == 'POST':
 
             if Permission.query.filter((Permission.user_id == form_permission_add.user_id.data.id)&(Permission.table_id == form_permission_add.table_id.data.id)).first():
                 flash(u"Разрешение для данной таблицы и пользователя уже существует. Пожалуйста, найдите его в списке и отредактируйте", 'error')
-                return redirect(url_for('admin_permissions'))
+                return redirect(url_for('admin.admin_permissions'))
             else:
                 form_vals = request.form.to_dict()
                 permission = Permission(user_id = form_permission_add.user_id.data.id, table_id = form_permission_add.table_id.data.id, enter = form_vals.get('enter'), insert = form_vals.get('insert'), update = form_vals.get('update'), delete = form_vals.get('delete'))
@@ -1054,15 +1017,15 @@ def admin_permissions():
                 db.session.commit()
 
                 flash(u"Разрешение добавлено", 'success')
-                return redirect(url_for('admin_permissions'))
+                return redirect(url_for('admin.admin_permissions'))
     elif form_permission_add.validate_on_submit() and not insert:
         flash(u"Вам запрещено данное действие", 'error')
-        return redirect(url_for('admin_permissions'))
+        return redirect(url_for('admin.admin_permissions'))
 
     return render_template("admin/list_permissions.html",  all_counters = all_counters,  current_user=current_user, today=today, permissions_list_roles=permissions_list_roles, permissions_list_users=permissions_list_users, form_delete=form_delete, form_permission_add=form_permission_add)
 
 #Быстрое изменение разрешений
-@app.route('/update_permission', methods = ['POST'])
+@administration.route('/update_permission', methods = ['POST'])
 def get_post_javascript_data_show():
 
     current_user = get_current_user()
@@ -1108,18 +1071,14 @@ def get_post_javascript_data_show():
         return response
 
 #Страница со списком новостей
-@app.route('/admin/news', methods=['GET', 'POST'])
-@app.route('/admin/news/<int:page>', methods=['GET', 'POST'])
+@administration.route('/news', methods=['GET', 'POST'])
+@administration.route('/news/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_news(page = 1, *args):
 
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
     print "enter "+str(enter)
     if not enter:
         return forbidden(403)
@@ -1141,15 +1100,15 @@ def admin_news(page = 1, *args):
         make_history("news", "удаление", current_user.id)
         db.session.commit()
         flash(u"Новость удалена", 'success')
-        return redirect(url_for('admin_news', page = page))
+        return redirect(url_for('admin.admin_news', page = page))
     elif form_delete.validate_on_submit() and not delete:
         flash(u"Вам запрещено данное действие", 'error')
-        return redirect(url_for('admin_news', page = page))
+        return redirect(url_for('admin.admin_news', page = page))
 
     return render_template("admin/list_news.html", news_all = news_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, form_delete=form_delete)
 
 #Быстрое изменение данных записи
-@app.route('/fast_news_edit', methods = ['POST'])
+@administration.route('/fast_news_edit', methods = ['POST'])
 def fast_news_edit():
     current_user = get_current_user()
     url = 'news'
@@ -1176,18 +1135,14 @@ def fast_news_edit():
         return jsonify("Запрещено данное действие")
 
 #Форма добавления нового пользователя
-@app.route('/admin/news/new', methods=['GET', 'POST'])
+@administration.route('/news/new', methods=['GET', 'POST'])
 @login_required
 def new_news():
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
     print "enter "+str(enter)
-    insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
+    insert = get_permissions(current_user.role.id, current_user.id, "news", "insert")
     print "insert "+str(insert)
 
     if not enter or not insert:
@@ -1219,22 +1174,18 @@ def new_news():
             db.session.commit()
 
             flash(u"Новость добавлена", 'success')
-            return redirect(url_for('admin_news'))
+            return redirect(url_for('admin.admin_news'))
     return render_template("admin/add_news.html", form_news_add = form_news_add, all_counters = all_counters, current_user=current_user, today=today)
 
 #Форма изменения новости
-@app.route('/admin/news/edit', methods=['GET', 'POST'])
+@administration.route('/news/edit', methods=['GET', 'POST'])
 @login_required
 def edit_news():
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
     print "enter "+str(enter)
-    update = get_permissions(current_user.role.id, current_user.id, url, "update")
+    update = get_permissions(current_user.role.id, current_user.id, "news", "update")
     print "update "+str(update)
 
     if not enter or not update:
@@ -1261,22 +1212,18 @@ def edit_news():
             db.session.commit()
 
             flash(u"Новость изменена", 'success')
-            return redirect(url_for('admin_news'))
+            return redirect(url_for('admin.admin_news'))
     return render_template("admin/edit_news.html", form_news_edit = form_news_edit, all_counters = all_counters, current_user=current_user, today=today)
 
 #Страница со списком обращений
-@app.route('/admin/appeals', methods=['GET', 'POST'])
-@app.route('/admin/appeals/<int:page>', methods=['GET', 'POST'])
+@administration.route('/appeals', methods=['GET', 'POST'])
+@administration.route('/appeals/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_appeals(page = 1, *args):
 
     current_user = get_current_user()
 
-    func = inspect.currentframe()
-    url = url_for(inspect.getframeinfo(func).function)
-    url = url.split('/')[2]
-
-    enter = get_permissions(current_user.role.id, current_user.id, url, "enter")
+    enter = get_permissions(current_user.role.id, current_user.id, "appeals", "enter")
     print "enter "+str(enter)
     if not enter:
         return forbidden(403)
@@ -1289,7 +1236,7 @@ def admin_appeals(page = 1, *args):
     return render_template("admin/list_appeals.html", appeals_all = appeals_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today)
 
 #Форма добавления нового обращения
-@app.route('/new_appeals', methods = ['POST', 'GET'])
+@administration.route('/new_appeals', methods = ['POST', 'GET'])
 def new_appeals():
     current_user = get_current_user()
 
@@ -1306,7 +1253,7 @@ def new_appeals():
             make_history("appeals", "вставку", current_user.id)
             db.session.commit()
             sse.publish({"message": "Поступило новое обращение!"}, type='new', retry=30000)
-        destination = url_for('admin_appeals')
+        destination = url_for('admin.admin_appeals')
         response = Response(
             response=json.dumps({'url':destination,'plus':'<i class="fa fa-plus fa-control" aria-hidden="true"></i>'}),
             status=200,
@@ -1322,7 +1269,7 @@ def new_appeals():
     return response
 
 #Изменение статуса обращения
-@app.route('/appeals_status_change', methods = ['POST'])
+@administration.route('/appeals_status_change', methods = ['POST'])
 def appeals_status_change():
     operation = request.json.items()[0][0]
     id = request.json.items()[0][1]
@@ -1348,7 +1295,7 @@ def appeals_status_change():
     return Response(status=200)
 
 #Ответ на обращение
-@app.route('/answer_appeals', methods = ['POST', 'GET'])
+@administration.route('/answer_appeals', methods = ['POST', 'GET'])
 def answer_appeals():
     current_user = get_current_user()
     id = request.form['pk']
@@ -1364,10 +1311,27 @@ def answer_appeals():
     return response
 
 #Настройки (Придумать потом какие-нибудь настройки)
-#~ @app.route('/options', methods = ['POST', 'GET'])
+#~ @administration.route('/options', methods = ['POST', 'GET'])
 #~ def options():
     #~ current_user = get_current_user()
     #~ operation = request.json.items()
     #~ resp = make_response()
     #~ resp.set_cookie(operation[0][0],operation[0][1], expires=datetime.datetime.now()+datetime.timedelta(days=365))
     #~ return resp
+
+
+@administration.route('/users/print', methods=['GET', 'POST'])
+@login_required
+def admin_users_print(page = 1, *args):
+
+    current_user = get_current_user()
+
+    enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
+    print "enter "+str(enter)
+    if not enter:
+        return forbidden(403)
+
+    users_all = User.query.order_by(User.id.asc()).all()
+    today = time.strftime("%Y-%m-%d")
+
+    return render_template("admin/list_users_print.html", users_all = users_all, current_user=current_user, today=today)

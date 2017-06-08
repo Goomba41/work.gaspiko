@@ -15,8 +15,8 @@
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-                <li class=""><a href="{{url_for('admin_news')}}">Список  <span class="badge">{{ all_counters.get('user_count') }}</span></a></li>
-                <li><a href="{{url_for('new_news')}}">Создать</a></li>
+                <li class=""><a href="{{url_for('admin.admin_news')}}">Список  <span class="badge">{{ all_counters.get('user_count') }}</span></a></li>
+                <li><a href="{{url_for('admin.new_news')}}">Создать</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">С выбранным<span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -59,7 +59,7 @@
                                 </div>
                             </form>
                             <div>
-                                <a class = "edit" href="{{url_for('edit_news', id = news.id)}}"><button class="btn-primary" type="submit" title="Изменить запись"><i class="fa fa-pencil fa-control" aria-hidden="true"></i></button></a>
+                                <a class = "edit" href="{{url_for('admin.edit_news', id = news.id)}}"><button class="btn-primary" type="submit" title="Изменить запись"><i class="fa fa-pencil fa-control" aria-hidden="true"></i></button></a>
                                 <a class = "edit" href="{{url_for('news', id = news.id)}}"><button class="btn-warning" type="submit" title="Смотреть страницу"><i class="fa fa-eye fa-control" aria-hidden="true"></i></button></a>
                             </div>
                         </div>
@@ -71,7 +71,7 @@
                         </div>
                     </td>
                     <td>{{ news.user.surname }}<br/>{{ news.user.name }}</td>
-                    <td><a href="#" id="header{{ news.id }}" data-name="text" data-type="text" data-pk="{{ news.id }}" data-url="/fast_news_edit" data-title="Введите текст заголовка">{{ news.header}}</a></td>
+                    <td><a href="#" id="header{{ news.id }}" data-name="text" data-type="text" data-pk="{{ news.id }}" data-url="{{ url_for('admin.fast_news_edit') }}" data-title="Введите текст заголовка">{{ news.header}}</a></td>
                     <td>{{ news.cdate }}</td>
                     <script>
                             $('#header{{ news.id }}').editable({

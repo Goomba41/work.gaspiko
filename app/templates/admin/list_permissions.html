@@ -110,7 +110,7 @@
             </div>
             <div class="col-sm-8">
                 <input type="submit" value="Добавить" class="btn btn-lg btn-success">
-                <a href="{{url_for('admin_permissions')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+                <a href="{{url_for('admin.admin_permissions')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
             </div>
         </form>
         </div>
@@ -123,7 +123,7 @@
         $(document).ready(function() {
 
             $('.checkbox').change(function() {
-                $.post( "/update_permission", {
+                $.post( "{{ url_for('admin.get_post_javascript_data_show') }}", {
                     permission: this.id,
                     state: this.checked,
                     success: function (e) {

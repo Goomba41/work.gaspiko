@@ -15,8 +15,8 @@
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-                <li class=""><a href="{{url_for('admin_roles')}}">Список  <span class="badge">{{ all_counters.get('role_count') }}</span></a></li>
-                <li><a href="{{url_for('new_role')}}">Создать</a></li>
+                <li class=""><a href="{{url_for('admin.admin_roles')}}">Список  <span class="badge">{{ all_counters.get('role_count') }}</span></a></li>
+                <li><a href="{{url_for('admin.new_role')}}">Создать</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">С выбранным<span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -63,7 +63,7 @@
                         <br/>
                     </td>
                     <td>{{ role.id }}</td>
-                    <td><a href="#" id="name{{ role.id }}" data-name="name" data-type="text" data-pk="{{ role.id }}" data-url="/fast_role_edit" data-title="Введите название">{{ role.name }}</a></td>
+                    <td><a href="#" id="name{{ role.id }}" data-name="name" data-type="text" data-pk="{{ role.id }}" data-url="{{ url_for('admin.fast_role_edit') }}" data-title="Введите название">{{ role.name }}</a></td>
                     <script>
                         $('#name{{ role.id }}').editable({
                             success: function (e) {

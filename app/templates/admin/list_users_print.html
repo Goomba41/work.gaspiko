@@ -1,0 +1,39 @@
+{% if session['logged_in'] %}
+<style>
+    th {
+        border: 1px solid black;
+    }
+    td {
+        border: 1px solid black;
+    }
+</style>
+
+        <table cellspacing="0" cellpadding="10" >
+            <tr>
+                <th>ID</th>
+                <th>ФИО</th>
+                <th>Телефон</th>
+                <th>Отдел</th>
+                <th>Должность</th>
+                <th>Дата приема на работу в архив</th>
+                <th>Дата рождения</th>
+                <th>Стаж</th>
+            </tr>
+            {% for user in users_all %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.surname }}<br/>{{ user.name }}<br/>{{ user.patronymic }}</td>
+                    <td>{{ user.phone }}</td>
+                    <td>{{ user.department.name }}</td>
+                    <td>{{ user.post.name }}</td>
+                    <td>{{ user.work_date }}</td>
+                    <td>{{ user.birth_date }}</td>
+                    <td>
+                        {% for sth in (user.work_date, user.birth_date| standing) %}
+                            {{ sth[0] }} {{ sth[1]  }}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+{% endif %}

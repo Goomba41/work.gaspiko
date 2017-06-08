@@ -15,8 +15,8 @@
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-                <li class=""><a href="{{url_for('admin_posts')}}">Список  <span class="badge">{{ all_counters.get('post_count') }}</span></a></li>
-                <li><a href="{{url_for('new_post')}}">Создать</a></li>
+                <li class=""><a href="{{url_for('admin.admin_posts')}}">Список  <span class="badge">{{ all_counters.get('post_count') }}</span></a></li>
+                <li><a href="{{url_for('admin.new_post')}}">Создать</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">С выбранным<span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -63,7 +63,7 @@
                         <br/>
                     </td>
                     <td>{{ post.id }}</td>
-                    <td><a href="#" id="name{{ post.id }}" data-name="name" data-type="text" data-pk="{{ post.id }}" data-url="/fast_post_edit" data-title="Введите название">{{ post.name }}</a></td>
+                    <td><a href="#" id="name{{ post.id }}" data-name="name" data-type="text" data-pk="{{ post.id }}" data-url="{{ url_for('admin.fast_post_edit') }}" data-title="Введите название">{{ post.name }}</a></td>
                     <script>
                         $('#name{{ post.id }}').editable({
                             success: function (e) {

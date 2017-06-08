@@ -15,10 +15,10 @@
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-                <li class=""><a href="{{url_for('admin_users')}}">Список  <span class="badge">{{ all_counters.get('user_count') }}</span></a></li>
-                <li><a href="{{url_for('new_user')}}">Создать</a></li>
-                <li><a href="{{ url_for('admin_permissions') }}">Разрешения</a></li>
-                <li><a href="{{ url_for('admin_history_all') }}">История действий</a></li>
+                <li class=""><a href="{{url_for('admin.admin_users')}}">Список  <span class="badge">{{ all_counters.get('user_count') }}</span></a></li>
+                <li><a href="{{url_for('admin.new_user')}}">Создать</a></li>
+                <li><a href="{{ url_for('admin.admin_permissions') }}">Разрешения</a></li>
+                <li><a href="{{ url_for('admin.admin_history_all') }}">История действий</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">С выбранным<span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -27,6 +27,7 @@
                         <li><a class="delete" onclick="delete_users()"  href="">Удалить</a></li>
                     </ul>
                 </li>
+                <li><a href="{{ url_for('admin.admin_users_print') }}">Печать</a></li>
             </ul>
           </div>
         </div>
@@ -45,7 +46,7 @@
         var roles = [];
         $.ajax({
             type : "GET",
-            url : "{{url_for('get_bootstap_editable')}}",
+            url : "{{url_for('admin.get_bootstap_editable')}}",
             contentType: 'application/json;charset=UTF-8',
             success: function(result) {
                 $.each(result[0], function(k, v) {
@@ -65,7 +66,7 @@
     <div class="admin_wrapper">
         <table class="table table-striped table-bordered table-hover model-list" >
             <tr>
-                <th><input type="checkbox" name="rowtoggle" class="action-rowtoggle" title="Выделение всех записей" ></th>
+                <th width="1%" ><input type="checkbox" name="rowtoggle" class="action-rowtoggle" title="Выделение всех записей" ></th>
                 <th width="1%">Управление</th>
                 <th width="1%">ID</th>
                 <th width="1%">Роль</th>
@@ -92,7 +93,7 @@
                                 </div>
                             </form>
                             <div>
-                                <a class = "edit" href="{{url_for('edit_user', id = user.id)}}"><button class="btn-primary" type="submit" title="Изменить запись"><i class="fa fa-pencil fa-control" aria-hidden="true"></i></button></a>
+                                <a class = "edit" href="{{url_for('admin.edit_user', id = user.id)}}"><button class="btn-primary" type="submit" title="Изменить запись"><i class="fa fa-pencil fa-control" aria-hidden="true"></i></button></a>
                             </div>
                         </div>
                         <br/>
@@ -105,7 +106,7 @@
                         </div>
                     </td>
                     <td>{{ user.id }}</td>
-                    <td><a href="#" id="role{{ user.id }}" data-name="role" data-type="select" data-pk="{{ user.id }}" data-url="/post" data-title="Выберите должность из списка">{{ user.role.name }}</a></td>
+                    <td><a href="#" id="role{{ user.id }}" data-name="role" data-type="select" data-pk="{{ user.id }}" data-url="{{url_for('admin.get_post_user')}}" data-title="Выберите должность из списка">{{ user.role.name }}</a></td>
                     <td>
                         <div class = "profile-photo">
                         {% if user.photo is none  %}
@@ -128,8 +129,8 @@
                         {% endif %}
                         </a>
                     </td>
-                    <td><a href="#" id="department{{ user.id }}" data-name="department" data-type="select" data-pk="{{ user.id }}" data-url="/post" data-title="Выберите отдел из списка">{{ user.department.name }}</a></td>
-                    <td><a href="#" id="post{{ user.id }}" data-name="post" data-type="select" data-pk="{{ user.id }}" data-url="/post" data-title="Выберите должность из списка">{{ user.post.name }}</a></td>
+                    <td><a href="#" id="department{{ user.id }}" data-name="department" data-type="select" data-pk="{{ user.id }}" data-url="{{url_for('admin.get_post_user')}}" data-title="Выберите отдел из списка">{{ user.department.name }}</a></td>
+                    <td><a href="#" id="post{{ user.id }}" data-name="post" data-type="select" data-pk="{{ user.id }}" data-url="{{url_for('admin.get_post_user')}}" data-title="Выберите должность из списка">{{ user.post.name }}</a></td>
                     <script>
                         $('#post{{ user.id }}').editable({
                             source: posts,

@@ -15,7 +15,7 @@
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-                <li class=""><a href="{{url_for('admin_news')}}">Список  <span class="badge">{{ all_counters.get('user_count') }}</span></a></li>
+                <li class=""><a href="{{url_for('admin.admin_news')}}">Список  <span class="badge">{{ all_counters.get('user_count') }}</span></a></li>
             </ul>
           </div>
         </div>
@@ -39,7 +39,7 @@
             </div>
             <div class="col-sm-8">
             <input type="submit" value="Добавить" class="btn btn-lg btn-success">
-            <a href="{{url_for('admin_news')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+            <a href="{{url_for('admin.admin_news')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
             </div>
         </form>
     </div>

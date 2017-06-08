@@ -130,7 +130,7 @@
                                     <li>Ваш отдел: <strong>{{ current_user.department.name }}</strong></li>
                                     <li>Ваша должность: <strong>{{ current_user.post.name }}</strong></li>
                                     <li>Ваш стаж: <strong>{{ time_worked[0][0] }} {{ time_worked[0][1] }} {{ time_worked[1][0] }} {{ time_worked[1][1] }} {{ time_worked[2][0] }} {{ time_worked[2][1] }}</strong></li>
-                                    <li><i class="fa fa-history" aria-hidden="true"></i><a href="{{ url_for('admin_history') }}">История действий пользователя</a></li>
+                                    <li><i class="fa fa-history" aria-hidden="true"></i><a href="{{ url_for('admin.admin_history') }}">История действий пользователя</a></li>
                                 </ul>
                             </div>
 {#
@@ -217,7 +217,7 @@
                                     <a href="#" id="text" data-type="textarea" data-pk="" data-title="Важная информация" data-placeholder="Введите текст сюда..."><i class="fa fa-plus fa-control" aria-hidden="true"></i></a>
                                     <script>
                                         $('#text').editable({
-                                            url: '/new_important',
+                                            url: "{{ url_for('admin.new_important') }}",
                                             escape: false,
                                             ajaxOptions: {
                                                 dataType: 'json'
@@ -241,10 +241,10 @@
                                     <form action="" method="post" name="delimportant">
                                         {{form_delete.hidden_tag()}}
                                             <button class="important-delete"  type="submit" title="Удалить запись" onclick="return confirm('Точно?');"><i class="fa fa-trash"></i></button>
-                                            Автор: {{ news.user.surname }} {{ news.user.name }}, {{ news.user.role.name }} | Истекает: <a href="#" id="expired{{ news.id }}" data-url="/fast_important_edit" data-name="expired" data-type="combodate" data-template="YYYY-MM-DD HH:mm" data-format="YYYY-MM-DD HH:mm" data-viewformat="YYYY-MM-DD HH:mm" data-pk="{{ news.id }}" data-title="Установите дату и время, когда новость будет удалена">{% if news.expired is not none %}{{ news.expired }}{% endif %}</a>
+                                            Автор: {{ news.user.surname }} {{ news.user.name }}, {{ news.user.role.name }} | Истекает: <a href="#" id="expired{{ news.id }}" data-url="{{ url_for('admin.fast_important_edit') }}" data-name="expired" data-type="combodate" data-template="YYYY-MM-DD HH:mm" data-format="YYYY-MM-DD HH:mm" data-viewformat="YYYY-MM-DD HH:mm" data-pk="{{ news.id }}" data-title="Установите дату и время, когда новость будет удалена">{% if news.expired is not none %}{{ news.expired }}{% endif %}</a>
                                             {{form_delete.del_id(id="del-"+news.id|string,value=news.id, style = "display:none;")}}
                                     </form>
-                                    <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> <a href="#" id="text{{ news.id }}" data-name="text" data-type="textarea" data-pk="{{ news.id }}" data-url="/fast_important_edit" data-title="Введите текст новости">{{ news.text }}</a>
+                                    <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> <a href="#" id="text{{ news.id }}" data-name="text" data-type="textarea" data-pk="{{ news.id }}" data-url="{{ url_for('admin.fast_important_edit') }}" data-title="Введите текст новости">{{ news.text }}</a>
                                     <script>
                                         $('#text{{ news.id }}').editable({
                                             success: function(e) {
