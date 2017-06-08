@@ -35,41 +35,47 @@ def get_com(x, y):
     return (x,y)
 
 #Функция счета стажа
-@app.template_filter('standing')
-#~ @administration.context_processor
-def standing(f):
-    now = str(time.strftime("%Y-%m-%d"))
-    first = str(f)
-    now = now.split('-')
-    first = first.split('-')
+#~ @app.template_filter('standing')
+@administration.context_processor
+def standing():
+    def _standing(f, begin_year):
+        now = str(time.strftime("%Y-%m-%d"))
+        first = str(f)
+        now = now.split('-')
+        first = first.split('-')
 
-    date_first = (int(now[0]),int(now[1]),int(now[2]))
-    date_last =  (int(first[0]),int(first[1]),int(first[2]))
-    date_result = [date_first[0]-date_last[0],date_first[1]-date_last[1],date_first[2]-date_last[2]]
+        if begin_year:
+            date_first = (int(now[0]),int(1),int(1))
+        else:
+            date_first = (int(now[0]),int(now[1]),int(now[2]))
 
-    if date_result[2] <=0:
-        date_result[1] -= 1
-        month = date_first[1] - 1
-        if month == 0:
-            month = 1
-        days = calendar.monthrange(date_first[0], month)
-        date_result[2] = days[1] + date_result[2]
-        if date_result[2] == days[1]:
-            date_result[2] = 0
-            date_result[1] += 1
-    if date_result[1] <=0:
-        date_result[0] = date_result[0] - 1
-        date_result[1] = date_result[1] + 12
-        if date_result[1] == 12:
-            date_result[0] += 1
-            date_result[1] = 0
+        date_last =  (int(first[0]),int(first[1]),int(first[2]))
+        date_result = [date_first[0]-date_last[0],date_first[1]-date_last[1],date_first[2]-date_last[2]]
 
-    time_worked = [
-    get_com(date_result[0], [u"год", u"года", u"лет"]),
-    get_com(date_result[1], [u"месяц", u"месяца", u"месяцев"]),
-    get_com(date_result[2],  [u"день", u"дня", u"дней"])]
+        if date_result[2] <=0:
+            date_result[1] -= 1
+            month = date_first[1] - 1
+            if month == 0:
+                month = 1
+            days = calendar.monthrange(date_first[0], month)
+            date_result[2] = days[1] + date_result[2]
+            if date_result[2] == days[1]:
+                date_result[2] = 0
+                date_result[1] += 1
+        if date_result[1] <=0:
+            date_result[0] = date_result[0] - 1
+            date_result[1] = date_result[1] + 12
+            if date_result[1] == 12:
+                date_result[0] += 1
+                date_result[1] = 0
 
-    return time_worked
+        time_worked = [
+        get_com(date_result[0], [u"год", u"года", u"лет"]),
+        get_com(date_result[1], [u"месяц", u"месяца", u"месяцев"]),
+        get_com(date_result[2],  [u"день", u"дня", u"дней"])]
+
+        return time_worked
+    return dict(standing=_standing)
 
 #Текущий пользователь
 def get_current_user():
@@ -153,7 +159,9 @@ def admin():
     delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
     print "delete "+str(delete)
 
-    time_worked = standing(current_user.work_date)
+    #~ time_worked = standing(current_user.work_date)
+    time_worked = standing().get('standing')
+    time_worked = time_worked(current_user.work_date, False)
 
     users_all = User.query.all()
     all_counters = get_counters()
