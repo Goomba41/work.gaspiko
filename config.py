@@ -12,6 +12,10 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 #база данных
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://goomba:tester@localhost/arhiv'
+SQLALCHEMY_BINDS = {
+    'kartoteka': 'mysql+pymysql://goomba:tester@localhost/kartoteka'
+    }
+
 SQLALCHEMY_TRACK_MODIFICATIONS = 'true'
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 

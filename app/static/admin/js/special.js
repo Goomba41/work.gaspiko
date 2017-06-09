@@ -87,6 +87,19 @@
         })
         location.reload();
     }
+    function delete_executors() {
+       alert("Вы уверены, что хотите УДАЛИТЬ выбранные записи?");
+       var yourArray = [];
+       $("input:checkbox[name=rowdelete]:checked").each(function(){
+            yourArray.push($(this).val());
+        });
+        $.post( "/admin/rows_delete", {
+            param: yourArray,
+            table: 'executors'
+        })
+        location.reload();
+    }
+
     function disable(id) {
          $.ajax({
             type : "POST",

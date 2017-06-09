@@ -3,6 +3,8 @@ from app import db
 import time
 
 class User(db.Model):
+    __tablename__ = 'user'
+    __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
     login = db.Column(db.String(15), unique=True)
     password = db.Column(db.String(32))
@@ -19,20 +21,22 @@ class User(db.Model):
 
     status = db.Column(db.SmallInteger)
 
-    department_id = db.Column(db.Integer, db.ForeignKey("department.id"))
-    post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
-    role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
+    department_id = db.Column(db.Integer, db.ForeignKey("arhiv.department.id"))
+    post_id = db.Column(db.Integer, db.ForeignKey("arhiv.post.id"))
+    role_id = db.Column(db.Integer, db.ForeignKey("arhiv.role.id"))
 
     important_news = db.relationship('Important_news', backref = 'user',lazy = 'dynamic')
     history = db.relationship('History', backref = 'user_parent',lazy = 'dynamic')
     permission = db.relationship('Permission', backref = 'user',lazy = 'dynamic')
     news = db.relationship('News', backref = 'user',lazy = 'dynamic')
     appeals = db.relationship('Appeals', backref = 'user',lazy = 'dynamic')
+    executor = db.relationship('Executor', backref = 'user',lazy = 'dynamic')
 
     def __repr__(self):
         return '<Users %r>' % (self.name)
 
 class Department(db.Model):
+    __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100))
 
@@ -42,6 +46,7 @@ class Department(db.Model):
         return '<Department %r >' % (self.name)
 
 class Post(db.Model):
+    __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(50))
 
@@ -51,6 +56,7 @@ class Post(db.Model):
         return '<Post %r >' % (self.name)
 
 class Role(db.Model):
+    __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(50))
 
@@ -61,8 +67,9 @@ class Role(db.Model):
         return '<Role %r >' % (self.name)
 
 class Important_news(db.Model):
+    __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
-    author = db.Column(db.Integer, db.ForeignKey("user.id"))
+    author = db.Column(db.Integer, db.ForeignKey("arhiv.user.id"))
     text = db.Column(db.Text)
     cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
     expired = db.Column(db.DateTime)
@@ -71,6 +78,7 @@ class Important_news(db.Model):
         return '<Good news everyone! %r >' % (self.text)
 
 class Module(db.Model):
+    __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(50))
     url = db.Column(db.String(15))
@@ -82,8 +90,9 @@ class Module(db.Model):
         return '<Module! %r >' % (self.name)
 
 class Table(db.Model):
+    __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
-    module = db.Column(db.Integer, db.ForeignKey("module.id"))
+    module = db.Column(db.Integer, db.ForeignKey("arhiv.module.id"))
     name = db.Column(db.String(50))
     url = db.Column(db.String(15))
 
@@ -94,20 +103,22 @@ class Table(db.Model):
         return 'Table %r >' % (self.name)
 
 class History(db.Model):
+    __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("arhiv.user.id"))
     cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
     action = db.Column(db.String(50))
-    table = db.Column(db.Integer, db.ForeignKey("table.id"))
+    table = db.Column(db.Integer, db.ForeignKey("arhiv.table.id"))
 
     def __repr__(self):
         return 'History %r >' % (self.table)
 
 class Permission(db.Model):
+    __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
-    table_id = db.Column(db.Integer, db.ForeignKey("table.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("arhiv.user.id"))
+    role_id = db.Column(db.Integer, db.ForeignKey("arhiv.role.id"))
+    table_id = db.Column(db.Integer, db.ForeignKey("arhiv.table.id"))
     cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
     insert = db.Column(db.Boolean)
     update = db.Column(db.Boolean)
@@ -118,8 +129,9 @@ class Permission(db.Model):
         return 'Permission %r >' % (self.id)
 
 class News(db.Model):
+    __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("arhiv.user.id"))
     header = db.Column(db.String(255))
     text = db.Column(db.Text)
     cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
@@ -129,8 +141,9 @@ class News(db.Model):
         return 'News %r >' % (self.id)
 
 class Appeals(db.Model):
+    __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
-    author = db.Column(db.Integer, db.ForeignKey("user.id"))
+    author = db.Column(db.Integer, db.ForeignKey("arhiv.user.id"))
     text = db.Column(db.Text)
     answer = db.Column(db.Text)
     cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
@@ -139,3 +152,81 @@ class Appeals(db.Model):
 
     def __repr__(self):
         return '<Appeals %r >' % (self.text)
+
+
+class Request(db.Model):
+    __bind_key__ = 'kartoteka'
+    id = db.Column(db.Integer, primary_key = True)
+    number = db.Column(db.Integer)
+    name = db.Column(db.String(15))
+    surname = db.Column(db.String(50))
+    patronymic = db.Column(db.String(15))
+    date_registration = db.Column(db.Date, default=time.strftime("%Y-%m-%d %H:%M:%S"))
+    kind_id = db.Column(db.Integer, db.ForeignKey("kartoteka.kind.id"))
+    character_id = db.Column(db.Integer, db.ForeignKey("kartoteka.character.id"))
+    executor_id = db.Column(db.Integer, db.ForeignKey("kartoteka.executor.id"))
+    send_id = db.Column(db.Integer, db.ForeignKey("kartoteka.send.id"))
+    answer_id = db.Column(db.Integer, db.ForeignKey("kartoteka.answer.id"))
+    date_done = db.Column(db.Date)
+    date_send= db.Column(db.Date)
+
+    filename = db.Column(db.String(50))
+
+    def __repr__(self):
+        return '<Request %s>' % (self.name)
+
+class Kind(db.Model):
+    __bind_key__ = 'kartoteka'
+    __table_args__ = {'schema': 'kartoteka'}
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(50))
+
+    request = db.relationship('Request', backref = 'kind',lazy = 'dynamic')
+
+    def __repr__(self):
+        return '<Post %r >' % (self.name)
+
+class Character(db.Model):
+    __bind_key__ = 'kartoteka'
+    __table_args__ = {'schema': 'kartoteka'}
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(50))
+
+    request = db.relationship('Request', backref = 'character',lazy = 'dynamic')
+
+    def __repr__(self):
+        return '<Post %r >' % (self.name)
+
+class Send(db.Model):
+    __bind_key__ = 'kartoteka'
+    __table_args__ = {'schema': 'kartoteka'}
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(50))
+
+    request = db.relationship('Request', backref = 'send',lazy = 'dynamic')
+
+    def __repr__(self):
+        return '<Post %r >' % (self.name)
+
+class Answer(db.Model):
+    __bind_key__ = 'kartoteka'
+    __table_args__ = {'schema': 'kartoteka'}
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(50))
+
+    request = db.relationship('Request', backref = 'answer',lazy = 'dynamic')
+
+    def __repr__(self):
+        return '<Post %r >' % (self.name)
+
+class Executor(db.Model):
+    __bind_key__ = 'kartoteka'
+    __table_args__ = {'schema': 'kartoteka'}
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey("arhiv.user.id"))
+
+    request = db.relationship('Request', backref = 'executor',lazy = 'dynamic')
+
+    def __repr__(self):
+        return '<Executor %r>' % (self.id)
+

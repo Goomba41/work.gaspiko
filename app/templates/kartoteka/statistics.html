@@ -1,0 +1,90 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+
+<nav class="navbar navbar-default">
+        <div class="container" style ="margin-right: initial; margin-left: initial;">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+              <span class="sr-only">Навигация</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Управление</a>
+          </div>
+          <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
+            <ul class="nav navbar-nav">
+                <li class=""><a href="{{ url_for('kartoteka.kartoteka_main') }}">Список  <span class="badge">{{ request_count }}</span></a></li>
+                <li><a href="">Создать запрос</a></li>
+                <li><a href="{{ url_for('kartoteka.kartoteka_executors') }}">Исполнители</a></li>
+                <li><a href="{{ url_for('kartoteka.kartoteka_statistics') }}">Статистика</a></li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+
+
+    {% from "admin/_formhelpers.html" import flash_msg %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+    <div class="col-sm-12">
+        <h2>Статистика заполнения БД "Картотека запросов":</h2>
+        <h3>Всего записей в БД: <span class="badge btn-primary" style="font-size:1em;">{{ request_count }}</span></h3>
+        <div class="col-sm-6">
+            <h3>Количество записей по характеру запроса:</h3>
+            <table>
+        {% for count in count_requests_haracter %}
+            <tr>
+                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+            </tr>
+        {% endfor %}
+            </table>
+        </div>
+
+        <div class="col-sm-6">
+            <h3>Количество записей по году запроса:</h3>
+            <table>
+        {% for count in count_requests_year %}
+            <tr>
+                <td style="padding-right:10px;">{{ count[0] }}:</td><td><strong>{{ count[1] }}</strong></td>
+            </tr>
+        {% endfor %}
+            </table>
+        </div>
+
+        <div class="col-sm-6">
+            <h3>Количество записей по характеру ответа:</h3>
+            <table>
+        {% for count in count_requests_answer %}
+            <tr>
+                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+            </tr>
+        {% endfor %}
+            </table>
+        </div>
+
+        <div class="col-sm-6">
+            <h3>Количество записей по виду запроса:</h3>
+            <table>
+        {% for count in count_requests_kind %}
+            <tr>
+                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+            </tr>
+        {% endfor %}
+            </table>
+        </div>
+
+
+    </div>
+
+    <br style="clear: both; padding-bottom:10px;" />
+
+{% endif %}
+
+{% endblock %}

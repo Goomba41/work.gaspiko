@@ -4,7 +4,7 @@ from app import app, db
 
 from app.authentication.views import login_required
 
-from app.admin.models import User, Department, Role, Post, Important_news, Table, History, Permission, Module, News, Appeals
+from app.admin.models import User, Department, Role, Post, Important_news, Table, History, Permission, Module, News, Appeals, Executor
 from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, AddNewsForm, EditNewsForm
 
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint
@@ -388,6 +388,11 @@ def get_post_javascript_data_id_delete():
                     db.session.delete(new)
                     os.remove(os.path.join(app.config['COVERS_FOLDER'], new.cover))
                 make_history("news", "удаление", current_user.id)
+            if table[0] == 'executors':
+                executors = Executor.query.filter(Executor.id.in_(ids)).all()
+                for executor in executors:
+                    db.session.delete(executor)
+                make_history("executors", "удаление", current_user.id)
             db.session.commit()
             return jsonify(ids)
         else:
