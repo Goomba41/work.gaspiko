@@ -158,6 +158,7 @@ class Request(db.Model):
     __bind_key__ = 'kartoteka'
     id = db.Column(db.Integer, primary_key = True)
     number = db.Column(db.Integer)
+    copies = db.Column(db.Integer, default = 0)
     name = db.Column(db.String(15))
     surname = db.Column(db.String(50))
     patronymic = db.Column(db.String(15))
@@ -184,7 +185,7 @@ class Kind(db.Model):
     request = db.relationship('Request', backref = 'kind',lazy = 'dynamic')
 
     def __repr__(self):
-        return '<Post %r >' % (self.name)
+        return '<Kind %r >' % (self.name)
 
 class Character(db.Model):
     __bind_key__ = 'kartoteka'
@@ -195,7 +196,7 @@ class Character(db.Model):
     request = db.relationship('Request', backref = 'character',lazy = 'dynamic')
 
     def __repr__(self):
-        return '<Post %r >' % (self.name)
+        return '<Character %r >' % (self.name)
 
 class Send(db.Model):
     __bind_key__ = 'kartoteka'
@@ -206,7 +207,7 @@ class Send(db.Model):
     request = db.relationship('Request', backref = 'send',lazy = 'dynamic')
 
     def __repr__(self):
-        return '<Post %r >' % (self.name)
+        return '<Send %r >' % (self.name)
 
 class Answer(db.Model):
     __bind_key__ = 'kartoteka'
@@ -217,7 +218,7 @@ class Answer(db.Model):
     request = db.relationship('Request', backref = 'answer',lazy = 'dynamic')
 
     def __repr__(self):
-        return '<Post %r >' % (self.name)
+        return '<Answer %r >' % (self.name)
 
 class Executor(db.Model):
     __bind_key__ = 'kartoteka'
@@ -228,5 +229,5 @@ class Executor(db.Model):
     request = db.relationship('Request', backref = 'executor',lazy = 'dynamic')
 
     def __repr__(self):
-        return '<Executor %r>' % (self.id)
+        return '<Executor %s>' % (self.id)
 

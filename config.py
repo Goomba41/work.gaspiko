@@ -21,5 +21,6 @@ SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 AVATARS_FOLDER = os.path.join(basedir, 'app/static/admin/upload/users')
 COVERS_FOLDER = os.path.join(basedir, 'app/static/work/uploads')
+REQUEST_FILES_FOLDER = os.path.join(basedir, 'app/static/kartoteka/upload')
 
 PER_PAGE = 5

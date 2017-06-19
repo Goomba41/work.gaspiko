@@ -1,0 +1,113 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+<nav class="navbar navbar-default">
+        <div class="container" style ="margin-right: initial; margin-left: initial;">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+              <span class="sr-only">Навигация</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Управление</a>
+          </div>
+          <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
+            <ul class="nav navbar-nav">
+                <li class=""><a href="{{ url_for('kartoteka.kartoteka_main') }}">Список  <span class="badge">{{ request_count }}</span></a></li>
+                <li><a href="{{ url_for('kartoteka.new_request_kartoteka') }}">Создать запрос</a></li>
+                <li><a href="{{ url_for('kartoteka.kartoteka_executors') }}">Исполнители</a></li>
+                <li><a href="{{ url_for('kartoteka.kartoteka_statistics') }}">Статистика</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">С выбранным<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="delete" onclick="delete_kartoteka_requests()"  href="">Удалить</a></li>
+                    </ul>
+                </li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+
+    {% from "admin/_formhelpers.html" import flash_msg %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+    <div class="admin_wrapper">
+        {% from "admin/_formhelpers.html" import render_field %}
+        <form action="" method="POST" name = "form_request_edit" enctype="multipart/form-data">
+            <div class="col-sm-6">
+            {{ form_request_edit.csrf_token }}
+            {{ render_field(form_request_edit.number, size=50, class ="form-control", placeholder ="Максимум 10 символов", autocomplete = True) }}
+            {{ render_field(form_request_edit.surname, size=50, class ="form-control", placeholder ="Максимум 50 символов", autocomplete = True) }}
+            {{ render_field(form_request_edit.name, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+            {{ render_field(form_request_edit.patronymic, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+            {{ render_field(form_request_edit.copies, size=50, class ="form-control", placeholder ="Максимум 10 символов", autocomplete = True) }}
+            {{ render_field(form_request_edit.date_registration, class ="form-control") }}
+            {{ render_field(form_request_edit.date_done, class ="form-control") }}
+            {{ render_field(form_request_edit.date_send, class ="form-control") }}
+            </div>
+            <div class="col-sm-6">
+            {{ render_field(form_request_edit.kind_id, class ="form-control") }}
+            {{ render_field(form_request_edit.character_id, class ="form-control") }}
+            {{ render_field(form_request_edit.executor_id, class ="form-control") }}
+            {{ render_field(form_request_edit.send_id, class ="form-control") }}
+            {{ render_field(form_request_edit.answer_id, class ="form-control") }}
+            {{ render_field(form_request_edit.filename) }}
+
+            Прикрепленная справка:
+                {% if edit_request.filename %}
+                    <a href="{{ url_for('kartoteka.download', filename=edit_request.filename) }}">{{ edit_request.filename }}</a> <i onclick="delete_requests_file()" class="fa fa-trash" aria-hidden="true"></i>
+                {% endif %}
+            </div>
+            <div class="col-sm-8">
+            <input type="submit" value="Изменить" class="btn btn-lg btn-success">
+            <a href="{{url_for('kartoteka.kartoteka_main')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+            </div>
+        </form>
+        <br style="clear: both;"/>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+{% endif %}
+
+<script type="text/javascript">
+  $(function () {
+    $('#datetimepicker1').datetimepicker({
+        locale: 'ru',
+        format: 'YYYY-MM-DD'
+    });
+    $('#datetimepicker2').datetimepicker({
+        locale: 'ru',
+        format: 'YYYY-MM-DD'
+    });
+    $('#datetimepicker3').datetimepicker({
+        locale: 'ru',
+        format: 'YYYY-MM-DD'
+    });
+  });
+    {% if edit_request.filename %}
+    function delete_requests_file() {
+       alert("Вы уверены, что хотите УДАЛИТЬ выбранный файл?");
+        $.post( "{{ url_for('kartoteka.delete_file',filename=edit_request.filename) }}", {
+            filename: '{{ edit_request.filename }}',
+            id_request: '{{ edit_request.id }}',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
+        })
+    }
+    {% endif %}
+</script>
+
+{% endblock %}

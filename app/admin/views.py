@@ -4,12 +4,12 @@ from app import app, db
 
 from app.authentication.views import login_required
 
-from app.admin.models import User, Department, Role, Post, Important_news, Table, History, Permission, Module, News, Appeals, Executor
+from app.models import User, Department, Role, Post, Important_news, Table, History, Permission, Module, News, Appeals, Executor, Request
 from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, AddNewsForm, EditNewsForm
 
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint
 from functools import wraps
-from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER
+from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER, REQUEST_FILES_FOLDER
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
@@ -393,7 +393,14 @@ def get_post_javascript_data_id_delete():
                 for executor in executors:
                     db.session.delete(executor)
                 make_history("executors", "удаление", current_user.id)
+            if table[0] == 'requests':
+                requests = Request.query.filter(Request.id.in_(ids)).all()
+                for request_d in requests:
+                    db.session.delete(request_d)
+                    os.remove(os.path.join(REQUEST_FILES_FOLDER, request_d.filename))
+                make_history("requests", "удаление", current_user.id)
             db.session.commit()
+            flash(u"Записи удалены", 'error')
             return jsonify(ids)
         else:
             flash(u"Вам запрещено данное действие", 'error')
@@ -1102,7 +1109,7 @@ def admin_news(page = 1, *args):
     pagination = Pagination(page=page, total = all_counters.get('news_count'), per_page = PER_PAGE, css_framework='bootstrap3')
 
     form_delete = DelNewsForm()
-    delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
+    delete = get_permissions(current_user.role.id, current_user.id, "news", "delete")
     print "delete "+str(delete)
 
     if form_delete.validate_on_submit() and delete:

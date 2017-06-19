@@ -6,20 +6,22 @@ from app.authentication.views import login_required
 from app.admin.views import get_counters, get_current_user, get_permissions, forbidden, make_history
 
 from app.models import Request, Executor, User, Character, Answer, Kind
-from app.kartoteka.forms import DelExecutorForm
+from app.kartoteka.forms import DelExecutorForm, AddRequestForm, DelRequestForm, EditRequestForm
 
-from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint
+from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory
 from flask_paginate import Pagination
 from functools import wraps
 from sqlalchemy.sql.functions import func
 from sqlalchemy import desc
-from config import basedir, SQLALCHEMY_DATABASE_URI
+from config import basedir, SQLALCHEMY_DATABASE_URI, REQUEST_FILES_FOLDER
 import time, os, hashlib, json, datetime
 
 kartoteka = Blueprint('kartoteka', __name__, url_prefix='/kartoteka')
 
 @kartoteka.route('/', methods=['GET', 'POST'])
+@kartoteka.route('/request', methods=['GET', 'POST'])
 @kartoteka.route('/<int:page>', methods=['GET', 'POST'])
+@kartoteka.route('/request/<int:page>', methods=['GET', 'POST'])
 @login_required
 def kartoteka_main(page = 1, *args):
     current_user = get_current_user()
@@ -31,11 +33,37 @@ def kartoteka_main(page = 1, *args):
 
     all_counters = get_counters()
     request_count = Request.query.count()
-    request_all = Request.query.order_by(Request.date_registration.desc()).paginate(page, 20, False)
-    pagination = Pagination(page=page, total = request_count, per_page = 20, css_framework='bootstrap3')
+
+    args = []
+    if (request.args.get('surname')):
+        args.append(Request.surname.like('%%%s%%' % request.args.get('surname')))
+
+    request_all = Request.query.filter(*args).order_by(Request.date_registration.desc())
+
+    pages_total = request_all.count()
+    request_all = request_all.paginate(page, 20, False)
+    pagination = Pagination(page=page, total = pages_total, per_page = 20, css_framework='bootstrap3')
     today = time.strftime("%Y-%m-%d")
 
-    return render_template('kartoteka/mainscreen.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, request_all=request_all, pagination=pagination)
+    form_delete = DelRequestForm()
+
+    delete = get_permissions(current_user.role.id, current_user.id, "requests", "delete")
+    print "delete "+str(delete)
+
+    if form_delete.validate_on_submit() and delete:
+        request_id = form_delete.del_id.data
+        requests = Request.query.filter(Request.id == request_id).first()
+        db.session.delete(requests)
+        os.remove(os.path.join(REQUEST_FILES_FOLDER, requests.filename))
+        make_history("requests", "удаление", current_user.id)
+        db.session.commit()
+        flash(u"Запрос удален", 'success')
+        return redirect(url_for('kartoteka.kartoteka_main'))
+    elif form_delete.validate_on_submit() and not delete:
+        flash(u"Вам запрещено данное действие", 'error')
+        return redirect(url_for('kartoteka.kartoteka_main'))
+
+    return render_template('kartoteka/mainscreen.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, request_all=request_all, pagination=pagination, form_delete = form_delete)
 
 @kartoteka.route('/executors', methods=['GET', 'POST'])
 @login_required
@@ -60,7 +88,7 @@ def kartoteka_executors():
         executor_id = form_delete.del_id.data
         executors = Executor.query.filter(Executor.id == executor_id).first()
         db.session.delete(executors)
-        make_history("news", "удаление", current_user.id)
+        make_history("executors", "удаление", current_user.id)
         db.session.commit()
         flash(u"Исполнитель удален", 'success')
         return redirect(url_for('kartoteka.kartoteka_executors'))
@@ -68,7 +96,9 @@ def kartoteka_executors():
         flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('kartoteka.kartoteka_executors'))
 
-    return render_template('kartoteka/list_executors.html', all_counters=all_counters, today=today, current_user=current_user, executors_all=executors_all, form_delete=form_delete)
+    request_count = Request.query.count()
+
+    return render_template('kartoteka/list_executors.html', all_counters=all_counters, today=today, current_user=current_user, executors_all=executors_all, form_delete=form_delete, request_count = request_count)
 
 #Получение данных из таблицы и возвращение json в javascript для составления списка пользователей
 @kartoteka.route('/get', methods = ['GET'])
@@ -127,6 +157,151 @@ def kartoteka_statistics(page = 1, *args):
     count_requests_answer = Request.query.with_entities(Request.answer_id, Answer.name,func.count(Request.answer_id).label('count')).group_by('answer_id').order_by(desc('count')).join(Answer)
     count_requests_kind = Request.query.with_entities(Request.kind_id, Kind.name,func.count(Request.kind_id).label('count')).group_by('kind_id').order_by(desc('count')).join(Kind)
     count_requests_year = Request.query.with_entities(func.year(Request.date_registration),func.count("year_1").label('count')).group_by("1").order_by(desc('count'))
+    count_requests_users = Request.query.with_entities(Request.executor_id, User.surname, func.count(Request.executor_id).label('count')).group_by(Request.executor_id).order_by(desc('count')).join(Executor).join(User)
+    #~ count_requests_users_2 = Request.query.with_entities(Request.executor_id, User.surname, Answer.name, func.count(Request.executor_id).label('count')).filter((Request.answer_id==3)).group_by(Request.executor_id, Request.answer_id).order_by(desc("count"),User.surname).join(Executor).join(User).join(Answer)
+
+    return render_template('kartoteka/statistics.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, count_requests_haracter=count_requests_haracter, count_requests_answer=count_requests_answer, count_requests_kind=count_requests_kind, count_requests_year=count_requests_year, count_requests_users=count_requests_users)
+
+@kartoteka.route('/request/new', methods=['GET', 'POST'])
+@login_required
+def new_request_kartoteka():
+    current_user = get_current_user()
+
+    enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
+    print "enter "+str(enter)
+    insert = get_permissions(current_user.role.id, current_user.id, "requests", "insert")
+    print "insert "+str(insert)
+
+    if not enter or not insert:
+        return forbidden(403)
+
+    today = time.strftime("%Y-%m-%d")
+
+    form_request_add = AddRequestForm()
+    all_counters = get_counters()
+    request_count = Request.query.count()
+
+    if form_request_add.validate_on_submit():
+        if request.method  == 'POST':
+            request_query = Request(
+                number = form_request_add.number.data,
+                name = form_request_add.name.data,
+                surname = form_request_add.surname.data,
+                patronymic = form_request_add.patronymic.data,
+                date_registration = form_request_add.date_registration.data,
+                kind_id = form_request_add.kind_id.data.id,
+                character_id = form_request_add.character_id.data.id,
+                executor_id = form_request_add.executor_id.data.id
+            )
+
+            db.session.add(request_query)
+            make_history("requests", "вставку", current_user.id)
+            db.session.commit()
+
+            flash(u"Запрос добавлен", 'success')
+            return redirect(url_for('kartoteka.kartoteka_main'))
+    return render_template("kartoteka/add_request.html", form_request_add = form_request_add, all_counters = all_counters, current_user=current_user, today=today, request_count=request_count)
+
+@kartoteka.route('/request/edit', methods=['GET', 'POST'])
+@login_required
+def edit_request():
+    current_user = get_current_user()
+
+    enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
+    print "enter "+str(enter)
+    update = get_permissions(current_user.role.id, current_user.id, "requests", "update")
+    print "update "+str(update)
+
+    if not enter or not update:
+        return forbidden(403)
+
+    all_counters = get_counters()
+    today = time.strftime("%Y-%m-%d")
+    request_count = Request.query.count()
+
+    edit_request = Request.query.get(request.args.get('id'))
 
 
-    return render_template('kartoteka/statistics.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, count_requests_haracter=count_requests_haracter, count_requests_answer=count_requests_answer, count_requests_kind=count_requests_kind, count_requests_year=count_requests_year)
+    form_request_edit = EditRequestForm(
+    number=edit_request.number,
+    copies=edit_request.copies,
+    name=edit_request.name,
+    surname=edit_request.surname,
+    patronymic=edit_request.patronymic,
+    date_registration=edit_request.date_registration,
+    date_done=edit_request.date_done,
+    date_send=edit_request.date_send,
+    kind_id=edit_request.kind_id,
+    character_id=edit_request.character_id,
+    executor_id=edit_request.executor_id,
+    send_id=edit_request.send_id,
+    answer_id=edit_request.answer_id,
+    filename = edit_request.filename
+    )
+
+
+    if form_request_edit.validate_on_submit():
+        if request.method  == 'POST':
+
+            filename = request.files['filename']
+            if filename:
+                if edit_request.filename is not None:
+                    filename.save(os.path.join(REQUEST_FILES_FOLDER, edit_request.filename))
+                else:
+                    name = today + '_' + str(edit_request.number) + '_' + str(edit_request.id) + '.' + filename.filename.rsplit('.', 1)[1]
+                    filename.save(os.path.join(REQUEST_FILES_FOLDER, name))
+                    edit_request.filename = name
+
+            edit_request.number=int(form_request_edit.number.data)
+            edit_request.copies=int(form_request_edit.copies.data)
+            edit_request.name=form_request_edit.name.data
+            edit_request.surname=form_request_edit.surname.data
+            edit_request.patronymic=form_request_edit.patronymic.data
+            edit_request.date_registration=form_request_edit.date_registration.data
+            edit_request.date_done=form_request_edit.date_done.data
+            edit_request.date_send=form_request_edit.date_send.data
+            edit_request.kind_id=form_request_edit.kind_id.data
+            edit_request.character_id=form_request_edit.character_id.data
+            edit_request.executor_id=form_request_edit.executor_id.data
+            edit_request.send_id=form_request_edit.send_id.data
+            edit_request.answer_id=form_request_edit.answer_id.data
+
+            make_history("requests", "редактирование", current_user.id)
+            db.session.commit()
+
+            flash(u"Запрос изменен", 'success')
+            return redirect(url_for('kartoteka.edit_request', id=edit_request.id))
+    return render_template("kartoteka/edit_request.html", form_request_edit=form_request_edit, all_counters = all_counters, current_user=current_user, today=today,request_count=request_count, edit_request=edit_request)
+
+@kartoteka.route('/search', methods = ['POST','GET'])
+def search():
+    request_data = request.form
+    print request_data['value']
+    print url_for('kartoteka.kartoteka_main', surname=request_data['value'])
+        #~ data = Executor(user_id=request_data['value'])
+    destination = url_for('kartoteka.kartoteka_main', surname=request_data['value'])
+    response = Response(
+        response=json.dumps({'url':destination}),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
+@kartoteka.route('/upload/<path:filename>', methods=['GET', 'POST'])
+def download(filename):
+    uploads = os.path.join(basedir, REQUEST_FILES_FOLDER)
+    return send_from_directory(directory=uploads, filename=filename)
+
+@kartoteka.route('/delete/<path:filename>', methods=['GET', 'POST'])
+def delete_file(filename):
+    requests = Request.query.get(request.form['id_request'])
+    requests.filename = None
+    db.session.commit()
+    #~ print request.form['id_request']
+    #~ os.remove(os.path.join(REQUEST_FILES_FOLDER, requests.filename))
+    response = Response(
+        response=json.dumps({'OK':'OK'}),
+        status=200,
+        mimetype='application/json'
+    )
+    return response

@@ -1,8 +1,56 @@
 # -*- coding: utf-8 -*-
 
 from flask_wtf import FlaskForm
-from wtforms import TextField
+from wtforms import TextField, DateField, IntegerField, SelectField
 from wtforms.validators import Required, regexp, Length
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from app.models import Kind, Character, Executor, Send, Answer
+from flask_wtf.file import FileField, FileAllowed, FileRequired
+from app import db
 
 class DelExecutorForm(FlaskForm):
     del_id = TextField('id', validators = [Required()])
+
+class AddRequestForm(FlaskForm):
+    number = TextField(u'Номер запроса', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=10, message = u'Номер должен быть в диапазоне от 1 до 10 символов')])
+    name = TextField(u'Имя', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Имя должно быть в диапазоне от 1 до 15 символов')])
+    surname = TextField(u'Фамилия', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=50, message = u'Фамилия должна быть в диапазоне от 1 до 50 символов')])
+    patronymic = TextField(u'Отчество', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Отчетсво должна быть в диапазоне от 1 до 15 символов')])
+    date_registration = DateField(u'Дата регистрации', id=1, validators = [Required(message = u'Поле не может быть пустым')])
+    kind_id = QuerySelectField(u'Характер запроса', get_label=lambda x: x.name,  query_factory=lambda: Kind.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
+    character_id = QuerySelectField(u'Характер запроса', get_label=lambda x: x.name,  query_factory=lambda: Character.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
+    executor_id = QuerySelectField(u'Исполнитель', get_label=lambda x: x.user.surname+' '+x.user.name+' '+x.user.patronymic, query_factory=lambda: Executor.query.order_by('user_id'), validators = [Required(message = u'Поле не может быть пустым')])
+
+class DelRequestForm(FlaskForm):
+    del_id = TextField('id', validators = [Required()])
+
+
+class EditRequestForm(FlaskForm):
+    def get_list(X):
+        print X
+        query = X.query.all()
+        model_list = []
+        for q in query:
+            model_list.append((q.id, q.name))
+        return model_list
+    def get_list_executor(X):
+        query = X.query.all()
+        model_list = []
+        for q in query:
+            model_list.append((q.id, q.user.surname+' '+q.user.name))
+        return model_list
+
+    number = TextField(u'Номер запроса', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=10, message = u'Номер должен быть в диапазоне от 1 до 10 символов')])
+    copies = TextField(u'Количество ксерокопий', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=10, message = u'Количество копий должно быть в диапазоне от 1 до 10 символов')])
+    name = TextField(u'Имя ', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Имя должно быть в диапазоне от 1 до 15 символов')])
+    surname = TextField(u'Фамилия', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=50, message = u'Фамилия должна быть в диапазоне от 1 до 50 символов')])
+    patronymic = TextField(u'Отчество', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Отчество должно быть в диапазоне от 1 до 15 символов')])
+    date_registration = DateField(u'Дата регистрации', id=1, validators = [Required(message = u'Поле не может быть пустым')])
+    kind_id = SelectField(u'Вид запроса', coerce=int, choices=get_list(Kind()))
+    character_id = SelectField(u'Характер запроса', coerce=int, choices=get_list(Character()))
+    executor_id = SelectField(u'Исполнитель', coerce=int, choices=get_list_executor(Executor()))
+    send_id = SelectField(u'Способ отправки', coerce=int, choices=get_list(Send()))
+    answer_id = SelectField(u'Характер ответа', coerce=int, choices=get_list(Answer()))
+    date_done = DateField(u'Дата исполнения', id=2, validators = [Required(message = u'Поле не может быть пустым')])
+    date_send= DateField(u'Дата отправки', id=3, validators = [Required(message = u'Поле не может быть пустым')])
+    filename = FileField(u'Выберите файл справки', validators = [FileAllowed(['odt'], u'Только документы в формате .odt!')])

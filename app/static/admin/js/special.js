@@ -18,7 +18,11 @@
         });
         $.post( "/admin/rows_delete", {
             param: yourArray,
-            table: 'users'
+            table: 'users',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
         })
         location.reload();
     }
@@ -47,7 +51,11 @@
         });
         $.post( "/admin/rows_delete", {
             param: yourArray,
-            table: 'roles'
+            table: 'roles',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
         })
         location.reload();
     }
@@ -59,7 +67,11 @@
         });
         $.post( "/admin/rows_delete", {
             param: yourArray,
-            table: 'departments'
+            table: 'departments',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
         })
         location.reload();
     }
@@ -71,7 +83,11 @@
         });
         $.post( "/admin/rows_delete", {
             param: yourArray,
-            table: 'posts'
+            table: 'posts',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
         })
         location.reload();
     }
@@ -83,7 +99,11 @@
         });
         $.post( "/admin/rows_delete", {
             param: yourArray,
-            table: 'news'
+            table: 'news',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
         })
         location.reload();
     }
@@ -95,9 +115,29 @@
         });
         $.post( "/admin/rows_delete", {
             param: yourArray,
-            table: 'executors'
+            table: 'executors',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
         })
         location.reload();
+    }
+    function delete_kartoteka_requests() {
+       alert("Вы уверены, что хотите УДАЛИТЬ выбранные записи?");
+       var yourArray = [];
+       $("input:checkbox[name=rowdelete]:checked").each(function(){
+            yourArray.push($(this).val());
+        });
+        $.post( "/admin/rows_delete", {
+            param: yourArray,
+            table: 'requests',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
+        })
+
     }
 
     function disable(id) {

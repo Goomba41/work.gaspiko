@@ -1,0 +1,76 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+    <nav class="navbar navbar-default">
+        <div class="container" style ="margin-right: initial; margin-left: initial;">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+              <span class="sr-only">Навигация</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Управление</a>
+          </div>
+          <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
+            <ul class="nav navbar-nav">
+                <li class=""><a href="{{ url_for('kartoteka.kartoteka_main') }}">Список  <span class="badge">{{ request_count }}</span></a></li>
+                <li><a href="{{ url_for('kartoteka.new_request_kartoteka') }}">Создать запрос</a></li>
+                <li><a href="{{ url_for('kartoteka.kartoteka_executors') }}">Исполнители</a></li>
+                <li><a href="{{ url_for('kartoteka.kartoteka_statistics') }}">Статистика</a></li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+
+    {% from "admin/_formhelpers.html" import flash_msg %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+        <div class="admin_wrapper">
+        {% from "admin/_formhelpers.html" import render_field %}
+        <form action="" method="POST" name = "form_user_add" enctype="multipart/form-data">
+            <div class="col-sm-6">
+            {{ form_request_add.csrf_token }}
+            {{ render_field(form_request_add.number, size=50, class ="form-control", placeholder ="Максимум 10 символов", autocomplete = True) }}
+            {{ render_field(form_request_add.date_registration, class ="form-control") }}
+            {{ render_field(form_request_add.surname, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+            {{ render_field(form_request_add.name, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+            {{ render_field(form_request_add.patronymic, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+            </div>
+            <div class="col-sm-6">
+            {{ render_field(form_request_add.kind_id, class ="form-control") }}
+            {{ render_field(form_request_add.character_id, class ="form-control") }}
+            {{ render_field(form_request_add.executor_id, class ="form-control") }}
+            </div>
+            <div class="col-sm-8">
+            <input type="submit" value="Добавить" class="btn btn-lg btn-success">
+            <a href="{{url_for('kartoteka.kartoteka_main')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+            </div>
+        </form>
+        <br style="clear: both;"/>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+<script type="text/javascript">
+  $(function () {
+    $('#datetimepicker1').datetimepicker({
+        locale: 'ru',
+        format: 'YYYY-MM-DD',
+        defaultDate: "{{ today }}",
+    });
+  });
+</script>
+
+{% endif %}
+
+{% endblock %}

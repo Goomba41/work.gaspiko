@@ -29,8 +29,8 @@
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-                <li class=""><a href="{{ url_for('kartoteka.kartoteka_main') }}">Список  <span class="badge"></span></a></li>
-                <li><a href="">Создать запрос</a></li>
+                <li class=""><a href="{{ url_for('kartoteka.kartoteka_main') }}">Список  <span class="badge">{{ request_count }}</span></a></li>
+                <li><a href="{{ url_for('kartoteka.new_request_kartoteka') }}">Создать запрос</a></li>
                 <li><a href="{{ url_for('kartoteka.kartoteka_executors') }}">Исполнители</a></li>
                 <li><a href="{{ url_for('kartoteka.kartoteka_statistics') }}">Статистика</a></li>
                 <li class="dropdown">

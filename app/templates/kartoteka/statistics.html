@@ -17,7 +17,7 @@
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
                 <li class=""><a href="{{ url_for('kartoteka.kartoteka_main') }}">Список  <span class="badge">{{ request_count }}</span></a></li>
-                <li><a href="">Создать запрос</a></li>
+                <li><a href="{{ url_for('kartoteka.new_request_kartoteka') }}">Создать запрос</a></li>
                 <li><a href="{{ url_for('kartoteka.kartoteka_executors') }}">Исполнители</a></li>
                 <li><a href="{{ url_for('kartoteka.kartoteka_statistics') }}">Статистика</a></li>
             </ul>
@@ -80,10 +80,23 @@
             </table>
         </div>
 
+        <div class="col-sm-6" style="padding-bottom: 10%;">
+            <h3>Количество записей по пользователям:</h3>
+            <table>
+        {% for count in count_requests_users %}
+            <tr>
+                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+            </tr>
+        {% endfor %}
+            <tr>
+                <td style="padding-right:10px;"><hr style="border-color:red"/>Прочие:</td><td><strong>931</strong></td>
+            </tr>
+            </table>
+        </div>
 
     </div>
 
-    <br style="clear: both; padding-bottom:10px;" />
+    <br style="clear: both; padding-bottom:40px;" />
 
 {% endif %}
 
