@@ -397,10 +397,11 @@ def get_post_javascript_data_id_delete():
                 requests = Request.query.filter(Request.id.in_(ids)).all()
                 for request_d in requests:
                     db.session.delete(request_d)
-                    os.remove(os.path.join(REQUEST_FILES_FOLDER, request_d.filename))
+                    if request_d.filename:
+                        os.remove(os.path.join(REQUEST_FILES_FOLDER, request_d.filename))
                 make_history("requests", "удаление", current_user.id)
             db.session.commit()
-            flash(u"Записи удалены", 'error')
+            flash(u"Записи удалены", 'success')
             return jsonify(ids)
         else:
             flash(u"Вам запрещено данное действие", 'error')

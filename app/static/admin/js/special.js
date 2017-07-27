@@ -134,7 +134,7 @@
             table: 'requests',
             success: function (e) {
                 console.log(e);
-                location.reload();
+                window.location.replace("/kartoteka/request");
             }
         })
 

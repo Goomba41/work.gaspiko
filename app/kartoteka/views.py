@@ -37,13 +37,30 @@ def kartoteka_main(page = 1, *args):
     args = []
     if (request.args.get('surname')):
         args.append(Request.surname.like('%%%s%%' % request.args.get('surname')))
+    if (request.args.get('executor')):
+        args.append(User.surname.like('%%%s%%' % request.args.get('executor')))
+    if (request.args.get('number')):
+        args.append(Request.number==request.args.get('number'))
+    if (request.args.get('kind')):
+        args.append(Kind.name==request.args.get('kind'))
+    if (request.args.get('character')):
+        args.append(Character.name==request.args.get('character'))
+    if (request.args.get('answer')):
+        args.append(Answer.name==request.args.get('answer'))
+    if (request.args.get('date_registration')):
+        args.append(Request.date_registration==request.args.get('date_registration'))
+    if (request.args.get('date_done')):
+        args.append(Request.date_done==request.args.get('date_done'))
+    if (request.args.get('date_send')):
+        args.append(Request.date_send==request.args.get('date_send'))
 
-    request_all = Request.query.filter(*args).order_by(Request.date_registration.desc())
+    request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Executor).join(User).join(Kind).join(Character).join(Answer)
 
     pages_total = request_all.count()
     request_all = request_all.paginate(page, 20, False)
     pagination = Pagination(page=page, total = pages_total, per_page = 20, css_framework='bootstrap3')
     today = time.strftime("%Y-%m-%d")
+
 
     form_delete = DelRequestForm()
 
@@ -54,7 +71,8 @@ def kartoteka_main(page = 1, *args):
         request_id = form_delete.del_id.data
         requests = Request.query.filter(Request.id == request_id).first()
         db.session.delete(requests)
-        os.remove(os.path.join(REQUEST_FILES_FOLDER, requests.filename))
+        if requests.filename:
+            os.remove(os.path.join(REQUEST_FILES_FOLDER, requests.filename))
         make_history("requests", "удаление", current_user.id)
         db.session.commit()
         flash(u"Запрос удален", 'success')
@@ -63,7 +81,7 @@ def kartoteka_main(page = 1, *args):
         flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('kartoteka.kartoteka_main'))
 
-    return render_template('kartoteka/mainscreen.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, request_all=request_all, pagination=pagination, form_delete = form_delete)
+    return render_template('kartoteka/mainscreen.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, request_all=request_all, pagination=pagination, form_delete = form_delete, pages_total=pages_total)
 
 @kartoteka.route('/executors', methods=['GET', 'POST'])
 @login_required
@@ -191,12 +209,13 @@ def new_request_kartoteka():
                 date_registration = form_request_add.date_registration.data,
                 kind_id = form_request_add.kind_id.data.id,
                 character_id = form_request_add.character_id.data.id,
-                executor_id = form_request_add.executor_id.data.id
+                executor_id = form_request_add.executor_id.data.id,
+                answer_id = 5
             )
 
             db.session.add(request_query)
-            make_history("requests", "вставку", current_user.id)
             db.session.commit()
+            make_history("requests", "вставку", current_user.id)
 
             flash(u"Запрос добавлен", 'success')
             return redirect(url_for('kartoteka.kartoteka_main'))
@@ -273,19 +292,18 @@ def edit_request():
             return redirect(url_for('kartoteka.edit_request', id=edit_request.id))
     return render_template("kartoteka/edit_request.html", form_request_edit=form_request_edit, all_counters = all_counters, current_user=current_user, today=today,request_count=request_count, edit_request=edit_request)
 
-@kartoteka.route('/search', methods = ['POST','GET'])
-def search():
-    request_data = request.form
-    print request_data['value']
-    print url_for('kartoteka.kartoteka_main', surname=request_data['value'])
-        #~ data = Executor(user_id=request_data['value'])
-    destination = url_for('kartoteka.kartoteka_main', surname=request_data['value'])
-    response = Response(
-        response=json.dumps({'url':destination}),
-        status=200,
-        mimetype='application/json'
-    )
-    return response
+
+#~ @kartoteka.route('/search', methods = ['POST','GET'])
+#~ def print_post(page = 1, *args):
+    #~ jsdata = request.get_json()
+    #~ print jsdata.get('surname')
+#~
+    #~ response = Response(
+        #~ response=json.dumps({'OK':"OK"}),
+        #~ status=200,
+        #~ mimetype='application/json'
+    #~ )
+    #~ return response
 
 @kartoteka.route('/upload/<path:filename>', methods=['GET', 'POST'])
 def download(filename):
@@ -295,13 +313,27 @@ def download(filename):
 @kartoteka.route('/delete/<path:filename>', methods=['GET', 'POST'])
 def delete_file(filename):
     requests = Request.query.get(request.form['id_request'])
+    os.remove(os.path.join(REQUEST_FILES_FOLDER, requests.filename))
     requests.filename = None
     db.session.commit()
-    #~ print request.form['id_request']
-    #~ os.remove(os.path.join(REQUEST_FILES_FOLDER, requests.filename))
     response = Response(
         response=json.dumps({'OK':'OK'}),
         status=200,
         mimetype='application/json'
     )
     return response
+
+@kartoteka.route('/request/search', methods=['GET', 'POST'])
+@login_required
+def search_request():
+    executors = Executor.query.join(User).all()
+    kinds = Kind.query.all()
+    characters = Character.query.all()
+    answers = Answer.query.all()
+
+    today = time.strftime("%Y-%m-%d")
+    current_user = get_current_user()
+    all_counters = get_counters()
+    request_count = Request.query.count()
+
+    return render_template('kartoteka/search.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, executors=executors, kinds=kinds, characters=characters, answers=answers)

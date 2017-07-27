@@ -1,0 +1,172 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+    <nav class="navbar navbar-default">
+        <div class="container" style ="margin-right: initial; margin-left: initial;">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+              <span class="sr-only">Навигация</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Управление</a>
+          </div>
+          <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
+            <ul class="nav navbar-nav">
+                <li class=""><a href="{{ url_for('kartoteka.kartoteka_main') }}">Список  <span class="badge">{{ request_count }}</span></a></li>
+                <li><a href="{{ url_for('kartoteka.new_request_kartoteka') }}">Создать запрос</a></li>
+                <li><a href="{{ url_for('kartoteka.kartoteka_executors') }}">Исполнители</a></li>
+                <li><a href="{{ url_for('kartoteka.kartoteka_statistics') }}">Статистика</a></li>
+                <li><a href="{{ url_for('kartoteka.search_request') }}">Поиск</a></li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+
+    {% from "admin/_formhelpers.html" import flash_msg %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+        <div class="admin_wrapper">
+            <div class="col-sm-6">
+                <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="number">Номер запроса</label></span>
+                            <input autocomplete="" class="form-control" id="search" name="number"  size="50" type="text" value="">
+                        </div>
+                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="executor_id">Исполнитель</label></span>
+                            <select class="form-control" id="search" name="executor">
+                                <option></option>
+                                {% for executor in executors %}
+                                    <option>{{ executor.user.surname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="number">Фамилия</label></span>
+                            <input autocomplete="" class="form-control" id="search" name="surname"  size="50" type="text" value="">
+                        </div>
+                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="kind">Вид запроса</label></span>
+                            <select class="form-control" id="search" name="kind">
+                                <option></option>
+                                {% for kind in kinds %}
+                                    <option>{{ kind.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="character">Характер запроса</label></span>
+                            <select class="form-control" id="search" name="character">
+                                <option></option>
+                                {% for character in characters %}
+                                    <option>{{ character.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="answer">Характер ответа</label></span>
+                            <select class="form-control" id="search" name="answer">
+                                <option></option>
+                                {% for answer in answers %}
+                                    <option>{{ answer.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin: 2% 2%; width: 100%;">
+                            <div class="input-group date" id="datetimepicker1">
+                                <span class="input-group-addon" style="width: 30%;" id="basic-addon1" data-vivaldi-spatnav-clickable="1"><label for="1">Дата регистрации</label></span>
+                                <input class="form-control" id="search" name="date_registration" type="text" value="">
+                                <span class="input-group-addon" data-vivaldi-spatnav-clickable="1">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin: 2% 2%; width: 100%;">
+                            <div class="input-group date" id="datetimepicker2">
+                                <span class="input-group-addon" style="width: 30%;" id="basic-addon1" data-vivaldi-spatnav-clickable="1"><label for="1">Дата исполнения</label></span>
+                                <input class="form-control" id="search" name="date_done" type="text" value="">
+                                <span class="input-group-addon" data-vivaldi-spatnav-clickable="1">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin: 2% 2%; width: 100%;">
+                            <div class="input-group date" id="datetimepicker3">
+                                <span class="input-group-addon" style="width: 30%;" id="basic-addon1" data-vivaldi-spatnav-clickable="1"><label for="1">Дата отправки</label></span>
+                                <input class="form-control" id="search" name="date_send" type="text" value="">
+                                <span class="input-group-addon" data-vivaldi-spatnav-clickable="1">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                    <script type="text/javascript">
+                      $(function () {
+                        $('#datetimepicker1').datetimepicker({
+                            locale: 'ru',
+                            format: 'YYYY-MM-DD'
+                        });
+                        $('#datetimepicker2').datetimepicker({
+                            locale: 'ru',
+                            format: 'YYYY-MM-DD'
+                        });
+                        $('#datetimepicker3').datetimepicker({
+                            locale: 'ru',
+                            format: 'YYYY-MM-DD'
+                        });
+                      });
+                    </script>
+                    <script type="text/javascript">
+                        function search_request() {
+                            {#var send_data = {}
+                            $( "input#search" ).each(function() {
+                                if ($( this ).val()){ send_data[$( this ).attr('name')]=$( this ).val(); }
+                            });
+                            console.log(send_data)
+                             $.ajax({
+                                type : "POST",
+                                url : "{{ url_for('kartoteka.kartoteka_main') }}",
+                                contentType: 'application/json;charset=UTF-8',
+                                data : JSON.stringify(send_data),
+                                dataType: 'json',
+                            });
+                            $.post( "{{ url_for('kartoteka.print_post') }}", send_data )#}
+                            var send_data = '?'
+                            $( "input#search" ).each(function() {
+                                if ($( this ).val()){ send_data=send_data+$( this ).attr('name')+'='+$( this ).val()+'&'; }
+                            });
+                            $( "select#search" ).each(function() {
+                                if ($( this ).val()){ send_data=send_data+$( this ).attr('name')+'='+$('option:selected', this).text()+'&'; }
+                            });
+                            //~ alert(send_data)
+                            window.location = "{{ url_for('kartoteka.kartoteka_main') }}" + send_data;
+                        }
+                    </script>
+            </div>
+
+<!--
+         <i class="fa fa-search" aria-hidden="true" ></i>
+-->
+        <br style="clear: both;"/>
+        <input type="button" value="Найти" class="btn btn-lg btn-success" onclick="search_request()">
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {{flash_msg(messages)}}
+        {% endif %}
+    {% endwith %}
+
+
+
+{% endif %}
+
+{% endblock %}

@@ -17,7 +17,7 @@ class AddRequestForm(FlaskForm):
     surname = TextField(u'Фамилия', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=50, message = u'Фамилия должна быть в диапазоне от 1 до 50 символов')])
     patronymic = TextField(u'Отчество', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Отчетсво должна быть в диапазоне от 1 до 15 символов')])
     date_registration = DateField(u'Дата регистрации', id=1, validators = [Required(message = u'Поле не может быть пустым')])
-    kind_id = QuerySelectField(u'Характер запроса', get_label=lambda x: x.name,  query_factory=lambda: Kind.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
+    kind_id = QuerySelectField(u'Вид запроса', get_label=lambda x: x.name,  query_factory=lambda: Kind.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
     character_id = QuerySelectField(u'Характер запроса', get_label=lambda x: x.name,  query_factory=lambda: Character.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
     executor_id = QuerySelectField(u'Исполнитель', get_label=lambda x: x.user.surname+' '+x.user.name+' '+x.user.patronymic, query_factory=lambda: Executor.query.order_by('user_id'), validators = [Required(message = u'Поле не может быть пустым')])
 
@@ -27,7 +27,6 @@ class DelRequestForm(FlaskForm):
 
 class EditRequestForm(FlaskForm):
     def get_list(X):
-        print X
         query = X.query.all()
         model_list = []
         for q in query:

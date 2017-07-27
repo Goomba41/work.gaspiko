@@ -32,6 +32,7 @@ ul.pagination {
                         <li><a class="delete" onclick="delete_kartoteka_requests()"  href="">Удалить</a></li>
                     </ul>
                 </li>
+                <li><a href="{{ url_for('kartoteka.search_request') }}">Поиск</a></li>
             </ul>
           </div>
         </div>
@@ -48,8 +49,9 @@ ul.pagination {
     <div class="col-sm-6">
     {{ pagination.links }}
     </div>
-
+{#
     <div class="col-sm-6">
+<!--
     <a href="#" id="surname" data-type="text" data-pk="1"></a>
         <script>
         $(function(){
@@ -57,12 +59,42 @@ ul.pagination {
                 url: "{{ url_for('kartoteka.search') }}",
                 title: 'Введите фамилию',
                 succsess: function(response) {
-                    alert(response);
+                    alert("123");
                     //~ window.location.replace("");
                 }
             });
         });
+
+
+        $.post( "{{ url_for('kartoteka.delete_file',filename=edit_request.filename) }}", {
+            filename: '{{ edit_request.filename }}',
+            id_request: '{{ edit_request.id }}',
+            success: function (e) {
+                console.log(e);
+                location.reload();
+            }
+        })
+
+
         </script>
+-->
+    </div>
+    #}
+
+    <div class="col-sm-6">
+{#
+    {% from "admin/_formhelpers.html" import render_field %}
+        <form action="" method="POST" name = "form_request_edit" enctype="multipart/form-data">
+            {{ form_search.csrf_token }}
+            {{ render_field(form_search.number, size=50, class ="form-control", placeholder ="Максимум 10 символов", autocomplete = True) }}
+            <input type="submit" value="Найти" class="btn btn-lg btn-success">
+            <a href="{{url_for('kartoteka.kartoteka_main')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+        </form>
+        <br style="clear: both;"/>
+#}
+<!--
+    Всего записей в БД по данным критериям: {{ pages_total }}
+-->
     </div>
 
     <div class="col-sm-12">
@@ -101,7 +133,7 @@ ul.pagination {
                 <td>{{ request.character.name }}</td>
                 <td>
                 {% if request.executor %}
-                    {{ request.executor.user.surname}}
+                    <a href="{{ url_for('kartoteka.kartoteka_main', executor=request.executor.user.surname) }}">{{ request.executor.user.surname}}</a>
                 {% endif %}
                 </td>
                 <td>{{ request.answer.name }}</td>

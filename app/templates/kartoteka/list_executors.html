@@ -39,6 +39,7 @@
                         <li><a class="delete" onclick="delete_executors()"  href="">Удалить</a></li>
                     </ul>
                 </li>
+                <li><a href="{{ url_for('kartoteka.search_request') }}">Поиск</a></li>
             </ul>
           </div>
         </div>
@@ -93,10 +94,11 @@
         </table>
     </div>
     <div class="col-sm-6">
-
-    <button class="btn btn-success" type="button">
-        <a style ="color:white;"href="#" id="post" data-name="executor" data-type="select" data-pk="" data-url="{{url_for('kartoteka.add_executor')}}" data-title="Выберите исполнителя из списка">Добавить исполнителя</a>
-    </button>
+    <a style ="color:;"href="#" id="post" data-name="executor" data-type="select" data-pk="" data-url="{{url_for('kartoteka.add_executor')}}" data-title="Выберите исполнителя из списка">
+        <button class="btn btn-success" type="button">
+            Добавить исполнителя
+        </button>
+    </a>
 
         <script>
             $('#post').editable({
