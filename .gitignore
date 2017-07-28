@@ -1,2 +1,3 @@
 app/static/kartoteka/upload/*
 env/
+*.pyc
