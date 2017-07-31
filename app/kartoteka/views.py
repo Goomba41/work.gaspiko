@@ -176,9 +176,10 @@ def kartoteka_statistics(page = 1, *args):
     count_requests_kind = Request.query.with_entities(Request.kind_id, Kind.name,func.count(Request.kind_id).label('count')).group_by('kind_id').order_by(desc('count')).join(Kind)
     count_requests_year = Request.query.with_entities(func.year(Request.date_registration),func.count("year_1").label('count')).group_by("1").order_by(desc('count'))
     count_requests_users = Request.query.with_entities(Request.executor_id, User.surname, func.count(Request.executor_id).label('count')).group_by(Request.executor_id).order_by(desc('count')).join(Executor).join(User)
+    count_requests_users_others = Request.query.filter(Request.executor_id == None).count()
     #~ count_requests_users_2 = Request.query.with_entities(Request.executor_id, User.surname, Answer.name, func.count(Request.executor_id).label('count')).filter((Request.answer_id==3)).group_by(Request.executor_id, Request.answer_id).order_by(desc("count"),User.surname).join(Executor).join(User).join(Answer)
 
-    return render_template('kartoteka/statistics.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, count_requests_haracter=count_requests_haracter, count_requests_answer=count_requests_answer, count_requests_kind=count_requests_kind, count_requests_year=count_requests_year, count_requests_users=count_requests_users)
+    return render_template('kartoteka/statistics.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, count_requests_haracter=count_requests_haracter, count_requests_answer=count_requests_answer, count_requests_kind=count_requests_kind, count_requests_year=count_requests_year, count_requests_users=count_requests_users, count_requests_users_others=count_requests_users_others)
 
 @kartoteka.route('/request/new', methods=['GET', 'POST'])
 @login_required
