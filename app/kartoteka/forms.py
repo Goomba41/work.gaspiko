@@ -52,4 +52,4 @@ class EditRequestForm(FlaskForm):
     answer_id = SelectField(u'Характер ответа', coerce=int, choices=get_list(Answer()))
     date_done = DateField(u'Дата исполнения', id=2, validators = [Required(message = u'Поле не может быть пустым')])
     date_send= DateField(u'Дата отправки', id=3, validators = [Required(message = u'Поле не может быть пустым')])
-    filename = FileField(u'Выберите файл справки', validators = [FileAllowed(['odt'], u'Только документы в формате .odt!')])
+    filename = FileField(u'Выберите файл справки', validators = [FileAllowed(['odt', 'doc', 'docx'], u'Только документы в формате .odt, .doc, .docx!')])
