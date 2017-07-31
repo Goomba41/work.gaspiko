@@ -1267,7 +1267,6 @@ def new_appeals():
 
     if insert:
         request_data = request.form
-        print request_data['value']
         if request.method  == 'POST':
             data = Appeals(text=request_data['value'], author = current_user.id)
             db.session.add(data)
