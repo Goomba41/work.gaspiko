@@ -36,69 +36,145 @@
 
     <div class="col-sm-12">
         <h2>Статистика заполнения БД "Картотека запросов":</h2>
-        <h3>Всего записей в БД: <span class="badge btn-primary" style="font-size:1em;">{{ request_count }}</span></h3>
-        <div class="col-sm-6">
-            <h3>Количество записей по характеру запроса:</h3>
-            <table>
-        {% for count in count_requests_haracter %}
-            <tr>
-                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
-            </tr>
-        {% endfor %}
-            </table>
+
+        <h3>Всего записей в БД: <span class="badge btn-primary" style="font-size:1em;">{{ request_count }}</span></h3></br>
+
+        <div class = "col-sm-6 ">
+            <div class="panel panel-info">
+            <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a style="text-decoration: none;" data-toggle="collapse" href="#collapse1"><strong>Количество записей по характеру запроса: <i class="fa fa-caret-down" aria-hidden="true"></i></strong></a>
+                    </h4>
+                </div>
+                <div id="collapse1" class="panel-collapse collapse">
+
+                    <table class="table">
+                        <th>Характер запроса</th>
+                        <th>Количество запросов</th>
+                        <tbody>
+                        {% for count in count_requests_haracter %}
+                            <tr>
+                                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
         </div>
 
-        <div class="col-sm-6">
-            <h3>Количество записей по году запроса:</h3>
-            <table>
-        {% for count in count_requests_year %}
-            <tr>
-                <td style="padding-right:10px;">{{ count[0] }}:</td><td><strong>{{ count[1] }}</strong></td>
-            </tr>
-        {% endfor %}
-            </table>
+        <div class = "col-sm-6 ">
+            <div class="panel panel-info">
+            <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a style="text-decoration: none;" data-toggle="collapse" href="#collapse2"><strong>Количество записей по году запроса: <i class="fa fa-caret-down" aria-hidden="true"></i></strong></a>
+                    </h4>
+                </div>
+                <div id="collapse2" class="panel-collapse collapse">
+
+                    <table class="table">
+                        <th>Год</th>
+                        <th>Количество запросов</th>
+                        <tbody>
+                        {% for count in count_requests_year %}
+                            <tr>
+                                <td style="padding-right:10px;">{{ count[0] }}:</td><td><strong>{{ count[1] }}</strong></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
         </div>
 
-        <div class="col-sm-6">
-            <h3>Количество записей по характеру ответа:</h3>
-            <table>
-        {% for count in count_requests_answer %}
-            <tr>
-                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
-            </tr>
-        {% endfor %}
-            </table>
+        <div class = "col-sm-6 ">
+            <div class="panel panel-info">
+            <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a style="text-decoration: none;" data-toggle="collapse" href="#collapse3"><strong>Количество записей по характеру ответа: <i class="fa fa-caret-down" aria-hidden="true"></i></strong></a>
+                    </h4>
+                </div>
+                <div id="collapse3" class="panel-collapse collapse">
+
+                    <table class="table">
+                        <th>Характер ответа</th>
+                        <th>Количество запросов</th>
+                        <tbody>
+                        {% for count in count_requests_answer %}
+                            <tr>
+                                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
         </div>
 
-        <div class="col-sm-6">
-            <h3>Количество записей по виду запроса:</h3>
-            <table>
-        {% for count in count_requests_kind %}
-            <tr>
-                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
-            </tr>
-        {% endfor %}
-            </table>
+        <div class = "col-sm-6 ">
+            <div class="panel panel-info">
+            <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a style="text-decoration: none;" data-toggle="collapse" href="#collapse4"><strong>Количество записей по виду запроса: <i class="fa fa-caret-down" aria-hidden="true"></i></strong></a>
+                    </h4>
+                </div>
+                <div id="collapse4" class="panel-collapse collapse">
+
+                    <table class="table">
+                        <th>Вид запроса</th>
+                        <th>Количество запросов</th>
+                        <tbody>
+                        {% for count in count_requests_kind %}
+                            <tr>
+                                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
         </div>
 
-        <div class="col-sm-6" style="padding-bottom: 10%;">
-            <h3>Количество записей по пользователям:</h3>
-            <table>
-        {% for count in count_requests_users %}
-            <tr>
-                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
-            </tr>
-        {% endfor %}
-            <tr>
-                <td style="padding-right:10px;"><hr style="border-color:red"/>Прочие:</td><td><strong>{{ count_requests_users_others }}</strong></td>
+        <div class = "col-sm-6 ">
+            <div class="panel panel-info">
+            <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a style="text-decoration: none;" data-toggle="collapse" href="#collapse5"><strong>Количество записей по пользователям: <i class="fa fa-caret-down" aria-hidden="true"></i></strong></a>
+                    </h4>
+                </div>
+                <div id="collapse5" class="panel-collapse collapse">
 
-            </tr>
-            </table>
+                    <table class="table">
+                        <th>Вид запроса</th>
+                        <th>Количество запросов</th>
+                        <tbody>
+                        {% for count in count_requests_users %}
+                            <tr>
+                                <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+                            </tr>
+                        {% endfor %}
+                            <tr class="btn-danger">
+                                <td  style="padding-right:10px;">Прочие:</td><td><strong>{{ count_requests_users_others }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
         </div>
 
     </div>
 
-    <br style="clear: both; padding-bottom:40px;" />
+    <br style="clear: both; padding-bottom:60px;" />
 
 {% endif %}
 
