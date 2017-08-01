@@ -43,7 +43,7 @@
                             <select class="form-control" id="search" name="executor">
                                 <option></option>
                                 {% for executor in executors %}
-                                    <option>{{ executor.user.surname }}</option>
+                                    <option value="{{ executor.id }}">{{ executor.user.surname }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -145,9 +145,9 @@
                                 if ($( this ).val()){ send_data=send_data+$( this ).attr('name')+'='+$( this ).val()+'&'; }
                             });
                             $( "select#search" ).each(function() {
-                                if ($( this ).val()){ send_data=send_data+$( this ).attr('name')+'='+$('option:selected', this).text()+'&'; }
+                                if ($( this ).val()){ send_data=send_data+$( this ).attr('name')+'='+$('option:selected', this).val()+'&'; }
                             });
-                            //~ alert(send_data)
+                            //~ alert($('option:selected', this).text())
                             window.location = "{{ url_for('kartoteka.kartoteka_main') }}" + send_data;
                         }
                     </script>

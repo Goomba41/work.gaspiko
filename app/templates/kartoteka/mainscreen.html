@@ -133,7 +133,7 @@ ul.pagination {
                 <td>{{ request.character.name }}</td>
                 <td>
                 {% if request.executor %}
-                    <a href="{{ url_for('kartoteka.kartoteka_main', executor=request.executor.user.surname) }}">{{ request.executor.user.surname}}</a>
+                    <a href="{{ url_for('kartoteka.kartoteka_main', executor=request.executor_id) }}">{{ request.executor.user.surname}}</a>
                 {% endif %}
                 </td>
                 <td>{{ request.answer.name }}</td>

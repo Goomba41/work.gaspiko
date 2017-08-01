@@ -38,7 +38,8 @@ def kartoteka_main(page = 1, *args):
     if (request.args.get('surname')):
         args.append(Request.surname.like('%%%s%%' % request.args.get('surname')))
     if (request.args.get('executor')):
-        args.append(User.surname.like('%%%s%%' % request.args.get('executor')))
+        #~ args.append(User.surname.like('%%%s%%' % request.args.get('executor')))
+        args.append(Request.executor_id==request.args.get('executor'))
     if (request.args.get('number')):
         args.append(Request.number==request.args.get('number'))
     if (request.args.get('kind')):
@@ -54,7 +55,10 @@ def kartoteka_main(page = 1, *args):
     if (request.args.get('date_send')):
         args.append(Request.date_send==request.args.get('date_send'))
 
-    request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Executor).join(User).join(Kind).join(Character).join(Answer)
+# Для того, чтобы выводил пустых исполнителей, убрать join исполнителей и пользователей, переписать поиск под id исполнителя
+    #request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Executor).join(User).join(Kind).join(Character).join(Answer)
+    request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Kind).join(Character).join(Answer)
+    #~ print request_all
 
     pages_total = request_all.count()
     request_all = request_all.paginate(page, 20, False)
