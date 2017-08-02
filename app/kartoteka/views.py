@@ -41,7 +41,8 @@ def kartoteka_main(page = 1, *args):
         #~ args.append(User.surname.like('%%%s%%' % request.args.get('executor')))
         args.append(Request.executor_id==request.args.get('executor'))
     if (request.args.get('number')):
-        args.append(Request.number==request.args.get('number'))
+        #~ args.append(Request.number==request.args.get('number'))
+        args.append(Request.number.like('%%%s%%' % request.args.get('number')))
     if (request.args.get('kind')):
         args.append(Kind.name==request.args.get('kind'))
     if (request.args.get('character')):
