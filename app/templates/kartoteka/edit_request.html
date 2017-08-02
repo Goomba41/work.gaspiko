@@ -40,7 +40,7 @@
 
     <div class="admin_wrapper">
         {% from "admin/_formhelpers.html" import render_field %}
-        <form action="" method="POST" name = "form_request_edit" enctype="multipart/form-data">
+        <form action="" method="POST" id="form_request_edit" name = "form_request_edit" enctype="multipart/form-data">
             <div class="col-sm-6">
             {{ form_request_edit.csrf_token }}
             {{ render_field(form_request_edit.number, size=50, class ="form-control", placeholder ="Максимум 10 символов", autocomplete = True) }}
@@ -82,7 +82,25 @@
 {% endif %}
 
 <script type="text/javascript">
-  $(function () {
+
+    var liter = "";
+    $( "#liter" ).html( "{{ liter }}" );
+
+    $( "#kind_id" ).change(function() {
+        if ($('select[name=kind_id]').val()=="1") {$( "#liter" ).html( "П" ); liter = "П";}
+        else if ($('select[name=kind_id]').val()=="2") {$( "#liter" ).html( "@" ); liter = "@";}
+        else if ($('select[name=kind_id]').val()=="3") {$( "#liter" ).html( "Т" ); liter = "Т";}
+        else if ($('select[name=kind_id]').val()=="4") {$( "#liter" ).html( "Н" ); liter = "Н";}
+    });
+
+    $("#form_request_edit").submit( function(eventObj) {
+          $('<input />').attr('type', 'hidden')
+                  .attr('name', "liter")
+                  .attr('value', liter)
+                  .appendTo('#form_request_edit');
+     });
+
+    $(function () {
     $('#datetimepicker1').datetimepicker({
         locale: 'ru',
         format: 'YYYY-MM-DD'
@@ -95,7 +113,8 @@
         locale: 'ru',
         format: 'YYYY-MM-DD'
     });
-  });
+    });
+
     {% if edit_request.filename %}
     function delete_requests_file() {
        alert("Вы уверены, что хотите УДАЛИТЬ выбранный файл?");

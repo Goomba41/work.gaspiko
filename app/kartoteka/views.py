@@ -206,8 +206,9 @@ def new_request_kartoteka():
 
     if form_request_add.validate_on_submit():
         if request.method  == 'POST':
+
             request_query = Request(
-                number = form_request_add.number.data,
+                number = form_request_add.number.data+" "+request.form.get("liter"),
                 name = form_request_add.name.data,
                 surname = form_request_add.surname.data,
                 patronymic = form_request_add.patronymic.data,
@@ -245,9 +246,15 @@ def edit_request():
 
     edit_request = Request.query.get(request.args.get('id'))
 
+    if " " in str(edit_request.number.encode("utf-8")):
+        num = edit_request.number.rsplit(' ', 1)[0]
+        liter = edit_request.number.rsplit(' ', 1)[1]
+    else:
+        num = edit_request.number
+        liter = "–".decode("utf-8")
 
     form_request_edit = EditRequestForm(
-    number=edit_request.number,
+    number=num,
     copies=edit_request.copies,
     name=edit_request.name,
     surname=edit_request.surname,
@@ -266,7 +273,7 @@ def edit_request():
 
     if form_request_edit.validate_on_submit():
         if request.method  == 'POST':
-
+            print request.form
             filename = request.files['filename']
             if filename:
                 if edit_request.filename is not None:
@@ -276,7 +283,9 @@ def edit_request():
                     filename.save(os.path.join(REQUEST_FILES_FOLDER, name))
                     edit_request.filename = name
 
-            edit_request.number=form_request_edit.number.data
+            num = form_request_edit.number.data + " " + request.form.get('liter')
+
+            edit_request.number=num
             edit_request.copies=int(form_request_edit.copies.data)
             edit_request.name=form_request_edit.name.data
             edit_request.surname=form_request_edit.surname.data
@@ -295,7 +304,7 @@ def edit_request():
 
             flash(u"Запрос изменен", 'success')
             return redirect(url_for('kartoteka.edit_request', id=edit_request.id))
-    return render_template("kartoteka/edit_request.html", form_request_edit=form_request_edit, all_counters = all_counters, current_user=current_user, today=today,request_count=request_count, edit_request=edit_request)
+    return render_template("kartoteka/edit_request.html", form_request_edit=form_request_edit, all_counters = all_counters, current_user=current_user, today=today,request_count=request_count, edit_request=edit_request, liter=liter)
 
 
 #~ @kartoteka.route('/search', methods = ['POST','GET'])

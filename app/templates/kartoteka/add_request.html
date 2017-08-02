@@ -34,7 +34,7 @@
 
         <div class="admin_wrapper">
         {% from "admin/_formhelpers.html" import render_field %}
-        <form action="" method="POST" name = "form_user_add" enctype="multipart/form-data">
+        <form action="" method="POST" id="form_user_add" name = "form_user_add" enctype="multipart/form-data">
             <div class="col-sm-6">
             {{ form_request_add.csrf_token }}
             {{ render_field(form_request_add.number, size=50, class ="form-control", placeholder ="Максимум 10 символов", autocomplete = True) }}
@@ -63,6 +63,25 @@
     {% endwith %}
 
 <script type="text/javascript">
+
+    var liter = "@";
+    $( "#liter" ).html( "@" );
+
+    $( "#kind_id" ).change(function() {
+        if ($('select[name=kind_id]').val()=="1") {$( "#liter" ).html( "П" ); liter = "П";}
+        else if ($('select[name=kind_id]').val()=="2") {$( "#liter" ).html( "@" ); liter = "@";}
+        else if ($('select[name=kind_id]').val()=="3") {$( "#liter" ).html( "Т" ); liter = "Т";}
+        else if ($('select[name=kind_id]').val()=="4") {$( "#liter" ).html( "Н" ); liter = "Н";}
+    });
+
+    $("#form_user_add").submit( function(eventObj) {
+          $('<input />').attr('type', 'hidden')
+                  .attr('name', "liter")
+                  .attr('value', liter)
+                  .appendTo('#form_user_add');
+     });
+
+
   $(function () {
     $('#datetimepicker1').datetimepicker({
         locale: 'ru',
