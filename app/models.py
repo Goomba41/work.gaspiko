@@ -157,7 +157,7 @@ class Appeals(db.Model):
 class Request(db.Model):
     __bind_key__ = 'kartoteka'
     id = db.Column(db.Integer, primary_key = True)
-    number = db.Column(db.Integer)
+    number = db.Column(db.String(7))
     copies = db.Column(db.Integer, default = 0)
     name = db.Column(db.String(15))
     surname = db.Column(db.String(50))

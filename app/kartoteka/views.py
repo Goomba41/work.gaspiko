@@ -276,7 +276,7 @@ def edit_request():
                     filename.save(os.path.join(REQUEST_FILES_FOLDER, name))
                     edit_request.filename = name
 
-            edit_request.number=int(form_request_edit.number.data)
+            edit_request.number=form_request_edit.number.data
             edit_request.copies=int(form_request_edit.copies.data)
             edit_request.name=form_request_edit.name.data
             edit_request.surname=form_request_edit.surname.data
