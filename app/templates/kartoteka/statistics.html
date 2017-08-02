@@ -39,6 +39,41 @@
 
         <h3>Всего записей в БД: <span class="badge btn-primary" style="font-size:1em;">{{ request_count }}</span></h3></br>
 
+        <div class="panel panel-primary ">
+            <div class="panel-heading">
+                <h3 class="panel-title">Статистика по периоду</h3>
+            </div>
+            <div class="panel-body">
+
+                <div class="col-sm-6">
+                    <div class="form-group" style="margin: 2% 2%; width: 100%;">
+                        <div class="input-group date"  id="datetimepicker1">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1">Начальная дата</span>
+                            <input type='text' class="form-control period_date"  />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar">
+                            </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group" style="margin: 2% 2%; width: 100%;">
+                        <div class="input-group date"  id="datetimepicker2">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1">Конечная дата</span>
+                            <input type='text' class="form-control period_date" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar">
+                            </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
         <div class = "col-sm-6 ">
             <div class="panel panel-info">
             <!-- Default panel contents -->
@@ -175,6 +210,65 @@
     </div>
 
     <br style="clear: both; padding-bottom:60px;" />
+
+    <div id="place_for_suggestions">
+        </div>
+
+    <script>
+        $(function () {
+                $('#datetimepicker1').datetimepicker({
+                    locale: 'ru',
+                    format: 'YYYY-MM-DD'
+                });
+                $('#datetimepicker2').datetimepicker({
+                    locale: 'ru',
+                    format: 'YYYY-MM-DD',
+                    useCurrent: false
+                });
+            });
+
+        $("#datetimepicker1").on("dp.change", function (e) {
+            $('#datetimepicker2').data("DateTimePicker").minDate(e.date);
+
+            jsonArr = {'begin': e.date};
+
+            $.ajax({
+              url: "{{ url_for('kartoteka.kartoteka_statistics') }}",
+              type: "post",
+              contentType: 'application/json;charset=UTF-8',
+              data : JSON.stringify(jsonArr),
+              dataType: 'json',
+              success: function(response) {
+                $("#place_for_suggestions").html(response);
+              },
+              error: function(xhr) {
+                //Do Something to handle error
+              }
+            });
+
+        });
+
+        $("#datetimepicker2").on("dp.change", function (e) {
+            $('#datetimepicker1').data("DateTimePicker").maxDate(e.date);
+
+            jsonArr = {'end': e.date};
+
+            $.ajax({
+              url: "{{ url_for('kartoteka.kartoteka_statistics') }}",
+              type: "post",
+              contentType: 'application/json;charset=UTF-8',
+              data : JSON.stringify(jsonArr),
+              dataType: 'json',
+              success: function(response) {
+                $("#place_for_suggestions").html(response);
+              },
+              error: function(xhr) {
+                //Do Something to handle error
+              }
+            });
+
+        });
+    </script>
 
 {% endif %}
 
