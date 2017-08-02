@@ -41,7 +41,7 @@
 
         <div class="panel panel-primary ">
             <div class="panel-heading">
-                <h3 class="panel-title">Статистика по периоду</h3>
+                <h3 class="panel-title">Статистика по периоду: <span id="result"></span> (количество положительных запросов)</span></h3>
             </div>
             <div class="panel-body">
 
@@ -211,9 +211,6 @@
 
     <br style="clear: both; padding-bottom:60px;" />
 
-    <div id="place_for_suggestions">
-        </div>
-
     <script>
         $(function () {
                 $('#datetimepicker1').datetimepicker({
@@ -227,47 +224,41 @@
                 });
             });
 
+        var begin = {}
+        var end = {}
+
         $("#datetimepicker1").on("dp.change", function (e) {
             $('#datetimepicker2').data("DateTimePicker").minDate(e.date);
 
-            jsonArr = {'begin': e.date};
-
-            $.ajax({
-              url: "{{ url_for('kartoteka.kartoteka_statistics') }}",
-              type: "post",
-              contentType: 'application/json;charset=UTF-8',
-              data : JSON.stringify(jsonArr),
-              dataType: 'json',
-              success: function(response) {
-                $("#place_for_suggestions").html(response);
-              },
-              error: function(xhr) {
-                //Do Something to handle error
-              }
-            });
+            begin = { begin: e.date }; //~ при изменении значения даты записываем в словарь begin
+            $.extend( begin, end ); //~ и сливаем словарь begin и словарь end (слияние происходит в первый словарь)
+            send_dates(begin); //~ и посылаем словарь в функцию отправки
 
         });
 
         $("#datetimepicker2").on("dp.change", function (e) {
             $('#datetimepicker1').data("DateTimePicker").maxDate(e.date);
 
-            jsonArr = {'end': e.date};
+            end = { end: e.date }; //~ при изменении значения даты записываем в словарь end
+            $.extend( begin, end );
+            send_dates(begin);
 
+        });
+
+        function send_dates(dates) {
             $.ajax({
               url: "{{ url_for('kartoteka.kartoteka_statistics') }}",
               type: "post",
               contentType: 'application/json;charset=UTF-8',
-              data : JSON.stringify(jsonArr),
+              data : JSON.stringify(dates),
               dataType: 'json',
               success: function(response) {
-                $("#place_for_suggestions").html(response);
-              },
-              error: function(xhr) {
-                //Do Something to handle error
+                $("#result").html(response.data);
               }
             });
+        };
 
-        });
+
     </script>
 
 {% endif %}

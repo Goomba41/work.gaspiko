@@ -184,7 +184,26 @@ def kartoteka_statistics(page = 1, *args):
     count_requests_users_others = Request.query.filter(Request.executor_id == None).count()
     #~ count_requests_users_2 = Request.query.with_entities(Request.executor_id, User.surname, Answer.name, func.count(Request.executor_id).label('count')).filter((Request.answer_id==3)).group_by(Request.executor_id, Request.answer_id).order_by(desc("count"),User.surname).join(Executor).join(User).join(Answer)
 
-    print request.json
+
+    data = request.json
+    result = ""
+    if data:
+        if data.get('begin') and data.get('end'):
+            #~ +datetime.timedelta(days=1)
+            begin_d = datetime.datetime.strptime(data.get('begin').rsplit("T", 1)[0], '%Y-%m-%d')
+            end_d = datetime.datetime.strptime(data.get('end').rsplit("T", 1)[0], '%Y-%m-%d')
+            print begin_d, end_d
+            result = Request.query.filter(Request.date_registration.between(begin_d, end_d), Request.answer_id == 4 ).count()
+            print result
+
+        #~ test = data.values()[0].rsplit("T", 1)[0]
+        response = app.response_class(
+            response=json.dumps({"data":result}),
+            status=200,
+            mimetype='application/json'
+        )
+        #~ print response.data
+        return response
 
     return render_template('kartoteka/statistics.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, count_requests_haracter=count_requests_haracter, count_requests_answer=count_requests_answer, count_requests_kind=count_requests_kind, count_requests_year=count_requests_year, count_requests_users=count_requests_users, count_requests_users_others=count_requests_users_others)
 
