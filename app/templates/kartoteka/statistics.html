@@ -41,12 +41,24 @@
 
         <div class="panel panel-primary ">
             <div class="panel-heading">
-                <h3 class="panel-title">Статистика по периоду: <span id="result"></span> (количество положительных запросов)</span></h3>
+                <h3 class="panel-title">Статистика по периоду (по дате исполнения): </span></h3>
             </div>
             <div class="panel-body">
 
                 <div class="col-sm-6">
-                    <div class="form-group" style="margin: 2% 2%; width: 100%;">
+
+                    <div class="form-group">
+                          <label for="statistic_type">Вид статистики:</label>
+                          <select class="form-control" id="statistic_type">
+                            <option value="1">Количество положительных запросов</option>
+                            <option value="2">Количество социально-правовых запросов</option>
+                            <option value="3">Количество запросов (общее)</option>
+                            <option value="4">Количество запросов VipNet</option>
+                            <option value="5">Количество запросов по пользователям</option>
+                          </select>
+                        </div>
+
+                    <div class="form-group" >
                         <div class="input-group date"  id="datetimepicker1">
                             <span class="input-group-addon" style="width: 30%;" id="basic-addon1">Начальная дата</span>
                             <input type='text' class="form-control period_date"  />
@@ -56,10 +68,8 @@
                             </span>
                         </div>
                     </div>
-                </div>
 
-                <div class="col-sm-6">
-                    <div class="form-group" style="margin: 2% 2%; width: 100%;">
+                    <div class="form-group" >
                         <div class="input-group date"  id="datetimepicker2">
                             <span class="input-group-addon" style="width: 30%;" id="basic-addon1">Конечная дата</span>
                             <input type='text' class="form-control period_date" />
@@ -69,6 +79,10 @@
                             </span>
                         </div>
                     </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <span id="result" style="font-size: 4vw;"></span>
                 </div>
 
             </div>
@@ -245,15 +259,31 @@
 
         });
 
+        $( "#statistic_type" ).change(function() {
+            send_dates(begin);
+        });
+
         function send_dates(dates) {
+            $.extend( begin, {type:$('select[id=statistic_type]').val()} );
             $.ajax({
               url: "{{ url_for('kartoteka.kartoteka_statistics') }}",
               type: "post",
               contentType: 'application/json;charset=UTF-8',
               data : JSON.stringify(dates),
-              dataType: 'json',
+              dataType: 'text',
               success: function(response) {
-                $("#result").html(response.data);
+                var json = $.parseJSON(response);
+                if (json.employee){
+                    $("#result").html("");
+                    $.each(json.employee, function(index, element) {
+                            $("#result").append(element.surname+": "+element.col+" "+element.string+"</br>");
+                        });
+                }
+                else if (json.queries){
+                $.each(json.queries, function(index, element) {
+                        $("#result").html(element.col+" "+element.string);
+                    });
+                }
               }
             });
         };

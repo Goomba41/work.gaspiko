@@ -3,7 +3,7 @@
 from app import app, db
 
 from app.authentication.views import login_required
-from app.admin.views import get_counters, get_current_user, get_permissions, forbidden, make_history
+from app.admin.views import get_counters, get_current_user, get_permissions, forbidden, make_history, get_com
 
 from app.models import Request, Executor, User, Character, Answer, Kind
 from app.kartoteka.forms import DelExecutorForm, AddRequestForm, DelRequestForm, EditRequestForm
@@ -189,20 +189,60 @@ def kartoteka_statistics(page = 1, *args):
     result = ""
     if data:
         if data.get('begin') and data.get('end'):
-            #~ +datetime.timedelta(days=1)
+
             begin_d = datetime.datetime.strptime(data.get('begin').rsplit("T", 1)[0], '%Y-%m-%d')
             end_d = datetime.datetime.strptime(data.get('end').rsplit("T", 1)[0], '%Y-%m-%d')
-            print begin_d, end_d
-            result = Request.query.filter(Request.date_registration.between(begin_d, end_d), Request.answer_id == 4 ).count()
-            print result
 
-        #~ test = data.values()[0].rsplit("T", 1)[0]
+            filter_args = []
+            group_args = []
+            entities_args = []
+
+            filter_args.append(Request.date_done.between(begin_d, end_d))
+            entities_args.append(Request.id)
+
+            #~ group_args.append(Request.executor_id)
+            #~ entities_args.append(Request.date_registration)
+
+            if int(data.get('type')) == 1:
+                filter_args.append(Request.answer_id == 4)
+                group_args.append(Request.id)
+            if int(data.get('type')) == 2:
+                filter_args.append(Request.kind_id == 1)
+                group_args.append(Request.id)
+            if int(data.get('type')) == 4:
+                filter_args.append(Request.kind_id == 2)
+                group_args.append(Request.id)
+            if int(data.get('type')) == 5:
+                entities_args.append(Request.executor_id)
+                entities_args.append(User.surname)
+                entities_args.append(func.count(Request.executor_id).label('count'))
+                entities_args.remove(Request.id)
+                group_args.append(Request.executor_id)
+                filter_args.append(Request.executor_id != None)
+
+            #~ print Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args)
+            #~ print Request.query.filter(*filter_args).group_by(*group_args)
+
+            #~ test = Request.date_registration
+            #~ result = Request.query.filter(test.between(begin_d, end_d), Request.answer_id == 4 ).count()
+
+            if int(data.get('type')) == 5:
+                result = Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args).join(Executor, User)
+                tmp_list = []
+                for i in result:
+                    tmp_list.append({"surname":i[1],"col":i[2],"string":get_com(i[2], [u"запрос", u"запроса", u"запросов"])[1]})
+                result = {"employee":tmp_list}
+            else:
+                result = Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args).count()
+                result = get_com(result, [u"запрос", u"запроса", u"запросов"])
+                result = {"queries":[{"col":str(result[0]),"string":result[1]}]}
+
         response = app.response_class(
-            response=json.dumps({"data":result}),
+            response=json.dumps(result),
             status=200,
             mimetype='application/json'
         )
-        #~ print response.data
+
         return response
 
     return render_template('kartoteka/statistics.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, count_requests_haracter=count_requests_haracter, count_requests_answer=count_requests_answer, count_requests_kind=count_requests_kind, count_requests_year=count_requests_year, count_requests_users=count_requests_users, count_requests_users_others=count_requests_users_others)
