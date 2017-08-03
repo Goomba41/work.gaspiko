@@ -64,6 +64,22 @@
 
 <script type="text/javascript">
 
+    var juridical_st = false;
+    var juridical = "";
+
+    $( "#juridical" ).click(function(){
+        if (juridical_st) {
+            juridical_st = false;
+            juridical = "";
+            $("#juridical").css({"background-color":"#eeeeee","color":"#555"});
+            }
+        else {
+            juridical_st = true;
+            juridical = "Ю";
+            $("#juridical").css({"background-color":"#419641","color":"#fff"});
+            }
+    });
+
     var liter = "@";
     $( "#liter" ).html( "@" );
 
@@ -72,12 +88,16 @@
         else if ($('select[name=kind_id]').val()=="2") {$( "#liter" ).html( "@" ); liter = "@";}
         else if ($('select[name=kind_id]').val()=="3") {$( "#liter" ).html( "Т" ); liter = "Т";}
         else if ($('select[name=kind_id]').val()=="4") {$( "#liter" ).html( "Н" ); liter = "Н";}
+        else if ($('select[name=kind_id]').val()=="5") {$( "#liter" ).html( "И" ); liter = "И";}
     });
 
     $("#form_user_add").submit( function(eventObj) {
+        var ins_str = "";
+        if (juridical_st) {ins_str = $.trim(liter+" "+juridical);}
+        else {ins_str = $.trim(liter);}
           $('<input />').attr('type', 'hidden')
                   .attr('name', "liter")
-                  .attr('value', liter)
+                  .attr('value', ins_str)
                   .appendTo('#form_user_add');
      });
 

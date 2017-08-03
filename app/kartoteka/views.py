@@ -200,9 +200,6 @@ def kartoteka_statistics(page = 1, *args):
             filter_args.append(Request.date_done.between(begin_d, end_d))
             entities_args.append(Request.id)
 
-            #~ group_args.append(Request.executor_id)
-            #~ entities_args.append(Request.date_registration)
-
             if int(data.get('type')) == 1:
                 filter_args.append(Request.answer_id == 4)
                 group_args.append(Request.id)
@@ -219,12 +216,9 @@ def kartoteka_statistics(page = 1, *args):
                 entities_args.remove(Request.id)
                 group_args.append(Request.executor_id)
                 filter_args.append(Request.executor_id != None)
-
-            #~ print Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args)
-            #~ print Request.query.filter(*filter_args).group_by(*group_args)
-
-            #~ test = Request.date_registration
-            #~ result = Request.query.filter(test.between(begin_d, end_d), Request.answer_id == 4 ).count()
+            if int(data.get('type')) == 6:
+                group_args.append(Request.id)
+                filter_args.append(Request.number.like('%Ю%'))
 
             if int(data.get('type')) == 5:
                 result = Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args).join(Executor, User)
@@ -308,12 +302,22 @@ def edit_request():
 
     edit_request = Request.query.get(request.args.get('id'))
 
-    if " " in str(edit_request.number.encode("utf-8")):
-        num = edit_request.number.rsplit(' ', 1)[0]
-        liter = edit_request.number.rsplit(' ', 1)[1]
-    else:
-        num = edit_request.number
+    liters_str=str(edit_request.number.encode("utf-8"))
+    liters_str = liters_str.rsplit(' ')
+    print len(liters_str)
+    print liters_str
+    juridical = 0
+
+    if len(liters_str)==1:
+        num = liters_str[0]
         liter = "–".decode("utf-8")
+    elif len(liters_str)==2:
+        num = liters_str[0]
+        liter = liters_str[1].decode("utf-8")
+    elif len(liters_str)==3:
+        num = liters_str[0]
+        liter = liters_str[1].decode("utf-8")
+        juridical = 1
 
     form_request_edit = EditRequestForm(
     number=num,
@@ -366,7 +370,7 @@ def edit_request():
 
             flash(u"Запрос изменен", 'success')
             return redirect(url_for('kartoteka.edit_request', id=edit_request.id))
-    return render_template("kartoteka/edit_request.html", form_request_edit=form_request_edit, all_counters = all_counters, current_user=current_user, today=today,request_count=request_count, edit_request=edit_request, liter=liter)
+    return render_template("kartoteka/edit_request.html", form_request_edit=form_request_edit, all_counters = all_counters, current_user=current_user, today=today,request_count=request_count, edit_request=edit_request, liter=liter, juridical=juridical)
 
 
 #~ @kartoteka.route('/search', methods = ['POST','GET'])

@@ -6851,6 +6851,10 @@ button.close {
     height: 100%;
 }
 
+#juridical:hover{
+    cursor:pointer;
+}
+
 @font-face {
     font-family: PT Sans Narrow Regular;
     src: url(../fonts/PT_Sans-Narrow-Web-Regular.ttf);

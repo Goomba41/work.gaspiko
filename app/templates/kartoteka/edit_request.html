@@ -83,6 +83,34 @@
 
 <script type="text/javascript">
 
+    var juridical_st = {{ juridical }};
+
+    if (juridical_st == 1) {
+        juridical_st=true;
+        juridical = "Ю";
+        $("#juridical").css({"background-color":"#419641","color":"#fff"});
+        }
+    else if (juridical_st == 0){
+        juridical_st=false;
+        juridical = "";
+        $("#juridical").css({"background-color":"#eeeeee","color":"#555"});
+        }
+
+    $( "#juridical" ).click(function(){
+        if (juridical_st) {
+            juridical_st = false;
+            juridical = "";
+            $("#juridical").css({"background-color":"#eeeeee","color":"#555"});
+            }
+        else {
+            juridical_st = true;
+            juridical = "Ю";
+            $("#juridical").css({"background-color":"#419641","color":"#fff"});
+            }
+    });
+
+
+
     var liter = "{{ liter }}";
     $( "#liter" ).html( "{{ liter }}" );
 
@@ -91,12 +119,16 @@
         else if ($('select[name=kind_id]').val()=="2") {$( "#liter" ).html( "@" ); liter = "@";}
         else if ($('select[name=kind_id]').val()=="3") {$( "#liter" ).html( "Т" ); liter = "Т";}
         else if ($('select[name=kind_id]').val()=="4") {$( "#liter" ).html( "Н" ); liter = "Н";}
+        else if ($('select[name=kind_id]').val()=="5") {$( "#liter" ).html( "И" ); liter = "И";}
     });
 
     $("#form_request_edit").submit( function(eventObj) {
+        var ins_str = "";
+        if (juridical_st) {ins_str = $.trim(liter+" "+juridical);}
+        else {ins_str = $.trim(liter);}
           $('<input />').attr('type', 'hidden')
                   .attr('name', "liter")
-                  .attr('value', liter)
+                  .attr('value', ins_str)
                   .appendTo('#form_request_edit');
      });
 
