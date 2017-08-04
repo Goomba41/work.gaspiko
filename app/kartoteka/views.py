@@ -14,7 +14,7 @@ from functools import wraps
 from sqlalchemy.sql.functions import func
 from sqlalchemy import desc
 from config import basedir, SQLALCHEMY_DATABASE_URI, REQUEST_FILES_FOLDER
-import time, os, hashlib, json, datetime
+import time, os, hashlib, json, datetime, csv
 
 kartoteka = Blueprint('kartoteka', __name__, url_prefix='/kartoteka')
 
@@ -27,7 +27,7 @@ def kartoteka_main(page = 1, *args):
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     if not enter:
         return forbidden(403)
 
@@ -72,7 +72,7 @@ def kartoteka_main(page = 1, *args):
     form_delete = DelRequestForm()
 
     delete = get_permissions(current_user.role.id, current_user.id, "requests", "delete")
-    print "delete "+str(delete)
+    print ("delete "+str(delete))
 
     if form_delete.validate_on_submit() and delete:
         request_id = form_delete.del_id.data
@@ -96,7 +96,7 @@ def kartoteka_executors():
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "executors", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     if not enter:
         return forbidden(403)
 
@@ -107,7 +107,7 @@ def kartoteka_executors():
     form_delete = DelExecutorForm()
 
     delete = get_permissions(current_user.role.id, current_user.id, "executors", "delete")
-    print "delete "+str(delete)
+    print ("delete "+str(delete))
 
     if form_delete.validate_on_submit() and delete:
         executor_id = form_delete.del_id.data
@@ -139,7 +139,7 @@ def add_executor():
     current_user = get_current_user()
 
     insert = get_permissions(current_user.role.id, current_user.id, "executors", "insert")
-    print "insert "+str(insert)
+    print ("insert "+str(insert))
 
     if insert:
         request_data = request.form
@@ -169,7 +169,7 @@ def kartoteka_statistics(page = 1, *args):
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     if not enter:
         return forbidden(403)
 
@@ -249,9 +249,9 @@ def new_request_kartoteka():
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     insert = get_permissions(current_user.role.id, current_user.id, "requests", "insert")
-    print "insert "+str(insert)
+    print ("insert "+str(insert))
 
     if not enter or not insert:
         return forbidden(403)
@@ -291,9 +291,9 @@ def edit_request():
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     update = get_permissions(current_user.role.id, current_user.id, "requests", "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if not enter or not update:
         return forbidden(403)
@@ -304,21 +304,21 @@ def edit_request():
 
     edit_request = Request.query.get(request.args.get('id'))
 
-    liters_str=str(edit_request.number.encode("utf-8"))
+    liters_str=str(edit_request.number)
     liters_str = liters_str.rsplit(' ')
-    print len(liters_str)
-    print liters_str
+    print (len(liters_str))
+    print (liters_str)
     juridical = 0
 
     if len(liters_str)==1:
         num = liters_str[0]
-        liter = "–".decode("utf-8")
+        liter = u'–'
     elif len(liters_str)==2:
         num = liters_str[0]
-        liter = liters_str[1].decode("utf-8")
+        liter = liters_str[1]
     elif len(liters_str)==3:
         num = liters_str[0]
-        liter = liters_str[1].decode("utf-8")
+        liter = liters_str[1]
         juridical = 1
 
     form_request_edit = EditRequestForm(
@@ -341,7 +341,6 @@ def edit_request():
 
     if form_request_edit.validate_on_submit():
         if request.method  == 'POST':
-            print request.form
             filename = request.files['filename']
             if filename:
                 if edit_request.filename is not None:
@@ -391,6 +390,24 @@ def edit_request():
 def download(filename):
     uploads = os.path.join(basedir, REQUEST_FILES_FOLDER)
     return send_from_directory(directory=uploads, filename=filename)
+
+@kartoteka.route('/csv/<path:filename>', methods=['GET', 'POST'])
+def download_csv(filename):
+    tmp_dir = os.path.join(basedir, "app/static/kartoteka/")
+
+    with open(tmp_dir+filename, 'w', newline='') as csv_file:
+        wr = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
+        wr.writerow([u'value 1', u'value 2', u'value3'])
+
+    def generate():
+        with open(tmp_dir+filename) as f:
+            yield from f
+
+        os.remove(tmp_dir+filename)
+
+    r = app.response_class(generate(), mimetype='text/csv')
+    r.headers.set('Content-Disposition', 'attachment', filename='request.csv')
+    return r
 
 @kartoteka.route('/delete/<path:filename>', methods=['GET', 'POST'])
 def delete_file(filename):

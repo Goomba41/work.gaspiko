@@ -33,6 +33,7 @@ ul.pagination {
                     </ul>
                 </li>
                 <li><a href="{{ url_for('kartoteka.search_request') }}">Поиск</a></li>
+                <li><a href="{{ url_for('kartoteka.download_csv', filename='request.csv') }}">Скачать таблицу</a></li>
             </ul>
           </div>
         </div>

@@ -33,7 +33,7 @@ def login():
         user_data = User.query.filter(User.login == login_user).first()
         if (user_data):
             if ((user_data.status==1) or (user_data.role.id==1)):
-                password_hash = hashlib.md5(login_password)
+                password_hash = hashlib.md5(login_password.encode("utf-8"))
                 if ((user_data.login==login_user) and (user_data.password==password_hash.hexdigest())):
                     session['logged_in'] = True
                     session['user_id'] = user_data.id

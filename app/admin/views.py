@@ -157,7 +157,7 @@ def admin():
 
     url = 'important'
     delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
-    print "delete "+str(delete)
+    print ("delete "+str(delete))
 
     #~ time_worked = standing(current_user.work_date)
     time_worked = standing().get('standing')
@@ -227,7 +227,7 @@ def fast_important_edit():
 
     url = 'important'
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if update:
         request_data = request.form
@@ -263,7 +263,7 @@ def new_important():
 
     url = 'important'
     insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
-    print "insert "+str(insert)
+    print ("insert "+str(insert))
 
     if insert:
         request_data = request.form
@@ -296,7 +296,7 @@ def admin_users(page = 1, *args):
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     if not enter:
         return forbidden(403)
 
@@ -307,7 +307,7 @@ def admin_users(page = 1, *args):
 
     form_delete = DelUserForm()
     delete = get_permissions(current_user.role.id, current_user.id, "users", "delete")
-    print "delete "+str(delete)
+    print ("delete "+str(delete))
 
     if form_delete.validate_on_submit() and delete:
         user_id = form_delete.del_id.data
@@ -333,7 +333,7 @@ def get_post_javascript_data_password():
     url = 'users'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if update:
         new_password = request.form['new_password']
@@ -359,7 +359,7 @@ def get_post_javascript_data_id_delete():
     if ids:
         url = table[0]
         delete = get_permissions(current_user.role.id, current_user.id, url, "delete")
-        print "delete "+str(delete)
+        print ("delete "+str(delete))
         if delete:
             if table[0] == 'users':
                 users = User.query.filter(User.id.in_(ids)).all()
@@ -416,7 +416,7 @@ def get_post_javascript_data_id_disable():
     url = 'users'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if update:
         ids = request.form.getlist('param[]')
@@ -438,7 +438,7 @@ def user_disable():
     url = 'users'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if update:
         id = request.json
@@ -462,9 +462,9 @@ def new_user():
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     insert = get_permissions(current_user.role.id, current_user.id, "users", "insert")
-    print "insert "+str(insert)
+    print ("insert "+str(insert))
 
     if not enter or not insert:
         return forbidden(403)
@@ -477,7 +477,7 @@ def new_user():
     if form_user_add.validate_on_submit():
         if request.method  == 'POST':
 
-            print form_user_add.role_id.data
+            print (form_user_add.role_id.data)
             photo = request.files['photo']
             if photo:
                 hashname = uuid.uuid4().hex + '.' + photo.filename.rsplit('.', 1)[1]
@@ -521,9 +521,9 @@ def edit_user():
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     update = get_permissions(current_user.role.id, current_user.id, "users", "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if not enter or not update:
         return forbidden(403)
@@ -621,7 +621,7 @@ def get_post_user():
     url = 'users'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if update:
         request_user = request.form
@@ -669,8 +669,8 @@ def admin_roles(page = 1, *args):
 
     enter = get_permissions(current_user.role.id, current_user.id, "roles", "enter")
     delete = get_permissions(current_user.role.id, current_user.id, "roles", "delete")
-    print "enter "+str(enter)
-    print "delete "+str(delete)
+    print ("enter "+str(enter))
+    print ("delete "+str(delete))
 
     if not enter:
         return forbidden(403)
@@ -702,7 +702,7 @@ def fast_role_edit():
     url = 'roles'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if update:
         request_user = request.form
@@ -728,9 +728,9 @@ def new_role():
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "roles", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     insert = get_permissions(current_user.role.id, current_user.id, "roles", "insert")
-    print "insert "+str(insert)
+    print ("insert "+str(insert))
 
     if not enter or not insert:
         return forbidden(403)
@@ -760,8 +760,8 @@ def admin_departments(page = 1, *args):
 
     enter = get_permissions(current_user.role.id, current_user.id, "departments", "enter")
     delete = get_permissions(current_user.role.id, current_user.id, "departments", "delete")
-    print "enter "+str(enter)
-    print "delete "+str(delete)
+    print ("enter "+str(enter))
+    print ("delete "+str(delete))
 
     if not enter:
         return forbidden(403)
@@ -793,7 +793,7 @@ def fast_department_edit():
     url = 'departments'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if update:
         request_user = request.form
@@ -819,9 +819,9 @@ def new_department():
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "departments", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     insert = get_permissions(current_user.role.id, current_user.id, "departments", "insert")
-    print "insert "+str(insert)
+    print ("insert "+str(insert))
 
     if not enter or not insert:
         return forbidden(403)
@@ -851,8 +851,8 @@ def admin_posts(page = 1, *args):
 
     enter = get_permissions(current_user.role.id, current_user.id, "posts", "enter")
     delete = get_permissions(current_user.role.id, current_user.id, "posts", "delete")
-    print "enter "+str(enter)
-    print "delete "+str(delete)
+    print ("enter "+str(enter))
+    print ("delete "+str(delete))
 
     if not enter:
         return forbidden(403)
@@ -884,7 +884,7 @@ def fast_post_edit():
     url = 'posts'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if update:
         request_post = request.form
@@ -910,9 +910,9 @@ def new_post():
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "posts", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     insert = get_permissions(current_user.role.id, current_user.id, "posts", "insert")
-    print "insert "+str(insert)
+    print ("insert "+str(insert))
 
     if not enter or not insert:
         return forbidden(403)
@@ -1002,7 +1002,7 @@ def admin_permissions():
     insert = get_permissions(current_user.role.id, current_user.id, "permissions", "insert")
     delete = get_permissions(current_user.role.id, current_user.id, "permissions", "delete")
     update = get_permissions(current_user.role.id, current_user.id, "permissions", "update")
-    print update
+    print (update)
 
     if not enter:
         return forbidden(403)
@@ -1053,7 +1053,7 @@ def get_post_javascript_data_show():
     url = 'permissions'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if update:
         permission = request.form['permission']
@@ -1100,7 +1100,7 @@ def admin_news(page = 1, *args):
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     if not enter:
         return forbidden(403)
 
@@ -1111,7 +1111,7 @@ def admin_news(page = 1, *args):
 
     form_delete = DelNewsForm()
     delete = get_permissions(current_user.role.id, current_user.id, "news", "delete")
-    print "delete "+str(delete)
+    print ("delete "+str(delete))
 
     if form_delete.validate_on_submit() and delete:
         news_id = form_delete.del_id.data
@@ -1135,7 +1135,7 @@ def fast_news_edit():
     url = 'news'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if update:
         request_post = request.form
@@ -1162,9 +1162,9 @@ def new_news():
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     insert = get_permissions(current_user.role.id, current_user.id, "news", "insert")
-    print "insert "+str(insert)
+    print ("insert "+str(insert))
 
     if not enter or not insert:
         return forbidden(403)
@@ -1205,9 +1205,9 @@ def edit_news():
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     update = get_permissions(current_user.role.id, current_user.id, "news", "update")
-    print "update "+str(update)
+    print ("update "+str(update))
 
     if not enter or not update:
         return forbidden(403)
@@ -1245,7 +1245,7 @@ def admin_appeals(page = 1, *args):
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "appeals", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     if not enter:
         return forbidden(403)
 
@@ -1263,7 +1263,7 @@ def new_appeals():
 
     url = 'appeals'
     insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
-    print "insert "+str(insert)
+    print ("insert "+str(insert))
 
     if insert:
         request_data = request.form
@@ -1347,7 +1347,7 @@ def admin_users_print(page = 1, *args):
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
-    print "enter "+str(enter)
+    print ("enter "+str(enter))
     if not enter:
         return forbidden(403)
 

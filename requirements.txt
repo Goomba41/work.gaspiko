@@ -2,6 +2,7 @@ alembic==0.9.1
 appdirs==1.4.3
 click==6.7
 decorator==4.0.11
+env==0.1.0
 Flask==0.12.1
 Flask-Migrate==2.0.3
 flask-paginate==0.4.5
