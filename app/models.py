@@ -173,8 +173,8 @@ class Request(db.Model):
 
     filename = db.Column(db.String(50))
 
-    def __repr__(self):
-        return '<Request %s>' % (self.name)
+    #~ def __repr__(self):
+        #~ return '<Request %s>' % (self.name)
 
 class Kind(db.Model):
     __bind_key__ = 'kartoteka'

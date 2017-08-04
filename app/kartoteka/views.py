@@ -395,9 +395,12 @@ def download(filename):
 def download_csv(filename):
     tmp_dir = os.path.join(basedir, "app/static/kartoteka/")
 
+    requests_all = Request.query.order_by(Request.date_registration.desc())
+
     with open(tmp_dir+filename, 'w', newline='') as csv_file:
         wr = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
-        wr.writerow([u'value 1', u'value 2', u'value3'])
+        for request in requests_all:
+            wr.writerow([request.id, request.number, request.name, request.surname, request.patronymic, request.date_registration, request.filename, request.kind.name, request.character.name, request.date_done, request.date_send, request.executor.user.surname if (request.executor_id) else "", request.answer.name, request.send.name, request.copies])
 
     def generate():
         with open(tmp_dir+filename) as f:
