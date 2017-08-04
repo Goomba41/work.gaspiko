@@ -79,6 +79,16 @@
                             </select>
                         </div>
 
+                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="send">Способ отправки</label></span>
+                            <select class="form-control" id="search" name="send">
+                                <option></option>
+                                {% for send in sends %}
+                                    <option>{{ send.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
                         <div class="form-group" style="margin: 2% 2%; width: 100%;">
                             <div class="input-group date" id="datetimepicker1">
                                 <span class="input-group-addon" style="width: 30%;" id="basic-addon1" data-vivaldi-spatnav-clickable="1"><label for="1">Дата регистрации</label></span>

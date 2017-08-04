@@ -5,7 +5,7 @@ from app import app, db
 from app.authentication.views import login_required
 from app.admin.views import get_counters, get_current_user, get_permissions, forbidden, make_history, get_com
 
-from app.models import Request, Executor, User, Character, Answer, Kind
+from app.models import Request, Executor, User, Character, Answer, Kind, Send
 from app.kartoteka.forms import DelExecutorForm, AddRequestForm, DelRequestForm, EditRequestForm
 
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory
@@ -55,10 +55,12 @@ def kartoteka_main(page = 1, *args):
         args.append(Request.date_done==request.args.get('date_done'))
     if (request.args.get('date_send')):
         args.append(Request.date_send==request.args.get('date_send'))
+    if (request.args.get('send')):
+        args.append(Send.name.like('%%%s%%' %request.args.get('send')))
 
 # Для того, чтобы выводил пустых исполнителей, убрать join исполнителей и пользователей, переписать поиск под id исполнителя
     #request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Executor).join(User).join(Kind).join(Character).join(Answer)
-    request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Kind).join(Character).join(Answer)
+    request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Kind).join(Character).join(Answer).join(Send)
     #~ print request_all
 
     pages_total = request_all.count()
@@ -410,10 +412,11 @@ def search_request():
     kinds = Kind.query.all()
     characters = Character.query.all()
     answers = Answer.query.all()
+    sends = Send.query.all()
 
     today = time.strftime("%Y-%m-%d")
     current_user = get_current_user()
     all_counters = get_counters()
     request_count = Request.query.count()
 
-    return render_template('kartoteka/search.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, executors=executors, kinds=kinds, characters=characters, answers=answers)
+    return render_template('kartoteka/search.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, executors=executors, kinds=kinds, characters=characters, answers=answers, sends=sends)
