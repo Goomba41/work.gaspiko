@@ -49,6 +49,9 @@ ul.pagination {
     <div class="col-sm-6">
     {{ pagination.links }}
     </div>
+    <div class="col-sm-6">
+        <div class="alert alert-info" role="alert">Всего записей в списке: {{ pages_total }}</div>
+    </div>
 {#
     <div class="col-sm-6">
 <!--
@@ -155,6 +158,9 @@ ul.pagination {
     {% endwith %}
     <div class="col-sm-6">
     {{ pagination.links }}
+    </div>
+    <div class="col-sm-6">
+        <div class="alert alert-info" role="alert">Всего записей в списке: {{ pages_total }}</div>
     </div>
     <br style="clear: both; padding-bottom:10px;" />
 {% endif %}
