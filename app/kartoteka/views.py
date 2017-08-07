@@ -33,6 +33,7 @@ def kartoteka_main(page = 1, *args):
 
     all_counters = get_counters()
     request_count = Request.query.count()
+    request_in_work_count = Request.query.filter(Request.answer_id==5).count()
 
     args = []
     if (request.args.get('surname')):
@@ -88,7 +89,7 @@ def kartoteka_main(page = 1, *args):
         flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('kartoteka.kartoteka_main'))
 
-    return render_template('kartoteka/mainscreen.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, request_all=request_all, pagination=pagination, form_delete = form_delete, pages_total=pages_total)
+    return render_template('kartoteka/mainscreen.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, request_all=request_all, pagination=pagination, form_delete = form_delete, pages_total=pages_total, request_in_work_count=request_in_work_count)
 
 @kartoteka.route('/executors', methods=['GET', 'POST'])
 @login_required
@@ -274,7 +275,8 @@ def new_request_kartoteka():
                 kind_id = form_request_add.kind_id.data.id,
                 character_id = form_request_add.character_id.data.id,
                 executor_id = form_request_add.executor_id.data.id,
-                answer_id = 5
+                answer_id = 5,
+                send_id = 6
             )
 
             db.session.add(request_query)

@@ -51,7 +51,7 @@ ul.pagination {
     {{ pagination.links }}
     </div>
     <div class="col-sm-6">
-        <div class="alert alert-info" role="alert">Всего записей в списке: {{ pages_total }}</div>
+        <div class="alert alert-info" role="alert">Всего записей в списке: {{ pages_total }} | Из них не исполненных: {{ request_in_work_count }}</div>
     </div>
 {#
     <div class="col-sm-6">

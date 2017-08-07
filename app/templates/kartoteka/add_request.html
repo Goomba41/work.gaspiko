@@ -36,7 +36,7 @@
         {% from "admin/_formhelpers.html" import render_field %}
         <form action="" method="POST" id="form_user_add" name = "form_user_add" enctype="multipart/form-data">
             <div class="col-sm-6">
-
+            {{ form_request_add.csrf_token }}
             {{ render_field(form_request_add.number, size=50, class ="form-control", placeholder ="Максимум 10 символов", autocomplete = True) }}
             {{ render_field(form_request_add.date_registration, class ="form-control") }}
             {{ render_field(form_request_add.surname, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
