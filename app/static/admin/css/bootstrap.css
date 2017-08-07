@@ -6855,6 +6855,8 @@ button.close {
     cursor:pointer;
 }
 
+span.raise {vertical-align: super;}
+
 @font-face {
     font-family: PT Sans Narrow Regular;
     src: url(../fonts/PT_Sans-Narrow-Web-Regular.ttf);

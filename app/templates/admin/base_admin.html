@@ -57,7 +57,7 @@
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="{{url_for('index')}}" title="Единая Информационная Система Архива">ЕИСА</a>
+                <a class="navbar-brand" href="{{url_for('index')}}" title="Единая Информационная Система Архива">ЕИС<span class="raise">А</span></a>
               </div>
               <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
@@ -68,12 +68,12 @@
                         <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a href="{{url_for('admin.admin_users')}}"><span class="badge">{{ all_counters.get('user_count') }}</span> Пользователи</a></li>
-                            <li><a href="{{url_for('admin.admin_roles')}}"><span class="badge">{{ all_counters.get('role_count') }}</span> Роли </a></li>
-                            <li><a href="{{url_for('admin.admin_departments')}}"><span class="badge">{{ all_counters.get('department_count') }}</span> Отделы </a></li>
-                            <li><a href="{{url_for('admin.admin_posts')}}"><span class="badge">{{ all_counters.get('post_count') }}</span> Должности </a></li>
+                            <li><a href="{{url_for('admin.admin_users')}}"><i class="fa fa-users" aria-hidden="true"></i>Пользователи <span class="badge">{{ all_counters.get('user_count') }}</span></a></li>
+                            <li><a href="{{url_for('admin.admin_roles')}}"><i class="fa fa-universal-access" aria-hidden="true"></i>Роли <span class="badge">{{ all_counters.get('role_count') }}</span></a></li>
+                            <li><a href="{{url_for('admin.admin_departments')}}"><i class="fa fa-building" aria-hidden="true"></i>Отделы <span class="badge">{{ all_counters.get('department_count') }}</span></a></li>
+                            <li><a href="{{url_for('admin.admin_posts')}}"><i class="fa fa-briefcase" aria-hidden="true"></i>Должности <span class="badge">{{ all_counters.get('post_count') }}</span></a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="{{url_for('admin.admin_news')}}"><span class="badge">{{ all_counters.get('news_count') }}</span> Новости отдела </a></li>
+                            <li><a href="{{url_for('admin.admin_news')}}"><i class="fa fa-newspaper-o" aria-hidden="true"></i>Новости отдела <span class="badge">{{ all_counters.get('news_count') }}</span></a></li>
                             <li role="separator" class="divider"></li>
                             <li><a href="{{url_for('admin.admin_backups')}}"><i class="fa fa-hdd-o" aria-hidden="true"></i> Резервное копирование</a></li>
                         </ul>
@@ -83,8 +83,8 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Модули <i class="fa fa-keyboard-o" aria-hidden="true"></i> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('admin.admin') }}">Администрирование ЕИСА</a></li>
-                            <li><a href="{{ url_for('kartoteka.kartoteka_main') }}">Картотека запросов</a></li>
+                            <li><a href="{{ url_for('admin.admin') }}"><i class="fa fa-lock" aria-hidden="true"></i>Администрирование ЕИС<span class="raise">А</span></a></li>
+                            <li><a href="{{ url_for('kartoteka.kartoteka_main') }}"><i class="fa fa-envelope-open" aria-hidden="true"></i>Картотека запросов</a></li>
                         </ul>
                     </li>
                     <li class=""><a href="{{url_for('login.logout')}}">Выйти</a></li>
@@ -117,7 +117,7 @@
                     {% endif %}
                     <span class="badge btn-info">{{ all_counters.get('appeals_count_checked') }}</span> / <span class="badge btn-success">{{ all_counters.get('appeals_count_done') }}</span> / <span class="badge btn-primary">{{ all_counters.get('appeals_count_all') }}</span>
                     {% endif %} Обращения</a></li>
-                    <li class=""><a href="">Помощь</a></li>
+                    <li class=""><a href=""><i class="fa fa-question-circle" aria-hidden="true"></i>Помощь</a></li>
                 </ul>
                 </div>
             </div>

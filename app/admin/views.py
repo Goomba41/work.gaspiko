@@ -342,7 +342,7 @@ def get_post_javascript_data_password():
         user = request.form['user']
 
         user_change = User.query.filter(User.id == user).first()
-        password_hash = hashlib.md5(new_password).hexdigest()
+        password_hash = hashlib.md5(new_password.encode('utf-8')).hexdigest()
         user_change.password = password_hash
         db.session.commit()
 
