@@ -41,26 +41,49 @@
 
         <div class="panel panel-primary ">
             <div class="panel-heading">
-                <h3 class="panel-title">Статистика по периоду (по дате исполнения): </span></h3>
+                <h3 class="panel-title">Статистика по периоду: </span></h3>
             </div>
             <div class="panel-body">
 
                 <div class="col-sm-6">
 
                     <div class="form-group">
-                          <label for="statistic_type">Вид статистики:</label>
-                          <select class="form-control" id="statistic_type">
-                            <option value="1">Количество положительных запросов</option>
-                            <option value="2">Количество социально-правовых запросов</option>
-                            <option value="3">Количество запросов (общее)</option>
-                            <option value="4">Количество запросов VipNet</option>
-                            <option value="5">Количество запросов по пользователям</option>
-                            <option value="6">Запросы юридических лиц</option>
-                          </select>
+                        <div class="input-group date" >
+                            <span class="input-group-addon " style="width: 30%;" id="basic-addon1"><label for="executor_id">Тип даты</label></span>
+                            <select class="form-control" id="statistic_date_type">
+                                <option value="1">Дата регистрации</option>
+                                <option value="2">Дата исполнения</option>
+                                <option value="3">Дата отправки</option>
+                            </select>
                         </div>
+                    </div>
 
                     <div class="form-group" >
-                        <div class="input-group date"  id="datetimepicker1">
+                        <div class="input-group date">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="executor_id">Вид запроса:</label></span>
+                            <select class="form-control"  id="statistic_kind_type">
+                                    <option></option>
+                                {% for kind in request_kinds %}
+                                    <option value="{{ kind.id }}">{{ kind.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" >
+                        <div class="input-group date">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="executor_id">Характер запроса:</label></span>
+                            <select class="form-control"  id="statistic_character_type">
+                                    <option></option>
+                                {% for character in request_characters %}
+                                    <option value="{{ character.id }}">{{ character.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" >
+                        <div class="input-group date"   id="datetimepicker1">
                             <span class="input-group-addon" style="width: 30%;" id="basic-addon1">Начальная дата</span>
                             <input type='text' class="form-control period_date"  />
                             <span class="input-group-addon">
@@ -264,8 +287,23 @@
             send_dates(begin);
         });
 
+        $( "#statistic_date_type" ).change(function() {
+            send_dates(begin);
+        });
+
+        $( "#statistic_kind_type" ).change(function() {
+            send_dates(begin);
+        });
+
+        $( "#statistic_character_type" ).change(function() {
+            send_dates(begin);
+        });
+
         function send_dates(dates) {
-            $.extend( begin, {type:$('select[id=statistic_type]').val()} );
+            $.extend( begin, {date_type:$('select[id=statistic_date_type]').val()} );
+            $.extend( begin, {kind_type:$('select[id=statistic_kind_type]').val()} );
+            $.extend( begin, {character_type:$('select[id=statistic_character_type]').val()} );
+
             $.ajax({
               url: "{{ url_for('kartoteka.kartoteka_statistics') }}",
               type: "post",
@@ -287,6 +325,8 @@
                 }
               }
             });
+
+
         };
 
 
