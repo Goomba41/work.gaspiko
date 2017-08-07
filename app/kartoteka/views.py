@@ -189,6 +189,9 @@ def kartoteka_statistics(page = 1, *args):
 
     request_kinds = Kind.query.all()
     request_characters = Character.query.all()
+    request_answers = Answer.query.all()
+    request_sends = Send.query.all()
+    request_executors = Executor.query.with_entities(Executor.id, User.surname+" "+User.name).join(User).all()
 
     data = request.json
     result = ""
@@ -218,37 +221,32 @@ def kartoteka_statistics(page = 1, *args):
                 filter_args.append(Request.kind_id == int(data.get('kind_type')))
                 group_args.append(Request.id)
             #--------------------------------------------
-            #Добавление к фильтрам характера запроса запроса
+            #Добавление к фильтрам характера запроса
             if data.get('character_type') :
                 filter_args.append(Request.kind_id == int(data.get('character_type')))
                 group_args.append(Request.id)
             #--------------------------------------------
+            #Добавление к фильтрам характера ответа
+            if data.get('answer_type') :
+                filter_args.append(Request.answer_id == int(data.get('answer_type')))
+                group_args.append(Request.id)
+            #--------------------------------------------
+            #Добавление к фильтрам характера ответа
+            if data.get('send_type') :
+                filter_args.append(Request.send_id == int(data.get('send_type')))
+                group_args.append(Request.id)
+            #--------------------------------------------
+            #Добавление к фильтрам исполнителя
+            if data.get('executor') :
+                filter_args.append(Request.executor_id == int(data.get('executor')))
+                group_args.append(Request.id)
+            #--------------------------------------------
 
-                #~ entities_args.append(Request.executor_id)
-                #~ entities_args.append(User.surname)
-                #~ entities_args.append(func.count(Request.executor_id).label('count'))
-                #~ entities_args.remove(Request.id)
-                #~ group_args.append(Request.executor_id)
-                #~ filter_args.append(Request.executor_id != None)
-
-            #~ if int(data.get('type')) == 6:
-                #~ group_args.append(Request.id)
-                #~ filter_args.append(Request.number.like('%Ю%'))
-
-
-
-
-            #~ if int(data.get('type')) == 5:
-                #~ result = Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args).join(Executor, User)
-                #~ tmp_list = []
-                #~ for i in result:
-                    #~ tmp_list.append({"surname":i[1],"col":i[2],"string":get_com(i[2], [u"запрос", u"запроса", u"запросов"])[1]})
-                #~ result = {"employee":tmp_list}
-            #~ else:
             print(Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args))
             result = Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args).count()
             result = get_com(result, [u"запрос", u"запроса", u"запросов"])
             result = {"queries":[{"col":str(result[0]),"string":result[1]}]}
+            print (result)
 
         response = app.response_class(
             response=json.dumps(result),
@@ -258,7 +256,7 @@ def kartoteka_statistics(page = 1, *args):
 
         return response
 
-    return render_template('kartoteka/statistics.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, count_requests_haracter=count_requests_haracter, count_requests_answer=count_requests_answer, count_requests_kind=count_requests_kind, count_requests_year=count_requests_year, count_requests_users=count_requests_users, count_requests_users_others=count_requests_users_others, request_kinds=request_kinds, request_characters=request_characters)
+    return render_template('kartoteka/statistics.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, count_requests_haracter=count_requests_haracter, count_requests_answer=count_requests_answer, count_requests_kind=count_requests_kind, count_requests_year=count_requests_year, count_requests_users=count_requests_users, count_requests_users_others=count_requests_users_others, request_kinds=request_kinds, request_characters=request_characters, request_answers=request_answers, request_sends=request_sends, request_executors=request_executors)
 
 @kartoteka.route('/request/new', methods=['GET', 'POST'])
 @login_required
