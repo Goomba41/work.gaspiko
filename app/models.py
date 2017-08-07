@@ -84,12 +84,12 @@ class Module(db.Model):
     url = db.Column(db.String(15))
     comment = db.Column(db.String(50))
 
-    tables = db.relationship('Table', backref = 'module_parent',lazy = 'dynamic')
+    tables = db.relationship('Table_db', backref = 'module_parent',lazy = 'dynamic')
 
     def __repr__(self):
         return '<Module! %r >' % (self.name)
 
-class Table(db.Model):
+class Table_db(db.Model):
     __table_args__ = {'schema': 'arhiv'}
     id = db.Column(db.Integer, primary_key = True)
     module = db.Column(db.Integer, db.ForeignKey("arhiv.module.id"))
@@ -108,7 +108,7 @@ class History(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("arhiv.user.id"))
     cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
     action = db.Column(db.String(50))
-    table = db.Column(db.Integer, db.ForeignKey("arhiv.table.id"))
+    table = db.Column(db.Integer, db.ForeignKey("arhiv.table_db.id"))
 
     def __repr__(self):
         return 'History %r >' % (self.table)
@@ -118,7 +118,7 @@ class Permission(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey("arhiv.user.id"))
     role_id = db.Column(db.Integer, db.ForeignKey("arhiv.role.id"))
-    table_id = db.Column(db.Integer, db.ForeignKey("arhiv.table.id"))
+    table_id = db.Column(db.Integer, db.ForeignKey("arhiv.table_db.id"))
     cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
     insert = db.Column(db.Boolean)
     update = db.Column(db.Boolean)
@@ -173,8 +173,8 @@ class Request(db.Model):
 
     filename = db.Column(db.String(50))
 
-    #~ def __repr__(self):
-        #~ return '<Request %s>' % (self.name)
+    def __repr__(self):
+        return '<Request %s>' % (self.name)
 
 class Kind(db.Model):
     __bind_key__ = 'kartoteka'

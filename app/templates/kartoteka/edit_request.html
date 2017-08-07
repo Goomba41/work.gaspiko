@@ -15,17 +15,11 @@
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-                <li class=""><a href="{{ url_for('kartoteka.kartoteka_main') }}">Список  <span class="badge">{{ request_count }}</span></a></li>
-                <li><a href="{{ url_for('kartoteka.new_request_kartoteka') }}">Создать запрос</a></li>
-                <li><a href="{{ url_for('kartoteka.kartoteka_executors') }}">Исполнители</a></li>
-                <li><a href="{{ url_for('kartoteka.kartoteka_statistics') }}">Статистика</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">С выбранным<span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a class="delete" onclick="delete_kartoteka_requests()"  href="">Удалить</a></li>
-                    </ul>
-                </li>
-                <li><a href="{{ url_for('kartoteka.search_request') }}">Поиск</a></li>
+                <li class=""><a href="{{ url_for('kartoteka.kartoteka_main') }}" title="Список всех записей БД 'Картотека запросов'">Список  <span class="badge">{{ request_count }}</span></a></li>
+                <li><a href="{{ url_for('kartoteka.new_request_kartoteka') }}" title="Создать запрос в БД 'Картотека запросов'">Создать запрос</a></li>
+                <li><a href="{{ url_for('kartoteka.kartoteka_executors') }}" title="Добавить\удалить исполнителей запросов в БД 'Картотека запросов'">Исполнители</a></li>
+                <li><a href="{{ url_for('kartoteka.kartoteka_statistics') }}" title="Статистика заполнения БД 'Картотека запросов'">Статистика</a></li>
+                <li><a href="{{ url_for('kartoteka.search_request') }}" title="Поиск записей в БД 'Картотека запросов' по параметрам">Поиск</a></li>
             </ul>
           </div>
         </div>

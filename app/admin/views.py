@@ -4,7 +4,7 @@ from app import app, db
 
 from app.authentication.views import login_required
 
-from app.models import User, Department, Role, Post, Important_news, Table, History, Permission, Module, News, Appeals, Executor, Request
+from app.models import User, Department, Role, Post, Important_news, Table_db, History, Permission, Module, News, Appeals, Executor, Request
 from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, AddNewsForm, EditNewsForm
 
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint
@@ -16,6 +16,8 @@ from sqlalchemy.sql.functions import func
 import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, ast, redis
 from flask_sse import sse
 from collections import defaultdict
+
+from sqlalchemy import *
 
 administration = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -85,7 +87,7 @@ def get_current_user():
 #Разрешения пользователя
 def get_permissions(role_id, user_id, url, operation):
 
-    table_id = Table.query.filter(Table.url == url).first().id
+    table_id = Table_db.query.filter(Table_db.url == url).first().id
     perm= Permission.query.filter(((Permission.role_id==role_id)|(Permission.user_id==user_id))&(Permission.table_id == table_id)).all()
 
     list = []
@@ -115,7 +117,7 @@ def get_permissions(role_id, user_id, url, operation):
 
 #Добавление в историю
 def make_history(str_table, str_action, current_user_id):
-    table_id = Table.query.filter(Table.url == str_table).first()
+    table_id = Table_db.query.filter(Table_db.url == str_table).first()
     action = History(user_id=current_user_id, action = str_action, table = table_id.id)
     db.session.add(action)
     return "success"
@@ -964,7 +966,7 @@ def admin_history_all(page = 1, *args):
     actions_all = History.query.order_by(History.id.desc()).paginate(page, 100, False)
     all_count = History.query.count()
 
-    count_table_uses = History.query.with_entities(History.table, Table.name, Module.name,func.count(History.table).label('count')).group_by('table').join(Table).join(Module)
+    count_table_uses = History.query.with_entities(History.table, Table_db.name, Module.name,func.count(History.table).label('count')).group_by('table').join(Table_db).join(Module)
     count_action_uses = History.query.with_entities(History.action, func.count(History.action).label('count')).group_by('action')
     count_users_activity = History.query.with_entities(History.user_id, User.name, User.surname, func.count(History.user_id).label('count')).group_by('user_id').join(User)
 
@@ -1355,3 +1357,30 @@ def admin_users_print(page = 1, *args):
     today = time.strftime("%Y-%m-%d")
 
     return render_template("admin/list_users_print.html", users_all = users_all, current_user=current_user, today=today)
+
+@administration.route('/backups/', methods=['GET', 'POST'])
+@login_required
+def admin_backups(*args):
+
+    current_user = get_current_user()
+    all_counters = get_counters()
+    today = time.strftime("%Y-%m-%d")
+
+    eng_all = create_engine('mysql+pymysql://root:root@localhost')
+    excl_list = ['information_schema', 'mysql', 'performance_schema', 'phpmyadmin', 'sys']
+
+    db_list = (inspect(eng_all).get_schema_names())
+    for excl in excl_list:
+        if excl in db_list:
+            db_list.remove(excl)
+
+    eng_all.dispose()
+
+    print (db_list)
+
+    return render_template("admin/backups.html",  current_user=current_user, today=today, all_counters=all_counters, db_list=db_list)
+
+
+
+
+
