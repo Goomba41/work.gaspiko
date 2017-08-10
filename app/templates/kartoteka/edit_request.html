@@ -77,6 +77,12 @@
 
 <script type="text/javascript">
 
+    $( "input#number" ).keypress(function(event){
+        if(event.which == 32 || event.which != 8 && isNaN(String.fromCharCode(event.which))){
+            event.preventDefault();
+        }
+    });
+
     var juridical_st = {{ juridical }};
 
     if (juridical_st == 1) {
