@@ -359,13 +359,7 @@
               dataType: 'text',
               success: function(response) {
                 var json = $.parseJSON(response);
-                if (json.employee){
-                    $("#result").html("");
-                    $.each(json.employee, function(index, element) {
-                            $("#result").append(element.surname+": "+element.col+" "+element.string+"</br>");
-                        });
-                }
-                else if (json.queries){
+                if (json.queries){
                 $.each(json.queries, function(index, element) {
                         $("#result").html(element.col+" "+element.string);
                     });

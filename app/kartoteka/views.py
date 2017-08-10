@@ -8,7 +8,7 @@ from app.admin.views import get_counters, get_current_user, get_permissions, for
 from app.models import Request, Executor, User, Character, Answer, Kind, Send
 from app.kartoteka.forms import DelExecutorForm, AddRequestForm, DelRequestForm, EditRequestForm
 
-from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory
+from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory, Markup
 from flask_paginate import Pagination
 from functools import wraps
 from sqlalchemy.sql.functions import func
@@ -294,10 +294,11 @@ def new_request_kartoteka():
             )
 
             db.session.add(request_query)
+            db.session.flush()
             db.session.commit()
             make_history("requests", "вставку", current_user.id)
 
-            flash(u"Запрос добавлен", 'success')
+            flash(Markup(u"Запрос с номером <a href='"+url_for('kartoteka.edit_request', id=request_query.id)+"'>"+form_request_add.number.data+" "+request.form.get("liter")+"</a> добавлен"), 'success')
             return redirect(url_for('kartoteka.kartoteka_main'))
     return render_template("kartoteka/add_request.html", form_request_add = form_request_add, all_counters = all_counters, current_user=current_user, today=today, request_count=request_count)
 

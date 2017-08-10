@@ -7,9 +7,9 @@ from app.authentication.views import login_required
 from app.models import User, Department, Role, Post, Important_news, Table_db, History, Permission, Module, News, Appeals, Executor, Request
 from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, AddNewsForm, EditNewsForm
 
-from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint
+from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory
 from functools import wraps
-from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER, REQUEST_FILES_FOLDER
+from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER, REQUEST_FILES_FOLDER, BACKUPS_FOLDER, DB_USER, DB_USER_PSWD
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
@@ -121,6 +121,10 @@ def make_history(str_table, str_action, current_user_id):
     action = History(user_id=current_user_id, action = str_action, table = table_id.id)
     db.session.add(action)
     return "success"
+
+#Вычисление максимальной даты
+def max_date(list_of_dates):
+    return max(date for date in list_of_dates)
 
 #Счетчики
 def get_counters():
@@ -1366,20 +1370,88 @@ def admin_backups(*args):
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
 
-    eng_all = create_engine('mysql+pymysql://root:root@localhost')
     excl_list = ['information_schema', 'mysql', 'performance_schema', 'phpmyadmin', 'sys']
 
-    db_list = (inspect(eng_all).get_schema_names())
+    db_list = (inspect(db.engine).get_schema_names())
     for excl in excl_list:
         if excl in db_list:
             db_list.remove(excl)
 
-    eng_all.dispose()
+    data = request.json
 
-    print (db_list)
+    if not os.path.exists(BACKUPS_FOLDER):
+        os.makedirs(BACKUPS_FOLDER)
+
+    if data:
+        print (data)
+
+    #~ if data:
+        #~ if data.get('database'):
+            #~ if data.get('database') != 'all':
+                #~ if not os.path.exists(os.path.join(BACKUPS_FOLDER, data.get('database'))):
+                    #~ os.makedirs(os.path.join(BACKUPS_FOLDER, data.get('database')))
+                #~ if not os.path.exists(os.path.join(BACKUPS_FOLDER, data.get('database'), "db")):
+                    #~ os.makedirs(os.path.join(BACKUPS_FOLDER, data.get('database'), "db"))
+                #~ dumpcmd = "mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " " + data.get('database') + " > " + os.path.join(BACKUPS_FOLDER, data.get('database'), "db") + "/" + data.get('database') +"_db_"+ str(time.strftime("%Y-%m-%d")) + ".sql"
+                #~ print(dumpcmd)
+                #~ os.system(dumpcmd)
+            #~ else:
+                #~ dumpcmd = "mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " --all-databases" + " > " + BACKUPS_FOLDER + "/" + data.get('database') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql"
+                #~ print(dumpcmd)
+                #~ os.system(dumpcmd)
+        #~ if data.get('files'):
+            #~ if data.get('files')=="kartoteka":
+                #~ if not os.path.exists(os.path.join(BACKUPS_FOLDER, data.get('files'))):
+                    #~ os.makedirs(os.path.join(BACKUPS_FOLDER, data.get('files')))
+                #~ if not os.path.exists(os.path.join(BACKUPS_FOLDER, data.get('files'), "files")):
+                    #~ os.makedirs(os.path.join(BACKUPS_FOLDER, data.get('files'), "files"))
+                #~ dumpcmd ="7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on " +os.path.join(BACKUPS_FOLDER,data.get('files'), "files"+"/")+data.get('files')+"_files_"+ str(time.strftime("%Y-%m-%d"))+ ".7z "+REQUEST_FILES_FOLDER
+                #~ print (dumpcmd)
+                #~ os.system(dumpcmd)
+
+    #~ classes, models, table_names = [], [], []
+    #~ for clazz in db.Model._decl_class_registry.values():
+        #~ try:
+            #~ table_names.append(clazz.__tablename__)
+            #~ classes.append(clazz)
+        #~ except:
+            #~ pass
+    #~ for table in db.metadata.tables.items():
+        #~ if table[0] in table_names:
+            #~ models.append(classes[table_names.index(table[0])])
+    #~ print (models, table_names)
 
     return render_template("admin/backups.html",  current_user=current_user, today=today, all_counters=all_counters, db_list=db_list)
 
+@administration.route('/download/backup', methods=['GET', 'POST'])
+@login_required
+def download_backups():
+    data = request.json
+
+    if data.get('files'):
+        selected_backup=os.path.join(BACKUPS_FOLDER,data.get('files')+"/files/")
+        if data.get('files')=="kartoteka":
+
+        #~ max_date(selected_backup, )
+
+
+            list_of_dates = []
+            for (dirpath, dirnames, filenames) in os.walk(selected_backup):
+                for filename in filenames:
+                    datetime_object = datetime.datetime.strptime(filename.rsplit('_')[2].rsplit('.')[0], '%Y-%m-%d')
+                    list_of_dates.append(datetime_object)
+
+            last_backup_file = os.path.join(selected_backup, data.get('files')+"_files_"+max_date(list_of_dates).strftime("%Y-%m-%d")+".7z")
+
+            if (os.path.isfile(last_backup_file)):
+                print (last_backup_file)
+
+
+
+
+    #~ uploads = os.path.join(basedir, REQUEST_FILES_FOLDER)
+    #~ return send_from_directory(directory=uploads, filename=filename)
+    return "OK"
 
 
 
