@@ -11,6 +11,7 @@ SECRET_KEY="admin1"
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 #база данных
+SQLALCHEMY_BASIC_URI = 'mysql+pymysql://goomba:tester@localhost/'
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://goomba:tester@localhost/arhiv'
 SQLALCHEMY_BINDS = {
     'kartoteka': 'mysql+pymysql://goomba:tester@localhost/kartoteka'

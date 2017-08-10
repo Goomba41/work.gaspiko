@@ -9,11 +9,11 @@ from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm,
 
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory
 from functools import wraps
-from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER, REQUEST_FILES_FOLDER, BACKUPS_FOLDER, DB_USER, DB_USER_PSWD
+from config import basedir, PER_PAGE, SQLALCHEMY_BASIC_URI, AVATARS_FOLDER, REQUEST_FILES_FOLDER, BACKUPS_FOLDER, DB_USER, DB_USER_PSWD
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
-import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, ast, redis
+import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, redis, subprocess
 from flask_sse import sse
 from collections import defaultdict
 
@@ -125,6 +125,40 @@ def make_history(str_table, str_action, current_user_id):
 #Вычисление максимальной даты
 def max_date(list_of_dates):
     return max(date for date in list_of_dates)
+
+#Проверка структуры папок бэкапов
+def check_folder_structure(backup_root_folder, name, obj):
+    if not os.path.exists(backup_root_folder):
+        os.makedirs(backup_root_folder)
+    if not os.path.exists(os.path.join(backup_root_folder, name)):
+        os.makedirs(os.path.join(backup_root_folder, name))
+    if not os.path.exists(os.path.join(backup_root_folder, name, obj)):
+        os.makedirs(os.path.join(backup_root_folder, name, obj))
+    return (os.path.join(backup_root_folder, name, obj + '/'))
+
+#Получение json структуры баз данных
+def dbss_structure():
+    excl_list = ['information_schema', 'mysql', 'performance_schema', 'phpmyadmin', 'sys']
+    dbss_struct = {}
+
+    db_list = (inspect(db.engine).get_schema_names())
+    for excl in excl_list:
+        if excl in db_list:
+            db_list.remove(excl)
+
+    for dbl in db_list:
+        engine = create_engine(SQLALCHEMY_BASIC_URI+dbl)
+        inspector = inspect(engine)
+        tables={}
+        for table_name in inspector.get_table_names():
+            columns=[]
+            for column in inspector.get_columns(table_name):
+                columns.append(column['name'])
+            tables.update({table_name:columns})
+        dbss_struct.update({dbl:tables})
+        engine.dispose()
+
+    return (dbss_struct)
 
 #Счетчики
 def get_counters():
@@ -1372,42 +1406,22 @@ def admin_backups(*args):
 
     excl_list = ['information_schema', 'mysql', 'performance_schema', 'phpmyadmin', 'sys']
 
-    db_list = (inspect(db.engine).get_schema_names())
-    for excl in excl_list:
-        if excl in db_list:
-            db_list.remove(excl)
+    db_list = dbss_structure()
 
     data = request.json
 
-    if not os.path.exists(BACKUPS_FOLDER):
-        os.makedirs(BACKUPS_FOLDER)
-
     if data:
         print (data)
+        backup_obj_folder = check_folder_structure(BACKUPS_FOLDER, data.get('name'), data.get('obj'))
+        if data.get('obj')=="database":
+            if data.get('name') != 'all':
+                subprocess.call("mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " " + data.get('name') + " > " + backup_obj_folder + data.get('name') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql", shell=True)
+            else:
+                subprocess.call("mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " --all-databases" + " > " + backup_obj_folder + data.get('name') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql", shell=True)
+        if data.get('obj')=='files':
+            subprocess.call(["7z", "a", "-t7z", "-m0=lzma", "-mx=9", "-mfb=64", "-md=32m", "-ms=on", backup_obj_folder+data.get('name')+'_'+ str(time.strftime('%Y-%m-%d'))+ '.7z', REQUEST_FILES_FOLDER], stdout=open(os.devnull, 'wb'))
 
-    #~ if data:
-        #~ if data.get('database'):
-            #~ if data.get('database') != 'all':
-                #~ if not os.path.exists(os.path.join(BACKUPS_FOLDER, data.get('database'))):
-                    #~ os.makedirs(os.path.join(BACKUPS_FOLDER, data.get('database')))
-                #~ if not os.path.exists(os.path.join(BACKUPS_FOLDER, data.get('database'), "db")):
-                    #~ os.makedirs(os.path.join(BACKUPS_FOLDER, data.get('database'), "db"))
-                #~ dumpcmd = "mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " " + data.get('database') + " > " + os.path.join(BACKUPS_FOLDER, data.get('database'), "db") + "/" + data.get('database') +"_db_"+ str(time.strftime("%Y-%m-%d")) + ".sql"
-                #~ print(dumpcmd)
-                #~ os.system(dumpcmd)
-            #~ else:
-                #~ dumpcmd = "mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " --all-databases" + " > " + BACKUPS_FOLDER + "/" + data.get('database') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql"
-                #~ print(dumpcmd)
-                #~ os.system(dumpcmd)
-        #~ if data.get('files'):
-            #~ if data.get('files')=="kartoteka":
-                #~ if not os.path.exists(os.path.join(BACKUPS_FOLDER, data.get('files'))):
-                    #~ os.makedirs(os.path.join(BACKUPS_FOLDER, data.get('files')))
-                #~ if not os.path.exists(os.path.join(BACKUPS_FOLDER, data.get('files'), "files")):
-                    #~ os.makedirs(os.path.join(BACKUPS_FOLDER, data.get('files'), "files"))
-                #~ dumpcmd ="7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on " +os.path.join(BACKUPS_FOLDER,data.get('files'), "files"+"/")+data.get('files')+"_files_"+ str(time.strftime("%Y-%m-%d"))+ ".7z "+REQUEST_FILES_FOLDER
-                #~ print (dumpcmd)
-                #~ os.system(dumpcmd)
+
 
     #~ classes, models, table_names = [], [], []
     #~ for clazz in db.Model._decl_class_registry.values():
