@@ -13,7 +13,7 @@ from config import basedir, PER_PAGE, SQLALCHEMY_BASIC_URI, AVATARS_FOLDER, REQU
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
-import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, redis, subprocess
+import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, redis, subprocess, re
 from flask_sse import sse
 from collections import defaultdict
 
@@ -127,19 +127,25 @@ def max_date(list_of_dates):
     return max(date for date in list_of_dates)
 
 #Проверка структуры папок бэкапов
-def check_folder_structure(backup_root_folder, name, obj):
+def check_folder_structure(backup_root_folder, obj, db_name):
     if not os.path.exists(backup_root_folder):
         os.makedirs(backup_root_folder)
-    if not os.path.exists(os.path.join(backup_root_folder, name)):
-        os.makedirs(os.path.join(backup_root_folder, name))
-    if not os.path.exists(os.path.join(backup_root_folder, name, obj)):
-        os.makedirs(os.path.join(backup_root_folder, name, obj))
-    return (os.path.join(backup_root_folder, name, obj + '/'))
+    if not os.path.exists(os.path.join(backup_root_folder, db_name)):
+        os.makedirs(os.path.join(backup_root_folder, db_name))
+    if not os.path.exists(os.path.join(backup_root_folder, db_name, obj)):
+        os.makedirs(os.path.join(backup_root_folder, db_name, obj))
+    return (os.path.join(backup_root_folder, db_name, obj + '/'))
 
 #Получение json структуры баз данных
 def dbss_structure():
     excl_list = ['information_schema', 'mysql', 'performance_schema', 'phpmyadmin', 'sys']
     dbss_struct = {}
+
+    now = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    week = now - datetime.timedelta(days=7)
+    month = now - datetime.timedelta(days=31)
+
+    print (week, month)
 
     db_list = (inspect(db.engine).get_schema_names())
     for excl in excl_list:
@@ -149,14 +155,64 @@ def dbss_structure():
     for dbl in db_list:
         engine = create_engine(SQLALCHEMY_BASIC_URI+dbl)
         inspector = inspect(engine)
+
+        if not os.path.exists(os.path.join(BACKUPS_FOLDER, dbl, "database/")):
+            db_color = "red"
+        elif os.listdir(os.path.join(BACKUPS_FOLDER, dbl, "database/")):
+            list_of_dates = []
+            for (dirpath, dirnames, filenames) in os.walk(os.path.join(BACKUPS_FOLDER, dbl, "database/")):
+                for filename in filenames:
+                    if re.match( '^\w+\_\d{4,4}\-\d{2,2}\-\d{2,2}\.sql', filename):
+                        datetime_object = datetime.datetime.strptime(filename.rsplit('_')[1].rsplit('.')[0], '%Y-%m-%d')
+                        list_of_dates.append(datetime_object)
+            newest = max_date(list_of_dates)
+            if (week<=newest<=now):
+                db_color = "green"
+            elif (month<=newest<=week):
+                db_color = "yellow"
+            elif (newest<month):
+                db_color = "red"
+            else:
+                db_color = "red"
+
         tables={}
         for table_name in inspector.get_table_names():
+
+            if not os.path.exists(os.path.join(BACKUPS_FOLDER, dbl, "table/")):
+                table_color = "red"
+                print(table_name+" table folder doesn`t exist")
+            elif os.listdir(os.path.join(BACKUPS_FOLDER, dbl, "table/")):
+                list_of_dates = []
+                for (dirpath, dirnames, filenames) in os.walk(os.path.join(BACKUPS_FOLDER, dbl, "table/")):
+                    for filename in filenames:
+                        if ((filename.rsplit('_', 1)[0] == table_name) and (re.match( '^\w+\_\d{4,4}\-\d{2,2}\-\d{2,2}\.sql', filename))):
+                            datetime_object = datetime.datetime.strptime(filename.rsplit('_')[1].rsplit('.')[0], '%Y-%m-%d')
+                            list_of_dates.append(datetime_object)
+                if list_of_dates:
+                    newest = max_date(list_of_dates)
+                    print(newest)
+                    if (week<=newest<=now):
+                        table_color = "green"
+                    elif (month<=newest<=week):
+                        table_color = "yellow"
+                    elif (newest<month):
+                        table_color = "red"
+                    else:
+                        table_color = "red"
+                else:
+                    table_color = "red"
+
             columns=[]
             for column in inspector.get_columns(table_name):
                 columns.append(column['name'])
+            columns.append({'backup_state':table_color})
             tables.update({table_name:columns})
+
+        tables.update({'backup_state':db_color})
         dbss_struct.update({dbl:tables})
         engine.dispose()
+
+    print (dbss_struct)
 
     return (dbss_struct)
 
@@ -1404,36 +1460,22 @@ def admin_backups(*args):
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
 
-    excl_list = ['information_schema', 'mysql', 'performance_schema', 'phpmyadmin', 'sys']
-
     db_list = dbss_structure()
 
     data = request.json
 
     if data:
-        print (data)
-        backup_obj_folder = check_folder_structure(BACKUPS_FOLDER, data.get('name'), data.get('obj'))
+        #~ print (data)
+        backup_obj_folder = check_folder_structure(BACKUPS_FOLDER, data.get('obj'), data.get('db_name'))
         if data.get('obj')=="database":
             if data.get('name') != 'all':
                 subprocess.call("mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " " + data.get('name') + " > " + backup_obj_folder + data.get('name') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql", shell=True)
             else:
                 subprocess.call("mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " --all-databases" + " > " + backup_obj_folder + data.get('name') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql", shell=True)
+        if data.get('obj')=="table":
+            subprocess.call("mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " " + data.get('db_name') + " " + data.get('name') + " > " + backup_obj_folder + data.get('name') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql", shell=True)
         if data.get('obj')=='files':
             subprocess.call(["7z", "a", "-t7z", "-m0=lzma", "-mx=9", "-mfb=64", "-md=32m", "-ms=on", backup_obj_folder+data.get('name')+'_'+ str(time.strftime('%Y-%m-%d'))+ '.7z', REQUEST_FILES_FOLDER], stdout=open(os.devnull, 'wb'))
-
-
-
-    #~ classes, models, table_names = [], [], []
-    #~ for clazz in db.Model._decl_class_registry.values():
-        #~ try:
-            #~ table_names.append(clazz.__tablename__)
-            #~ classes.append(clazz)
-        #~ except:
-            #~ pass
-    #~ for table in db.metadata.tables.items():
-        #~ if table[0] in table_names:
-            #~ models.append(classes[table_names.index(table[0])])
-    #~ print (models, table_names)
 
     return render_template("admin/backups.html",  current_user=current_user, today=today, all_counters=all_counters, db_list=db_list)
 
