@@ -145,7 +145,7 @@ def dbss_structure():
     week = now - datetime.timedelta(days=7)
     month = now - datetime.timedelta(days=31)
 
-    print (week, month)
+    #~ print (week, month)
 
     db_list = (inspect(db.engine).get_schema_names())
     for excl in excl_list:
@@ -190,7 +190,7 @@ def dbss_structure():
                             list_of_dates.append(datetime_object)
                 if list_of_dates:
                     newest = max_date(list_of_dates)
-                    print(newest)
+                    #~ print(newest)
                     if (week<=newest<=now):
                         table_color = "green"
                     elif (month<=newest<=week):
@@ -212,7 +212,7 @@ def dbss_structure():
         dbss_struct.update({dbl:tables})
         engine.dispose()
 
-    print (dbss_struct)
+    #~ print (dbss_struct)
 
     return (dbss_struct)
 
@@ -1484,30 +1484,28 @@ def admin_backups(*args):
 def download_backups():
     data = request.json
 
-    if data.get('files'):
-        selected_backup=os.path.join(BACKUPS_FOLDER,data.get('files')+"/files/")
-        if data.get('files')=="kartoteka":
+    if data:
 
-        #~ max_date(selected_backup, )
-
+        if data.get('obj')=='files':
+            selected_backup=os.path.join(BACKUPS_FOLDER,data.get('db_name'),data.get('obj'))
+            print (selected_backup)
 
             list_of_dates = []
             for (dirpath, dirnames, filenames) in os.walk(selected_backup):
                 for filename in filenames:
-                    datetime_object = datetime.datetime.strptime(filename.rsplit('_')[2].rsplit('.')[0], '%Y-%m-%d')
+                    datetime_object = datetime.datetime.strptime(filename.rsplit('_')[1].rsplit('.')[0], '%Y-%m-%d')
                     list_of_dates.append(datetime_object)
 
-            last_backup_file = os.path.join(selected_backup, data.get('files')+"_files_"+max_date(list_of_dates).strftime("%Y-%m-%d")+".7z")
+            filename = data.get('name')+"_"+max_date(list_of_dates).strftime("%Y-%m-%d")+".7z"
+            last_backup_file = os.path.join(selected_backup, filename)
 
             if (os.path.isfile(last_backup_file)):
                 print (last_backup_file)
+                uploads = os.path.join(basedir, selected_backup)
+                print (uploads)
 
-
-
-
-    #~ uploads = os.path.join(basedir, REQUEST_FILES_FOLDER)
-    #~ return send_from_directory(directory=uploads, filename=filename)
-    return "OK"
+    return send_from_directory(directory=uploads, filename=filename, as_attachment=True)
+    #~ return "OK"
 
 
 

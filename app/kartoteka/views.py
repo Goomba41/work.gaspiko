@@ -241,6 +241,14 @@ def kartoteka_statistics(page = 1, *args):
                 filter_args.append(Request.executor_id == int(data.get('executor')))
                 group_args.append(Request.id)
             #--------------------------------------------
+            #Добавление к фильтрам юр. лиц
+            if data.get('juridical') :
+                if int(data.get('juridical')) == 1:
+                    filter_args.append(Request.number.like('%Ю'))
+                elif int(data.get('juridical')) == 0:
+                    filter_args.append(Request.number.notlike('%Ю'))
+                group_args.append(Request.id)
+            #--------------------------------------------
 
             print(Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args))
             result = Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args).count()
