@@ -21,36 +21,6 @@
         </div>
     </nav>
 
-    <div class="col-sm-12">
-        <div class="panel panel-primary">
-          <!-- Default panel contents -->
-            <div class="panel-heading">Прочие данные</div>
-
-              <!-- List group -->
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <ul>
-                            <li style="margin: 20px 0;"><a style="text-decoration: none;" data-toggle="collapse" href="#collapse-1"><h3 style="display: inline; text-transform: uppercase;">Файлы БД "Картотека запросов" <i class="fa fa-caret-down" aria-hidden="true"></i></h3></a></li>
-
-                            <div id="collapse-1" class="panel-collapse collapse">
-                                <div class="panel panel-default" >
-                                    <div class="panel-body">
-                                        <div class="btn-group" role="group" aria-label="Операции над данными">
-                                            <button onclick="save_files_disk(id)" id="kartoteka" title="Сделать заархивированную копию файлов" type="button" class="btn btn-success"><i class="fa fa-arrow-down" aria-hidden="true"></i>Сохранить</button>
-                                            <button onclick="download_files(id)" id="kartoteka" title="Скачать архив файлов" type="button" class="btn btn-info"><i class="fa fa-download" aria-hidden="true"></i>Скачать </button>
-                                            <button title="Восстановить из копии" type="button" class="btn btn-danger"><i class="fa fa-arrow-up" aria-hidden="true"></i>Восстановить</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                        </ul>
-                    </li>
-                </ul>
-
-            </div>
-        </div>
-    </div>
-
 <!--
         <div class="progress">
           <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%">
@@ -64,11 +34,10 @@
             <div class="panel-heading">Базы данных и таблицы</div>
             <div class="panel-body">
                 <div class="btn-group" role="group" aria-label="Операции над БД">
-                    <button onclick="save_to_disk(id)" id="all" title="Сделать копию всех баз одним файлом" type="button" class="btn btn-success"><i class="fa fa-arrow-down" aria-hidden="true"></i>Сохранить</button>
-                    <button title="Скачать архив файлов" type="button" class="btn btn-info"><i class="fa fa-download" aria-hidden="true"></i>Скачать </button>
+                    <button onclick="save_to_disk('database','all', 'all')" id="all" title="Сделать копию всех баз одним файлом" type="button" class="btn btn-success"><i class="fa fa-arrow-down" aria-hidden="true"></i>Сохранить</button>
+                    <a title="Скачать копию всех баз одним файлом" class="btn btn-info" role="button" href="{{ url_for('admin.download_backups', path='all/database/all/sql') }}"><i class="fa fa-download" aria-hidden="true"></i>Скачать</a>
                     <button title="Восстановить из копии" type="button" class="btn btn-danger"><i class="fa fa-arrow-up" aria-hidden="true"></i>Восстановить</button>
                 </div>
-                <button title="Скачать заархивированную папку резервных копий" type="button" class="btn btn-info"><i class="fa fa-download" aria-hidden="true"></i>Скачать архив</button>
             </div>
             <ul class="list-group">
                 <li class="list-group-item">
@@ -80,16 +49,8 @@
                             <div class="panel panel-default" style="margin-top:20px;">
                                 <div class="panel-body">
                                     <div class="btn-group" role="group" aria-label="Операции над БД">
-                                        <button onclick="save_to_disk(id)" id="{{ db }}" title="Сделать копию базы" type="button" class="btn btn-success"><i class="fa fa-arrow-down" aria-hidden="true"></i>Сохранить</button>
-                                        <div class="btn-group">
-                                            <button title="Скачать копию базы" type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fa fa-download" aria-hidden="true"></i>Скачать <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a href="#">В формате sql</a></li>
-                                                <li><a href="#">В формате csv</a></li>
-                                            </ul>
-                                        </div>
+                                        <button onclick="save_to_disk('database','{{ db }}', '{{ db }}')" id="{{ db }}" title="Сделать копию базы" type="button" class="btn btn-success"><i class="fa fa-arrow-down" aria-hidden="true"></i>Сохранить</button>
+                                        <a title="Скачать копию всех баз одним файлом" class="btn btn-info" role="button" href="{{ url_for('admin.download_backups', path=db+'/database/'+db+'/sql') }}"><i class="fa fa-download" aria-hidden="true"></i>Скачать</a>
                                         <button title="Восстановить из копии" type="button" class="btn btn-danger"><i class="fa fa-arrow-up" aria-hidden="true"></i>Восстановить</button>
                                     </div>
                                 </div>
@@ -109,14 +70,14 @@
                                             <h5 style="display: inline; text-transform: uppercase;">{{ table }}</h5></td>
                                         <td>
                                             <div class="btn-group" role="group" aria-label="Операции над БД">
-                                                <button onclick="save_table_to_disk('{{ db }}', '{{ table }}')" id="{{ table }}" title="Сделать копию таблицы" type="button" class="btn btn-success"><i class="fa fa-arrow-down" aria-hidden="true"></i>Сохранить</button>
+                                                <button onclick="save_to_disk( 'table', '{{ table }}','{{ db }}')" id="{{ table }}" title="Сделать копию таблицы" type="button" class="btn btn-success"><i class="fa fa-arrow-down" aria-hidden="true"></i>Сохранить</button>
                                                 <div class="btn-group">
                                                     <button title="Скачать копию таблицы" type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                     <i class="fa fa-download" aria-hidden="true"></i>Скачать <span class="caret"></span>
                                                     </button>
                                                     <ul class="dropdown-menu">
-                                                        <li><a href="#">В формате sql</a></li>
-                                                        <li><a href="#">В формате csv</a></li>
+                                                        <li><a href="{{ url_for('admin.download_backups', path=db+'/table/'+table+'/sql') }}">В формате sql</a></li>
+                                                        <li><a href="{{ url_for('admin.download_backups', path=db+'/table/'+table+'/csv') }}">В формате csv</a></li>
                                                     </ul>
                                                 </div>
                                                 <button title="Восстановить из копии" type="button" class="btn btn-danger"><i class="fa fa-arrow-up" aria-hidden="true"></i>Восстановить</button>
@@ -136,50 +97,47 @@
              </ul>
         </div>
 
+    </div>
 
+    <div class="col-sm-12">
+        <div class="panel panel-primary">
+          <!-- Default panel contents -->
+            <div class="panel-heading">Прочие данные</div>
+
+              <!-- List group -->
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <ul>
+                            <li style="margin: 20px 0;"><a style="text-decoration: none;" data-toggle="collapse" href="#collapse-1"><h3 style="display: inline; text-transform: uppercase;">Файлы БД "Картотека запросов" <i class="fa fa-caret-down" aria-hidden="true"></i></h3></a></li>
+
+                            <div id="collapse-1" class="panel-collapse collapse">
+                                <div class="panel panel-default" >
+                                    <div class="panel-body">
+                                        <div class="btn-group" role="group" aria-label="Операции над данными">
+                                            <button onclick="save_to_disk('files',id, id)" id="kartoteka" title="Сделать заархивированную копию файлов" type="button" class="btn btn-success"><i class="fa fa-arrow-down" aria-hidden="true"></i>Сохранить</button>
+                                            <a class="btn btn-info" role="button" href="{{ url_for('admin.download_backups', path='kartoteka/files/kartoteka/7z') }}"><i class="fa fa-download" aria-hidden="true"></i>Скачать</a>
+                                            <button title="Восстановить из копии" type="button" class="btn btn-danger"><i class="fa fa-arrow-up" aria-hidden="true"></i>Восстановить</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                        </ul>
+                    </li>
+                </ul>
+
+            </div>
+            <h1>Общий вес всех резервных копий: {{ total_size }}</h1><button title="Удалить устаревшие файлы" type="button" class="btn btn-danger"><i class="fa fa-trash" aria-hidden="true"></i>Очистить</button>
+        </div>
 
     </div>
 
     <script>
-        function save_to_disk(db) {
+        function save_to_disk(object,obj_name, db) {
             $.ajax({
               url: "{{ url_for('admin.admin_backups') }}",
               type: "POST",
               contentType: 'application/json;charset=UTF-8',
-              data : JSON.stringify({obj:"database",name:db, db_name:db}),
-              dataType: 'json',
-              success: function(response) {
-                }
-              });
-        };
-        function save_table_to_disk(db, table) {
-            $.ajax({
-              url: "{{ url_for('admin.admin_backups') }}",
-              type: "POST",
-              contentType: 'application/json;charset=UTF-8',
-              data : JSON.stringify({obj:"table",name:table, db_name:db}),
-              dataType: 'json',
-              success: function(response) {
-                }
-              });
-        };
-        function save_files_disk(db) {
-            $.ajax({
-              url: "{{ url_for('admin.admin_backups') }}",
-              type: "POST",
-              contentType: 'application/json;charset=UTF-8',
-              data : JSON.stringify({obj:"files",name:db, db_name:db}),
-              dataType: 'json',
-              success: function(response) {
-                }
-              });
-        };
-        function download_files(db) {
-            $.ajax({
-              url: "{{ url_for('admin.download_backups') }}",
-              type: "POST",
-              contentType: 'application/json;charset=UTF-8',
-              data : JSON.stringify({obj:"files",name:db, db_name:db}),
+              data : JSON.stringify({obj:object,name:obj_name, db_name:db}),
               dataType: 'json',
               success: function(response) {
                 }

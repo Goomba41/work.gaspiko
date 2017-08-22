@@ -12,7 +12,7 @@ from wtforms.fields.html5 import TelField
 class AddUserForm(FlaskForm):
     login = TextField(u'Логин', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Логин должен быть в диапазоне от 1 до 15 символов')])
     password = PasswordField(u'Пароль', validators = [Required(message = u'Введите пароль'), Length(min=1, message = u'Пароль должен быть более 8 символов')])
-    photo = FileField(u'Выберите фото профиля', validators = [FileAllowed(['jpg', 'jpeg', 'png'], u'Только изображения!')])
+    photo = FileField(u'Выберите фото профиля', validators = [FileAllowed(['jpg', 'jpeg', 'png', 'gif'], u'Только изображения!')])
     surname = TextField(u'Фамилия', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Фамилия должна быть в диапазоне от 1 до 15 символов')])
     name= TextField(u'Имя', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Имя должно быть в диапазоне от 1 до 15 символов')])
     patronymic = TextField(u'Отчетство', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Отчество должно быть в диапазоне от 1 до 15 символов')])
@@ -35,7 +35,7 @@ class EditUserForm(FlaskForm):
 
     login = TextField(u'Логин')
     password = PasswordField(u'Пароль')
-    photo = FileField(u'Выберите фото профиля', validators = [FileAllowed(['jpg', 'jpeg', 'png'], u'Только изображения!')])
+    photo = FileField(u'Выберите фото профиля', validators = [FileAllowed(['jpg', 'jpeg', 'png', 'gif'], u'Только изображения!')])
     surname = TextField(u'Фамилия', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Фамилия должна быть в диапазоне от 1 до 15 символов')])
     name= TextField(u'Имя', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Имя должно быть в диапазоне от 1 до 15 символов')])
     patronymic = TextField(u'Отчетство', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Отчество должно быть в диапазоне от 1 до 15 символов')])

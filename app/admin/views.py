@@ -7,13 +7,13 @@ from app.authentication.views import login_required
 from app.models import User, Department, Role, Post, Important_news, Table_db, History, Permission, Module, News, Appeals, Executor, Request
 from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, AddNewsForm, EditNewsForm
 
-from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory
+from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory, send_file
 from functools import wraps
 from config import basedir, PER_PAGE, SQLALCHEMY_BASIC_URI, AVATARS_FOLDER, REQUEST_FILES_FOLDER, BACKUPS_FOLDER, DB_USER, DB_USER_PSWD
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
-import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, redis, subprocess, re
+import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, redis, subprocess, re, humanize, csv
 from flask_sse import sse
 from collections import defaultdict
 
@@ -136,6 +136,16 @@ def check_folder_structure(backup_root_folder, obj, db_name):
         os.makedirs(os.path.join(backup_root_folder, db_name, obj))
     return (os.path.join(backup_root_folder, db_name, obj + '/'))
 
+#Получить размер папки
+def get_folder_size(folder):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(folder):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            total_size += os.path.getsize(fp)
+    total_size = humanize.naturalsize(total_size, gnu=True)
+    return total_size
+
 #Получение json структуры баз данных
 def dbss_structure():
     excl_list = ['information_schema', 'mysql', 'performance_schema', 'phpmyadmin', 'sys']
@@ -177,7 +187,6 @@ def dbss_structure():
 
         tables={}
         for table_name in inspector.get_table_names():
-
             if not os.path.exists(os.path.join(BACKUPS_FOLDER, dbl, "table/")):
                 table_color = "red"
                 print(table_name+" table folder doesn`t exist")
@@ -188,19 +197,19 @@ def dbss_structure():
                         if ((filename.rsplit('_', 1)[0] == table_name) and (re.match( '^\w+\_\d{4,4}\-\d{2,2}\-\d{2,2}\.sql', filename))):
                             datetime_object = datetime.datetime.strptime(filename.rsplit('_')[1].rsplit('.')[0], '%Y-%m-%d')
                             list_of_dates.append(datetime_object)
-                if list_of_dates:
-                    newest = max_date(list_of_dates)
-                    #~ print(newest)
-                    if (week<=newest<=now):
-                        table_color = "green"
-                    elif (month<=newest<=week):
-                        table_color = "yellow"
-                    elif (newest<month):
-                        table_color = "red"
+                    if list_of_dates:
+                        newest = max_date(list_of_dates)
+                        #~ print(newest)
+                        if (week<=newest<=now):
+                            table_color = "green"
+                        elif (month<=newest<=week):
+                            table_color = "yellow"
+                        elif (newest<month):
+                            table_color = "red"
+                        else:
+                            table_color = "red"
                     else:
                         table_color = "red"
-                else:
-                    table_color = "red"
 
             columns=[]
             for column in inspector.get_columns(table_name):
@@ -242,6 +251,11 @@ def get_date(date):
 @app.errorhandler(403)
 def forbidden(e):
     return render_template('403.html'), 403
+
+#Обработчик ошибки 404 - не найдено
+@app.errorhandler(404)
+def forbidden(e):
+    return render_template('404.html'), 404
 
 #Админка основной экран
 @administration.route('/', methods=['GET', 'POST'])
@@ -682,7 +696,9 @@ def edit_user():
                 photo = request.files['photo']
                 if photo:
                     if edit_user.photo is not None:
-                        photo.save(os.path.join(app.config['AVATARS_FOLDER'], edit_user.photo))
+                        new_filename = edit_user.photo.rsplit('.')[0]+'.'+photo.mimetype.rsplit('/')[1]
+                        photo.save(os.path.join(app.config['AVATARS_FOLDER'], new_filename))
+                        edit_user.photo = new_filename
                     else:
                         hashname = uuid.uuid4().hex + '.' + photo.filename.rsplit('.', 1)[1]
                         photo.save(os.path.join(app.config['AVATARS_FOLDER'], hashname))
@@ -1462,6 +1478,8 @@ def admin_backups(*args):
 
     db_list = dbss_structure()
 
+    total_size = get_folder_size(BACKUPS_FOLDER)
+
     data = request.json
 
     if data:
@@ -1477,35 +1495,71 @@ def admin_backups(*args):
         if data.get('obj')=='files':
             subprocess.call(["7z", "a", "-t7z", "-m0=lzma", "-mx=9", "-mfb=64", "-md=32m", "-ms=on", backup_obj_folder+data.get('name')+'_'+ str(time.strftime('%Y-%m-%d'))+ '.7z', REQUEST_FILES_FOLDER], stdout=open(os.devnull, 'wb'))
 
-    return render_template("admin/backups.html",  current_user=current_user, today=today, all_counters=all_counters, db_list=db_list)
+    return render_template("admin/backups.html",  current_user=current_user, today=today, all_counters=all_counters, db_list=db_list, total_size=total_size)
 
-@administration.route('/download/backup', methods=['GET', 'POST'])
+@administration.route('/download/backup/<path:path>', methods=['GET', 'POST'])
 @login_required
-def download_backups():
-    data = request.json
+def download_backups(path):
+    data = path.rsplit('/')
+    data = {"obj":data[1], "ext":data[3],"db_name":data[0],"name":data[2]}
 
     if data:
-
-        if data.get('obj')=='files':
+        if data.get('ext') != 'csv':
             selected_backup=os.path.join(BACKUPS_FOLDER,data.get('db_name'),data.get('obj'))
             print (selected_backup)
-
             list_of_dates = []
             for (dirpath, dirnames, filenames) in os.walk(selected_backup):
                 for filename in filenames:
-                    datetime_object = datetime.datetime.strptime(filename.rsplit('_')[1].rsplit('.')[0], '%Y-%m-%d')
-                    list_of_dates.append(datetime_object)
+                    if data.get('name') in filename:
+                        print (filename)
+                        datetime_object = datetime.datetime.strptime(filename.rsplit('_')[1].rsplit('.')[0], '%Y-%m-%d')
+                        list_of_dates.append(datetime_object)
 
-            filename = data.get('name')+"_"+max_date(list_of_dates).strftime("%Y-%m-%d")+".7z"
-            last_backup_file = os.path.join(selected_backup, filename)
+            if list_of_dates:
+                filename = data.get('name')+"_"+max_date(list_of_dates).strftime("%Y-%m-%d")+"."+data.get('ext')
+                print (filename)
+                last_backup_file = os.path.join(selected_backup, filename)
+            else:
+                return forbidden(404)
 
             if (os.path.isfile(last_backup_file)):
-                print (last_backup_file)
                 uploads = os.path.join(basedir, selected_backup)
-                print (uploads)
+            else:
+                return forbidden(404)
 
-    return send_from_directory(directory=uploads, filename=filename, as_attachment=True)
-    #~ return "OK"
+            return send_from_directory(directory=uploads, filename=filename, as_attachment=True)
+
+        else:
+            tmp_dir = os.path.join(basedir, "app/static/kartoteka/")
+
+            db_data = []
+            for c in db.Model._decl_class_registry.values():
+                if hasattr(c, '__tablename__') and c.__tablename__ == data.get('name'):
+                    db_data = c.query.all()
+                    print(db_data)
+            if not db_data:
+                return forbidden(404)
+
+            with open(tmp_dir+data.get('name'), 'w', newline='') as csv_file:
+                wr = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
+                tmp = []
+                for row in db_data:
+                    for col in row.__table__.columns:
+                        tmp.append(getattr(row, col.name))
+                    wr.writerow(tmp)
+                    tmp = []
+
+            def generate():
+                with open(tmp_dir+data.get('name')) as f:
+                    yield from f
+
+                os.remove(tmp_dir+data.get('name'))
+
+            r = app.response_class(generate(), mimetype='text/csv')
+            r.headers.set('Content-Disposition', 'attachment', filename=data.get('name')+'.csv')
+            return r
+
+    return forbidden(403)
 
 
 

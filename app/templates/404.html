@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>404</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
+<style type="text/css">
+body{
+    font-family: 'Open Sans Condensed', sans-serif;
+}
+body{
+    background:#ffffff;
+    margin:0;
+}
+.wrap{
+    margin:0 auto;
+    width:1000px;
+}
+.logo{
+    margin-top:50px;
+}
+.logo h1{
+    font-size:11em;
+    color:#8F8E8C;
+    text-align:center;
+    margin-bottom:1px;
+    text-shadow:1px 1px 6px #fff;
+}
+.logo p{
+    color:rgb(228, 146, 162);
+    font-size:20px;
+    margin-top:1px;
+    text-align:center;
+}
+.logo p span{
+    color:lightgreen;
+}
+.error-image-404 {
+    background-image: url(/static/admin/img/404_2.gif);
+    background-repeat-x: no-repeat;
+    background-size: cover;
+    height: 400px;
+    width: 100%;
+}
+</style>
+</head>
+
+
+<body>
+<div class="wrap">
+<div class="logo">
+<h1>404</h1>
+<p>Not Found - Запрашиваемая страница или ресурс не найдены</p><br/>
+<h2 style="text-align:center;"><a href="{{url_for('admin.admin')}}">НА ГЛАВНУЮ</a></h2>
+</div>
+</div>
+<div class="error-image-404" style ="background-image:url({{ url_for('static', filename='admin/img/404_2.gif') }});"></div>
+</body>
