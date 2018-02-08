@@ -1487,13 +1487,13 @@ def admin_backups(*args):
         backup_obj_folder = check_folder_structure(BACKUPS_FOLDER, data.get('obj'), data.get('db_name'))
         if data.get('obj')=="database":
             if data.get('name') != 'all':
-                subprocess.call("mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " " + data.get('name') + " > " + backup_obj_folder + data.get('name') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql", shell=True)
+                subprocess.call("/usr/bin/mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " " + data.get('name') + " > " + backup_obj_folder + data.get('name') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql", shell=True)
             else:
-                subprocess.call("mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " --all-databases" + " > " + backup_obj_folder + data.get('name') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql", shell=True)
+                subprocess.call("/usr/bin/mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " --all-databases" + " > " + backup_obj_folder + data.get('name') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql", shell=True)
         if data.get('obj')=="table":
-            subprocess.call("mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " " + data.get('db_name') + " " + data.get('name') + " > " + backup_obj_folder + data.get('name') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql", shell=True)
+            subprocess.call("/usr/bin/mysqldump -u " + DB_USER + " -p" + DB_USER_PSWD + " " + data.get('db_name') + " " + data.get('name') + " > " + backup_obj_folder + data.get('name') +"_"+ str(time.strftime("%Y-%m-%d")) + ".sql", shell=True)
         if data.get('obj')=='files':
-            subprocess.call(["7z", "a", "-t7z", "-m0=lzma", "-mx=9", "-mfb=64", "-md=32m", "-ms=on", backup_obj_folder+data.get('name')+'_'+ str(time.strftime('%Y-%m-%d'))+ '.7z', REQUEST_FILES_FOLDER], stdout=open(os.devnull, 'wb'))
+            subprocess.call(["/usr/bin/7z", "a", "-t7z", "-m0=lzma", "-mx=9", "-mfb=64", "-md=32m", "-ms=on", backup_obj_folder+data.get('name')+'_'+ str(time.strftime('%Y-%m-%d'))+ '.7z', REQUEST_FILES_FOLDER], stdout=open(os.devnull, 'wb'))
 
     return render_template("admin/backups.html",  current_user=current_user, today=today, all_counters=all_counters, db_list=db_list, total_size=total_size)
 

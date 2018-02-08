@@ -129,6 +129,11 @@ ul.pagination {
                             <div>
                                 <a class = "edit" href="{{url_for('kartoteka.edit_request', id = request.id)}}"><button class="btn-primary" type="submit" title="Изменить запись"><i class="fa fa-pencil fa-control" aria-hidden="true"></i></button></a>
                             </div>
+
+                            <div>
+                                <a class = "view" href="{{url_for('kartoteka.card_request', id = request.id)}}"><button class="btn-warning" type="submit" title="Посмотреть карточку"><i class="fa fa-eye fa-control" aria-hidden="true"></i></button></a>
+                            </div>
+
                         </div>
                     </td>
                 <td>{{ request.number }}</td>
