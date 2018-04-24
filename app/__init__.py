@@ -17,8 +17,10 @@ from app import views, models
 from app.authentication.views import authentication as authentication_module
 from app.admin.views import administration as admin_module
 from app.kartoteka.views import kartoteka as kartoteka_module
+from app.zal.views import zal as zal_module
 
 app.register_blueprint(authentication_module)
 app.register_blueprint(admin_module)
 app.register_blueprint(kartoteka_module)
+app.register_blueprint(zal_module)
 

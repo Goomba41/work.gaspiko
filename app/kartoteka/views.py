@@ -223,7 +223,7 @@ def kartoteka_statistics(page = 1, *args):
             #--------------------------------------------
             #Добавление к фильтрам характера запроса
             if data.get('character_type') :
-                filter_args.append(Request.kind_id == int(data.get('character_type')))
+                filter_args.append(Request.character_id == int(data.get('character_type')))
                 group_args.append(Request.id)
             #--------------------------------------------
             #Добавление к фильтрам характера ответа
