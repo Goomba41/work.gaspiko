@@ -22,18 +22,22 @@ ul.pagination {
           </div>
           <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
             <ul class="nav navbar-nav">
-                <li class=""><a href="" title="Список пользователей читального зала"><i class="fa fa-list-ol" aria-hidden="true"></i>Список <span class="badge">{{  }}</span></a></li>
-                <li><a href="" title="Создать запрос в БД 'Картотека запросов'"><i class="fa fa-plus" aria-hidden="true"></i>Создать запрос</a></li>
-                <li><a href="" title="Добавить\удалить исполнителей запросов в БД 'Картотека запросов'"><i class="fa fa-users" aria-hidden="true"></i>Исполнители</a></li>
-                <li><a href="" title="Статистика заполнения БД 'Картотека запросов'"><i class="fa fa-line-chart" aria-hidden="true"></i>Статистика</a></li>
+                <li class=""><a href="" title="Список пользователей читального зала"><i class="fa fa-list-ol" aria-hidden="true"></i>Список <span class="badge"></span></a></li>
+                <li><a href="" title="Поиск записей в БД 'Читальный зал' по параметрам"><i class="fa fa-search" aria-hidden="true"></i>Поиск</a></li>
+                <li><a href="" title="Добавить нового пользователя читального зала"><i class="fa fa-plus" aria-hidden="true"></i>Добавить пользователя</a></li>
+                <li><a href="" title="Список категорий"><i class="fa fa-bars" aria-hidden="true"></i>Категории</a></li>
+                <li><a href="" title="Статистика заполнения БД 'Читальный зал'"><i class="fa fa-line-chart" aria-hidden="true"></i>Статистика</a></li>
                 <li class="dropdown">
                     <a href="#" title="Действия с выбранными записями" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-check-square" aria-hidden="true"></i>С выбранным<span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a class="delete" onclick="delete_kartoteka_requests()"  href=""><i class="fa fa-trash" aria-hidden="true"></i>Удалить</a></li>
+                        <li><a class="remove" onclick=""  href=""><i class="fa fa-trash" aria-hidden="true"></i>Скрыть запись</a></li>
+                        <li><a class="delete" onclick=""  href=""><i class="fa fa-trash" aria-hidden="true"></i>Удалить записи</a></li>
                     </ul>
                 </li>
-                <li><a href="{{ url_for('kartoteka.search_request') }}" title="Поиск записей в БД 'Картотека запросов' по параметрам"><i class="fa fa-search" aria-hidden="true"></i>Поиск</a></li>
+                
+<!--
                 <li><a href="{{ url_for('kartoteka.download_csv', filename='request.csv') }}" title="Скачать список всех записей БД 'Картотека запросов'"><i class="fa fa-download" aria-hidden="true"></i>Скачать</a></li>
+-->
             </ul>
           </div>
         </div>
