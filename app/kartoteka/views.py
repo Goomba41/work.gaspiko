@@ -442,7 +442,7 @@ def download_csv(filename):
     with open(tmp_dir+filename, 'w', newline='') as csv_file:
         wr = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
         for request in requests_all:
-            wr.writerow([request.id, request.number, request.name, request.surname, request.patronymic, request.date_registration, request.filename, request.kind.name, request.character.name, request.date_done, request.date_send, request.executor.user.surname if (request.executor_id) else "", request.answer.name, request.send.name, request.copies])
+            wr.writerow([request.id, request.number, request.name, request.surname, request.patronymic, request.date_registration, request.filename, request.kind.name, request.admission.name, request.character.name, request.date_done, request.date_send, request.executor.user.surname if (request.executor_id) else "", request.answer.name, request.send.name, request.copies])
 
     def generate():
         with open(tmp_dir+filename) as f:
