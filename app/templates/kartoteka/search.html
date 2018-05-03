@@ -61,6 +61,16 @@
                             </select>
                         </div>
                         <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="character">Способ поступления</label></span>
+                            <select class="form-control" id="search" name="admission">
+                                <option></option>
+                                {% for admission in admissions %}
+                                    <option>{{ admission.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
                             <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="character">Характер запроса</label></span>
                             <select class="form-control" id="search" name="character">
                                 <option></option>
@@ -69,6 +79,7 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        
                         <div class="input-group" style="margin: 2% 2%;width: 100%;">
                             <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="answer">Характер ответа</label></span>
                             <select class="form-control" id="search" name="answer">
@@ -139,7 +150,7 @@
                         function search_request() {
                             {#var send_data = {}
                             $( "input#search" ).each(function() {
-                                if ($( this ).val()){ send_data[$( this ).attr('name')]=$( this ).val(); }
+                                if ($( this ).val()){ send_data[$( this ).attr('name')]=$( this ).val();alert($( this ).val();) }
                             });
                             console.log(send_data)
                              $.ajax({

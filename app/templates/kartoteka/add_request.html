@@ -45,6 +45,7 @@
             </div>
             <div class="col-sm-6">
             {{ render_field(form_request_add.kind_id, class ="form-control") }}
+            {{ render_field(form_request_add.admission_id, class ="form-control") }}
             {{ render_field(form_request_add.character_id, class ="form-control") }}
             {{ render_field(form_request_add.executor_id, class ="form-control") }}
             </div>
@@ -70,37 +71,45 @@
        }
     });
 
-    var juridical_st = false;
-    var juridical = "";
+    //var vipnet_st = false;
+    //var vipnet = "";
+//
+    //$( "#vipnet" ).click(function(){
+        //if (vipnet_st) {
+            //vipnet_st = false;
+            //vipnet = "";
+            //$("#vipnet").css({"background-color":"#eeeeee","color":"#555"});
+            //}
+        //else {
+            //vipnet_st = true;
+            //vipnet = "@";
+            //$("#vipnet").css({"background-color":"#419641","color":"#fff"});
+            //}
+    //});
 
-    $( "#juridical" ).click(function(){
-        if (juridical_st) {
-            juridical_st = false;
-            juridical = "";
-            $("#juridical").css({"background-color":"#eeeeee","color":"#555"});
-            }
-        else {
-            juridical_st = true;
-            juridical = "Ю";
-            $("#juridical").css({"background-color":"#419641","color":"#fff"});
-            }
+    var liter = "";
+    $( "#liter" ).html( "-" );
+    
+    $( ".journal" ).click(function() {
+        if ($(this).attr('id')=="1") {$( "#liter" ).html( "@" ); liter = "@";}
+        else if ($(this).attr('id')=="2") {$( "#liter" ).html( "П" ); liter = "П";}
+        else if ($(this).attr('id')=="3") {$( "#liter" ).html( "Н" ); liter = "Н";}
+        else if ($(this).attr('id')=="4") {$( "#liter" ).html( "Т" ); liter = "Т";}
     });
 
-    var liter = "@";
-    $( "#liter" ).html( "@" );
 
-    $( "#kind_id" ).change(function() {
-        if ($('select[name=kind_id]').val()=="1") {$( "#liter" ).html( "П" ); liter = "П";}
-        else if ($('select[name=kind_id]').val()=="2") {$( "#liter" ).html( "@" ); liter = "@";}
-        else if ($('select[name=kind_id]').val()=="3") {$( "#liter" ).html( "Т" ); liter = "Т";}
-        else if ($('select[name=kind_id]').val()=="4") {$( "#liter" ).html( "Н" ); liter = "Н";}
-        else if ($('select[name=kind_id]').val()=="5") {$( "#liter" ).html( "И" ); liter = "И";}
-    });
+    //$( "#kind_id" ).change(function() {
+        //if ($('select[name=kind_id]').val()=="1") {$( "#liter" ).html( "П" ); liter = "П";}
+        //else if ($('select[name=kind_id]').val()=="3") {$( "#liter" ).html( "Т" ); liter = "Т";}
+        //else if ($('select[name=kind_id]').val()=="4") {$( "#liter" ).html( "Н" ); liter = "Н";}
+        //else if ($('select[name=kind_id]').val()=="5") {$( "#liter" ).html( "И" ); liter = "И";}
+    //});
 
     $("#form_user_add").submit( function(eventObj) {
         var ins_str = "";
-        if (juridical_st) {ins_str = $.trim(liter+" "+juridical);}
-        else {ins_str = $.trim(liter);}
+        //if (vipnet_st) {ins_str = $.trim(liter+" "+vipnet);}
+        //else {ins_str = $.trim(liter);}
+        ins_str = $.trim(liter)
           $('<input />').attr('type', 'hidden')
                   .attr('name', "liter")
                   .attr('value', ins_str)

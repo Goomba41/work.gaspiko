@@ -5,7 +5,7 @@ from app import app, db
 from app.authentication.views import login_required
 from app.admin.views import get_counters, get_current_user, get_permissions, forbidden, make_history, get_com
 
-from app.models import Request, Executor, User, Character, Answer, Kind, Send
+from app.models import Request, Executor, User, Character, Answer, Kind, Send, Admission
 from app.kartoteka.forms import DelExecutorForm, AddRequestForm, DelRequestForm, EditRequestForm
 
 from flask import request, make_response, redirect, url_for, render_template, render_template_string, session, flash, g, jsonify, Response, Blueprint, send_from_directory, Markup
@@ -48,6 +48,7 @@ def kartoteka_main(page = 1, *args):
         args.append(Kind.name==request.args.get('kind'))
     if (request.args.get('character')):
         args.append(Character.name==request.args.get('character'))
+        print(request.args.get('character'))
     if (request.args.get('answer')):
         args.append(Answer.name==request.args.get('answer'))
     if (request.args.get('date_registration')):
@@ -58,11 +59,15 @@ def kartoteka_main(page = 1, *args):
         args.append(Request.date_send==request.args.get('date_send'))
     if (request.args.get('send')):
         args.append(Send.name.like('%%%s%%' %request.args.get('send')))
+    if (request.args.get('admission')):
+        args.append(Admission.name==request.args.get('admission'))
+        #args.append(Character.name==request.args.get('character'))
+        print(request.args.get('admission'))
 
 # Для того, чтобы выводил пустых исполнителей, убрать join исполнителей и пользователей, переписать поиск под id исполнителя
-    #request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Executor).join(User).join(Kind).join(Character).join(Answer)
-    request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Kind).join(Character).join(Answer).join(Send)
-    #~ print request_all
+    #request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Executor).join(User).join(Kind).join(Character).join(Answer).join(Admission)
+    request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Kind).join(Character).join(Answer).join(Send).join(Admission)
+    print (request_all.first())
 
     pages_total = request_all.count()
     request_all = request_all.paginate(page, 20, False)
@@ -182,7 +187,7 @@ def kartoteka_statistics(page = 1, *args):
     count_requests_haracter = Request.query.with_entities(Request.character_id, Character.name,func.count(Request.character_id).label('count')).group_by('character_id').order_by(desc('count')).join(Character)
     count_requests_answer = Request.query.with_entities(Request.answer_id, Answer.name,func.count(Request.answer_id).label('count')).group_by('answer_id').order_by(desc('count')).join(Answer)
     count_requests_kind = Request.query.with_entities(Request.kind_id, Kind.name,func.count(Request.kind_id).label('count')).group_by('kind_id').order_by(desc('count')).join(Kind)
-    count_requests_year = Request.query.with_entities(func.year(Request.date_registration),func.count("year_1").label('count')).group_by("1").order_by(desc('count'))
+    count_requests_year = Request.query.with_entities(func.year(Request.date_registration),func.count("year_1").label('count')).group_by("1").order_by(desc('year_1'))
     count_requests_users = Request.query.with_entities(Request.executor_id, User.surname, func.count(Request.executor_id).label('count')).group_by(Request.executor_id).order_by(desc('count')).join(Executor).join(User)
     count_requests_users_others = Request.query.filter(Request.executor_id == None).count()
     #~ count_requests_users_2 = Request.query.with_entities(Request.executor_id, User.surname, Answer.name, func.count(Request.executor_id).label('count')).filter((Request.answer_id==3)).group_by(Request.executor_id, Request.answer_id).order_by(desc("count"),User.surname).join(Executor).join(User).join(Answer)
@@ -191,6 +196,7 @@ def kartoteka_statistics(page = 1, *args):
     request_characters = Character.query.all()
     request_answers = Answer.query.all()
     request_sends = Send.query.all()
+    request_admissions = Admission.query.all()
     request_executors = Executor.query.with_entities(Executor.id, User.surname+" "+User.name).join(User).all()
 
     data = request.json
@@ -226,6 +232,11 @@ def kartoteka_statistics(page = 1, *args):
                 filter_args.append(Request.character_id == int(data.get('character_type')))
                 group_args.append(Request.id)
             #--------------------------------------------
+            #Добавление к фильтрам способа поступления
+            if data.get('admission_type') :
+                filter_args.append(Request.admission_id == int(data.get('admission_type')))
+                group_args.append(Request.id)
+            #--------------------------------------------
             #Добавление к фильтрам характера ответа
             if data.get('answer_type') :
                 filter_args.append(Request.answer_id == int(data.get('answer_type')))
@@ -242,12 +253,12 @@ def kartoteka_statistics(page = 1, *args):
                 group_args.append(Request.id)
             #--------------------------------------------
             #Добавление к фильтрам юр. лиц
-            if data.get('juridical') :
-                if int(data.get('juridical')) == 1:
-                    filter_args.append(Request.number.like('%Ю'))
-                elif int(data.get('juridical')) == 0:
-                    filter_args.append(Request.number.notlike('%Ю'))
-                group_args.append(Request.id)
+            #if data.get('vipnet') :
+                #if int(data.get('vipnet')) == 1:
+                    #filter_args.append(Request.number.like('%Ю'))
+                #elif int(data.get('vipnet')) == 0:
+                    #filter_args.append(Request.number.notlike('%Ю'))
+                #group_args.append(Request.id)
             #--------------------------------------------
 
             print(Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args))
@@ -264,7 +275,7 @@ def kartoteka_statistics(page = 1, *args):
 
         return response
 
-    return render_template('kartoteka/statistics.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, count_requests_haracter=count_requests_haracter, count_requests_answer=count_requests_answer, count_requests_kind=count_requests_kind, count_requests_year=count_requests_year, count_requests_users=count_requests_users, count_requests_users_others=count_requests_users_others, request_kinds=request_kinds, request_characters=request_characters, request_answers=request_answers, request_sends=request_sends, request_executors=request_executors)
+    return render_template('kartoteka/statistics.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, count_requests_haracter=count_requests_haracter, count_requests_answer=count_requests_answer, count_requests_kind=count_requests_kind, count_requests_year=count_requests_year, count_requests_users=count_requests_users, count_requests_users_others=count_requests_users_others, request_kinds=request_kinds, request_characters=request_characters, request_answers=request_answers, request_sends=request_sends, request_executors=request_executors, request_admissions=request_admissions)
 
 @kartoteka.route('/request/new', methods=['GET', 'POST'])
 @login_required
@@ -287,6 +298,8 @@ def new_request_kartoteka():
 
     if form_request_add.validate_on_submit():
         if request.method  == 'POST':
+            print(form_request_add.data)
+            print(request.form.get("liter"))
 
             request_query = Request(
                 number = form_request_add.number.data+" "+request.form.get("liter"),
@@ -295,6 +308,7 @@ def new_request_kartoteka():
                 patronymic = form_request_add.patronymic.data,
                 date_registration = form_request_add.date_registration.data,
                 kind_id = form_request_add.kind_id.data.id,
+                admission_id = form_request_add.admission_id.data.id,
                 character_id = form_request_add.character_id.data.id,
                 executor_id = form_request_add.executor_id.data.id,
                 answer_id = 5,
@@ -316,9 +330,9 @@ def edit_request():
     current_user = get_current_user()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
-    print ("enter "+str(enter))
+    #print ("enter "+str(enter))
     update = get_permissions(current_user.role.id, current_user.id, "requests", "update")
-    print ("update "+str(update))
+    #print ("update "+str(update))
 
     if not enter or not update:
         return forbidden(403)
@@ -331,9 +345,9 @@ def edit_request():
 
     liters_str=str(edit_request.number)
     liters_str = liters_str.rsplit(' ')
-    print (len(liters_str))
-    print (liters_str)
-    juridical = 0
+    #print (len(liters_str))
+    #print (liters_str)
+    vipnet = 0
 
     if len(liters_str)==1:
         num = liters_str[0]
@@ -344,7 +358,7 @@ def edit_request():
     elif len(liters_str)==3:
         num = liters_str[0]
         liter = liters_str[1]
-        juridical = 1
+        vipnet = 1
 
     form_request_edit = EditRequestForm(
     number=num,
@@ -356,6 +370,7 @@ def edit_request():
     date_done=edit_request.date_done,
     date_send=edit_request.date_send,
     kind_id=edit_request.kind_id,
+    admission_id=edit_request.admission_id,
     character_id=edit_request.character_id,
     executor_id=edit_request.executor_id,
     send_id=edit_request.send_id,
@@ -366,6 +381,7 @@ def edit_request():
 
     if form_request_edit.validate_on_submit():
         if request.method  == 'POST':
+            print("POST")
             filename = request.files['filename']
             if filename:
                 if edit_request.filename is not None:
@@ -386,6 +402,7 @@ def edit_request():
             edit_request.date_done=form_request_edit.date_done.data
             edit_request.date_send=form_request_edit.date_send.data
             edit_request.kind_id=form_request_edit.kind_id.data
+            edit_request.admission_id=form_request_edit.admission_id.data
             edit_request.character_id=form_request_edit.character_id.data
             edit_request.executor_id=form_request_edit.executor_id.data
             edit_request.send_id=form_request_edit.send_id.data
@@ -396,7 +413,7 @@ def edit_request():
 
             flash(u"Запрос изменен", 'success')
             return redirect(url_for('kartoteka.edit_request', id=edit_request.id))
-    return render_template("kartoteka/edit_request.html", form_request_edit=form_request_edit, all_counters = all_counters, current_user=current_user, today=today,request_count=request_count, edit_request=edit_request, liter=liter, juridical=juridical)
+    return render_template("kartoteka/edit_request.html", form_request_edit=form_request_edit, all_counters = all_counters, current_user=current_user, today=today,request_count=request_count, edit_request=edit_request, liter=liter, vipnet=vipnet)
 
 
 #~ @kartoteka.route('/search', methods = ['POST','GET'])
@@ -458,13 +475,14 @@ def search_request():
     characters = Character.query.all()
     answers = Answer.query.all()
     sends = Send.query.all()
+    admissions = Admission.query.all()
 
     today = time.strftime("%Y-%m-%d")
     current_user = get_current_user()
     all_counters = get_counters()
     request_count = Request.query.count()
 
-    return render_template('kartoteka/search.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, executors=executors, kinds=kinds, characters=characters, answers=answers, sends=sends)
+    return render_template('kartoteka/search.html', all_counters=all_counters, today=today, current_user=current_user, request_count=request_count, executors=executors, kinds=kinds, characters=characters, answers=answers, sends=sends, admissions=admissions)
 
 @kartoteka.route('/request/card', methods=['GET', 'POST'])
 @login_required

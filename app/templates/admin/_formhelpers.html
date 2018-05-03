@@ -1,14 +1,43 @@
 {% macro render_field(field) %}
 
     {% if field.type == "TextField" %}
+    
+    
+<!--
         <div class="input-group" style="margin: 2% 2%;width: 100%;">
             <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>
             {{ field(**kwargs)|safe }}
             {% if field.name == "number" %}
             <span class="input-group-addon" id="liter"></span>
-            <span class="input-group-addon" id="juridical">Ю</span>
+            <span class="input-group-addon" id="vipnet">@</span>
             {% endif %}
         </div>
+-->
+        
+        <div class="input-group" style="margin: 2% 2%;width: 100%;"> 
+            
+            <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>
+            {{ field(**kwargs)|safe }}
+            {% if field.name == "number" %}
+            <span class="input-group-addon"   id="liter">-</span>
+            
+            <div class="input-group-btn"> 
+
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Литера
+                    <span class="caret"></span> <span class="sr-only"></span> 
+                </button> 
+                <ul class="dropdown-menu"> 
+                    <li id="1" class="journal"><a>@ (VipNet)</a></li>
+                    <li id="2" class="journal"><a>П (Социально-правовые)</a></li>
+                    <li id="3" class="journal"><a>Н (Непрофильные)</a></li>
+                    <li id="4" class="journal"><a>Т (Тематические)</a></li>
+                </ul> 
+                
+            </div> 
+            {% endif %}
+        </div> 
+
+        
     {% elif field.type == "PasswordField" %}
         <div class="input-group" style="margin: 2% 2%;width: 100%;">
             <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>

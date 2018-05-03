@@ -164,6 +164,7 @@ class Request(db.Model):
     patronymic = db.Column(db.String(15))
     date_registration = db.Column(db.Date, default=time.strftime("%Y-%m-%d %H:%M:%S"))
     kind_id = db.Column(db.Integer, db.ForeignKey("kartoteka.kind.id"))
+    admission_id = db.Column(db.Integer, db.ForeignKey("kartoteka.admission.id"))
     character_id = db.Column(db.Integer, db.ForeignKey("kartoteka.character.id"))
     executor_id = db.Column(db.Integer, db.ForeignKey("kartoteka.executor.id"))
     send_id = db.Column(db.Integer, db.ForeignKey("kartoteka.send.id"))
@@ -186,6 +187,17 @@ class Kind(db.Model):
 
     def __repr__(self):
         return '<Kind %r >' % (self.name)
+    
+class Admission(db.Model):
+    __bind_key__ = 'kartoteka'
+    __table_args__ = {'schema': 'kartoteka'}
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(50))
+
+    request = db.relationship('Request', backref = 'admission',lazy = 'dynamic')
+
+    def __repr__(self):
+        return '<Admission %r >' % (self.name)
 
 class Character(db.Model):
     __bind_key__ = 'kartoteka'

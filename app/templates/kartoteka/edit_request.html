@@ -48,6 +48,7 @@
             </div>
             <div class="col-sm-6">
             {{ render_field(form_request_edit.kind_id, class ="form-control") }}
+            {{ render_field(form_request_edit.admission_id, class ="form-control") }}
             {{ render_field(form_request_edit.character_id, class ="form-control") }}
             {{ render_field(form_request_edit.executor_id, class ="form-control") }}
             {{ render_field(form_request_edit.send_id, class ="form-control") }}
@@ -83,49 +84,49 @@
         }
     });
 
-    var juridical_st = {{ juridical }};
-
-    if (juridical_st == 1) {
-        juridical_st=true;
-        juridical = "Ю";
-        $("#juridical").css({"background-color":"#419641","color":"#fff"});
-        }
-    else if (juridical_st == 0){
-        juridical_st=false;
-        juridical = "";
-        $("#juridical").css({"background-color":"#eeeeee","color":"#555"});
-        }
-
-    $( "#juridical" ).click(function(){
-        if (juridical_st) {
-            juridical_st = false;
-            juridical = "";
-            $("#juridical").css({"background-color":"#eeeeee","color":"#555"});
-            }
-        else {
-            juridical_st = true;
-            juridical = "Ю";
-            $("#juridical").css({"background-color":"#419641","color":"#fff"});
-            }
-    });
+    //var vipnet_st = {{ vipnet }};
+//
+    //if (vipnet_st == 1) {
+        //vipnet_st=true;
+        //vipnet = "@";
+        //$("#vipnet").css({"background-color":"#419641","color":"#fff"});
+        //}
+    //else if (vipnet_st == 0){
+        //vipnet_st=false;
+        //vipnet = "";
+        //$("#vipnet").css({"background-color":"#eeeeee","color":"#555"});
+        //}
+//
+    //$( "#vipnet" ).click(function(){
+        //if (vipnet_st) {
+            //vipnet_st = false;
+            //vipnet = "";
+            //$("#vipnet").css({"background-color":"#eeeeee","color":"#555"});
+            //}
+        //else {
+            //vipnet_st = true;
+            //vipnet = "@";
+            //$("#vipnet").css({"background-color":"#419641","color":"#fff"});
+            //}
+    //});
 
 
 
     var liter = "{{ liter }}";
     $( "#liter" ).html( "{{ liter }}" );
-
-    $( "#kind_id" ).change(function() {
-        if ($('select[name=kind_id]').val()=="1") {$( "#liter" ).html( "П" ); liter = "П";}
-        else if ($('select[name=kind_id]').val()=="2") {$( "#liter" ).html( "@" ); liter = "@";}
-        else if ($('select[name=kind_id]').val()=="3") {$( "#liter" ).html( "Т" ); liter = "Т";}
-        else if ($('select[name=kind_id]').val()=="4") {$( "#liter" ).html( "Н" ); liter = "Н";}
-        else if ($('select[name=kind_id]').val()=="5") {$( "#liter" ).html( "И" ); liter = "И";}
+    
+    $( ".journal" ).click(function() {
+        if ($(this).attr('id')=="1") {$( "#liter" ).html( "@" ); liter = "@";}
+        else if ($(this).attr('id')=="2") {$( "#liter" ).html( "П" ); liter = "П";}
+        else if ($(this).attr('id')=="3") {$( "#liter" ).html( "Н" ); liter = "Н";}
+        else if ($(this).attr('id')=="4") {$( "#liter" ).html( "Т" ); liter = "Т";}
     });
 
     $("#form_request_edit").submit( function(eventObj) {
         var ins_str = "";
-        if (juridical_st) {ins_str = $.trim(liter+" "+juridical);}
-        else {ins_str = $.trim(liter);}
+        //if (vipnet_st) {ins_str = $.trim(liter+" "+vipnet);}
+        //else {ins_str = $.trim(liter);}
+        ins_str = $.trim(liter)
           $('<input />').attr('type', 'hidden')
                   .attr('name', "liter")
                   .attr('value', ins_str)
@@ -133,15 +134,15 @@
      });
 
     $(function () {
-    $('#datetimepicker1').datetimepicker({
+    $('#datetimepickerdate_reg').datetimepicker({
         locale: 'ru',
         format: 'YYYY-MM-DD'
     });
-    $('#datetimepicker2').datetimepicker({
+    $('#datetimepickerdate_done').datetimepicker({
         locale: 'ru',
         format: 'YYYY-MM-DD'
     });
-    $('#datetimepicker3').datetimepicker({
+    $('#datetimepickerdate_send').datetimepicker({
         locale: 'ru',
         format: 'YYYY-MM-DD'
     });

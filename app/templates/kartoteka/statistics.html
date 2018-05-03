@@ -69,6 +69,18 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div class="form-group" >
+                        <div class="input-group date" style="width:100%">
+                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="statistic_admission">Способ поступления</label></span>
+                            <select class="form-control"  id="statistic_admission">
+                                    <option></option>
+                                    {% for admission in request_admissions %}
+                                        <option value="{{ admission.id }}">{{ admission.name }}</option>
+                                    {% endfor %}
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="form-group" >
                         <div class="input-group date" style="width:100%">
@@ -114,17 +126,6 @@
                                 {% for executor in request_executors %}
                                     <option value="{{ executor[0] }}">{{ executor[1] }}</option>
                                 {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group" >
-                        <div class="input-group date" style="width:100%">
-                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="statistic_juridical">Юр. лиц</label></span>
-                            <select class="form-control"  id="statistic_juridical">
-                                    <option></option>
-                                    <option value=1>Юридических лиц</option>
-                                    <option value=0>Прочие</option>
                             </select>
                         </div>
                     </div>
@@ -354,7 +355,7 @@
             send_dates(begin);
         });
 
-        $( "#statistic_juridical" ).change(function() {
+        $( "#statistic_admission" ).change(function() {
             send_dates(begin);
         });
 
@@ -365,7 +366,7 @@
             $.extend( begin, {answer_type:$('select[id=statistic_answer_type]').val()} );
             $.extend( begin, {send_type:$('select[id=statistic_send_type]').val()} );
             $.extend( begin, {executor:$('select[id=statistic_executor]').val()} );
-            $.extend( begin, {juridical:$('select[id=statistic_juridical]').val()} );
+            $.extend( begin, {admission_type:$('select[id=statistic_admission]').val()} );
 
             $.ajax({
               url: "{{ url_for('kartoteka.kartoteka_statistics') }}",
