@@ -72,6 +72,7 @@
             </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/" class="page-scroll">Главная</a></li>
+            <li><a href="/#tf-works" class="page-scroll">Новости</a></li>
             <li><a href="{{url_for('admin.admin')}}" class="page-scroll">Войти</a></li>
           </ul>
         </div><!-- /.navbar-collapse -->
@@ -111,7 +112,7 @@
                     {% endif %}
                 </p>
                 <hr>
-                <div style="padding: 10%; text-align: justify; font-family: 'Open Sans';" class="intro">{{ news.text|safe }}</div>
+                <div class="text">{{ news.text|safe }}</div>
             </div>
 
     </div>
@@ -120,7 +121,20 @@
     <nav id="footer">
         <div class="container">
             <div class="pull-left fnav">
-                <p>ВСЕ ПРАВА ЗАЩИЩЕНЫ. COPYRIGHT © 2017. Разработка <a href="https://vk.com/goomba41">Бородавкин Антон</a></p>
+                <p>
+                    ВСЕ ПРАВА ЗАЩИЩЕНЫ. COPYRIGHT © 2017-
+                    <script language="JavaScript" type="text/javascript">
+                        now = new Date
+                        theYear=now.getYear()
+                        if (theYear < 1900)
+                        theYear=theYear+1900
+                        document.write(theYear)
+                    </script>. 
+                    Разработка <a href="https://vk.com/goomba41">Бородавкин Антон</a> 
+                    <a href="mailto:anton.borodawkin@yandex.ru"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                    <a href="https://vk.com/goomba41"><i class="fa fa-vk" aria-hidden="true"></i></a>
+                    <a href="https://github.com/Goomba41"><i class="fa fa-github" aria-hidden="true"></i></a>
+                </p>
             </div>
         </div>
     </nav>

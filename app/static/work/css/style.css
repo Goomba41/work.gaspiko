@@ -389,6 +389,19 @@ img.img-circle.nav-img-white {
     box-shadow: 0 0 50px 20px rgb(0, 0, 0);
 }
 
+div.text{
+    font-size: 14px;
+    line-height: 24px;
+    font-family: 'Verdana';
+    padding: 5%; 
+    text-align: justify;
+}
+
+div.text > p{
+    text-indent: 2em;
+    font-family: 'Verdana';
+}
+
 /* Gallery Section
 ==============================*/
 #tf-works{
@@ -470,6 +483,8 @@ ol.type li a.active { font-weight: 700; }
     -webkit-transform: translateY(100%);
             transform: translateY(100%);
             transition: all 0.3s;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 .hover-bg:hover .hover-text>h4{
     opacity: 1;
@@ -624,7 +639,7 @@ nav#footer p{
     height: 30px;
     width: 30px;
     border: 2px solid #8c8c8c;
-    font-size: 20px;
+    font-size: 16px;
     padding: 4px 5px;
     border-radius: 50%;
     color: #8c8c8c;

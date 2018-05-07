@@ -83,7 +83,7 @@
     <div id="tf-home" class="text-center">
         <div class="overlay">
             <div class="content">
-                <h1>Добро пожаловать на <strong><span class="color">Внутренний сайт</span></strong></h1>
+                <h1>Добро пожаловать на <strong><span class="active">Внутренний сайт</span></strong></h1>
                 <p class="lead">КОГБУ <strong>ГАСПИ КО</strong> и отдела <strong>ИПС</strong></p>
                 <p class="intro">На сайте будут размещаться новости отделов, сообщения о событиях внутри и вне архива, а также различная информация о работе отдела ИПС</p>
                 <a title="К новостям" href="#tf-works" class="fa fa-angle-down page-scroll"></a>
@@ -265,7 +265,20 @@
     <nav id="footer">
         <div class="container">
             <div class="pull-left fnav">
-                <p>ВСЕ ПРАВА ЗАЩИЩЕНЫ. COPYRIGHT © 2017. Разработка <a href="https://vk.com/goomba41">Бородавкин Антон</a></p>
+                <p>
+                    ВСЕ ПРАВА ЗАЩИЩЕНЫ. COPYRIGHT © 2017-
+                    <script language="JavaScript" type="text/javascript">
+                        now = new Date
+                        theYear=now.getYear()
+                        if (theYear < 1900)
+                        theYear=theYear+1900
+                        document.write(theYear)
+                    </script>. 
+                    Разработка <a href="https://vk.com/goomba41">Бородавкин Антон</a> 
+                    <a href="mailto:anton.borodawkin@yandex.ru"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                    <a href="https://vk.com/goomba41"><i class="fa fa-vk" aria-hidden="true"></i></a>
+                    <a href="https://github.com/Goomba41"><i class="fa fa-github" aria-hidden="true"></i></a>
+                </p>
             </div>
         </div>
     </nav>
