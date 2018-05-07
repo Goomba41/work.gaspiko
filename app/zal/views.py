@@ -3,7 +3,7 @@
 from app import app, db
 
 from app.authentication.views import login_required
-from app.admin.views import get_counters, get_current_user, get_permissions, forbidden, make_history, get_com
+from app.admin.views import get_counters, get_permissions, forbidden, make_history, get_com
 
 #from app.models import Request, Executor, User, Character, Answer, Kind, Send
 #from app.kartoteka.forms import DelExecutorForm, AddRequestForm, DelRequestForm, EditRequestForm
@@ -24,7 +24,7 @@ zal = Blueprint('zal', __name__, url_prefix='/zal')
 @zal.route('/readers/<int:page>', methods=['GET', 'POST'])
 @login_required
 def zal_main(page = 1, *args):
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
     print ("enter "+str(enter))

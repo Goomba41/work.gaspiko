@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 from app import db
 import time
+from flask import session
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -31,9 +32,15 @@ class User(db.Model):
     news = db.relationship('News', backref = 'user',lazy = 'dynamic')
     appeals = db.relationship('Appeals', backref = 'user',lazy = 'dynamic')
     executor = db.relationship('Executor', backref = 'user',lazy = 'dynamic')
+    
+    def current():
+        if session.get('user_id'):
+            return User.query.filter(User.id == session['user_id']).first()
+        else:
+            return None
 
     def __repr__(self):
-        return '<Users %r>' % (self.name)
+        return 'Пользователь id:%i, имя:%r ' % (self.id, self.name)
 
 class Department(db.Model):
     __table_args__ = {'schema': 'arhiv'}
@@ -43,7 +50,7 @@ class Department(db.Model):
     users = db.relationship('User', backref = 'department',lazy = 'dynamic')
 
     def __repr__(self):
-        return '<Department %r >' % (self.name)
+        return 'Отдел %r>' % (self.name)
 
 class Post(db.Model):
     __table_args__ = {'schema': 'arhiv'}
@@ -53,7 +60,7 @@ class Post(db.Model):
     users = db.relationship('User', backref = 'post',lazy = 'dynamic')
 
     def __repr__(self):
-        return '<Post %r >' % (self.name)
+        return 'Должность %r ' % (self.name)
 
 class Role(db.Model):
     __table_args__ = {'schema': 'arhiv'}

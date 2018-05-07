@@ -79,11 +79,6 @@ def standing():
         return time_worked
     return dict(standing=_standing)
 
-#Текущий пользователь
-def get_current_user():
-    current_user = User.query.filter(User.id == session['user_id']).first()
-    return current_user
-
 #Разрешения пользователя
 def get_permissions(role_id, user_id, url, operation):
 
@@ -261,7 +256,7 @@ def forbidden(e):
 @administration.route('/', methods=['GET', 'POST'])
 @login_required
 def admin():
-    current_user = get_current_user()
+    current_user = User.current()
 
     permissions = Permission.query.filter(((Permission.user_id == current_user.id)&(Permission.enter == 1))|((Permission.role_id == current_user.role.id)&(Permission.enter == 1))).all()
 
@@ -333,7 +328,7 @@ def admin():
 #Быстрое изменение данных записи
 @administration.route('/fast_important_edit', methods = ['POST'])
 def fast_important_edit():
-    current_user = get_current_user()
+    current_user = User.current()
 
     url = 'important'
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
@@ -369,7 +364,7 @@ def fast_important_edit():
 #Добавление важной новости
 @administration.route('/new_important', methods = ['POST'])
 def new_important():
-    current_user = get_current_user()
+    current_user = User.current()
 
     url = 'important'
     insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
@@ -403,7 +398,7 @@ def new_important():
 @login_required
 def admin_users(page = 1, *args):
 
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
     print ("enter "+str(enter))
@@ -439,7 +434,7 @@ def admin_users(page = 1, *args):
 #Сброс и установка нового пароля для пользователя
 @administration.route('/password_reset', methods = ['POST'])
 def get_post_javascript_data_password():
-    current_user = get_current_user()
+    current_user = User.current()
     url = 'users'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
@@ -462,7 +457,7 @@ def get_post_javascript_data_password():
 #Удаление нескольких записей
 @administration.route('/rows_delete', methods = ['POST'])
 def get_post_javascript_data_id_delete():
-    current_user = get_current_user()
+    current_user = User.current()
 
     ids = request.form.getlist('param[]')
     table = request.form.getlist('table')
@@ -522,7 +517,7 @@ def get_post_javascript_data_id_delete():
 #Отлючение нескольких записей
 @administration.route('/rows_disable', methods = ['POST'])
 def get_post_javascript_data_id_disable():
-    current_user = get_current_user()
+    current_user = User.current()
     url = 'users'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
@@ -544,7 +539,7 @@ def get_post_javascript_data_id_disable():
 #Отлючение одной записи
 @administration.route('/user_disable', methods = ['POST'])
 def user_disable():
-    current_user = get_current_user()
+    current_user = User.current()
     url = 'users'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
@@ -569,7 +564,7 @@ def user_disable():
 @administration.route('/users/new', methods=['GET', 'POST'])
 @login_required
 def new_user():
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
     print ("enter "+str(enter))
@@ -628,7 +623,7 @@ def new_user():
 @administration.route('/users/edit', methods=['GET', 'POST'])
 @login_required
 def edit_user():
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
     print ("enter "+str(enter))
@@ -729,7 +724,7 @@ def edit_user():
 #Быстрое изменение данных записи
 @administration.route('/post', methods = ['POST'])
 def get_post_user():
-    current_user = get_current_user()
+    current_user = User.current()
     url = 'users'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
@@ -777,7 +772,7 @@ def get_bootstap_editable():
 @login_required
 def admin_roles(page = 1, *args):
 
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "roles", "enter")
     delete = get_permissions(current_user.role.id, current_user.id, "roles", "delete")
@@ -810,7 +805,7 @@ def admin_roles(page = 1, *args):
 #Быстрое изменение данных записи
 @administration.route('/fast_role_edit', methods = ['POST'])
 def fast_role_edit():
-    current_user = get_current_user()
+    current_user = User.current()
     url = 'roles'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
@@ -837,7 +832,7 @@ def fast_role_edit():
 @administration.route('/roles/new', methods=['GET', 'POST'])
 @login_required
 def new_role():
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "roles", "enter")
     print ("enter "+str(enter))
@@ -868,7 +863,7 @@ def new_role():
 @administration.route('/departments/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_departments(page = 1, *args):
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "departments", "enter")
     delete = get_permissions(current_user.role.id, current_user.id, "departments", "delete")
@@ -901,7 +896,7 @@ def admin_departments(page = 1, *args):
 #Быстрое изменение данных записи
 @administration.route('/fast_department_edit', methods = ['POST'])
 def fast_department_edit():
-    current_user = get_current_user()
+    current_user = User.current()
     url = 'departments'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
@@ -928,7 +923,7 @@ def fast_department_edit():
 @administration.route('/departments/new', methods=['GET', 'POST'])
 @login_required
 def new_department():
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "departments", "enter")
     print ("enter "+str(enter))
@@ -959,7 +954,7 @@ def new_department():
 @administration.route('/posts/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_posts(page = 1, *args):
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "posts", "enter")
     delete = get_permissions(current_user.role.id, current_user.id, "posts", "delete")
@@ -992,7 +987,7 @@ def admin_posts(page = 1, *args):
 #Быстрое изменение данных записи
 @administration.route('/fast_post_edit', methods = ['POST'])
 def fast_post_edit():
-    current_user = get_current_user()
+    current_user = User.current()
     url = 'posts'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
@@ -1019,7 +1014,7 @@ def fast_post_edit():
 @administration.route('/posts/new', methods=['GET', 'POST'])
 @login_required
 def new_post():
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "posts", "enter")
     print ("enter "+str(enter))
@@ -1051,7 +1046,7 @@ def new_post():
 @login_required
 def admin_history(page = 1, *args):
 
-    current_user = get_current_user()
+    current_user = User.current()
     all_counters = get_counters()
 
     actions_all = History.query.filter(History.user_id == current_user.id).order_by(History.id.desc())
@@ -1069,7 +1064,7 @@ def admin_history(page = 1, *args):
 @login_required
 def admin_history_all(page = 1, *args):
 
-    current_user = get_current_user()
+    current_user = User.current()
 
     all_counters = get_counters()
 
@@ -1106,7 +1101,7 @@ def admin_history_all(page = 1, *args):
 @administration.route('/permissions', methods=['GET', 'POST'])
 @login_required
 def admin_permissions():
-    current_user = get_current_user()
+    current_user = User.current()
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
 
@@ -1161,7 +1156,7 @@ def admin_permissions():
 @administration.route('/update_permission', methods = ['POST'])
 def get_post_javascript_data_show():
 
-    current_user = get_current_user()
+    current_user = User.current()
     url = 'permissions'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
@@ -1209,7 +1204,7 @@ def get_post_javascript_data_show():
 @login_required
 def admin_news(page = 1, *args):
 
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
     print ("enter "+str(enter))
@@ -1243,7 +1238,7 @@ def admin_news(page = 1, *args):
 #Быстрое изменение данных записи
 @administration.route('/fast_news_edit', methods = ['POST'])
 def fast_news_edit():
-    current_user = get_current_user()
+    current_user = User.current()
     url = 'news'
 
     update = get_permissions(current_user.role.id, current_user.id, url, "update")
@@ -1271,7 +1266,7 @@ def fast_news_edit():
 @administration.route('/news/new', methods=['GET', 'POST'])
 @login_required
 def new_news():
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
     print ("enter "+str(enter))
@@ -1314,7 +1309,7 @@ def new_news():
 @administration.route('/news/edit', methods=['GET', 'POST'])
 @login_required
 def edit_news():
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
     print ("enter "+str(enter))
@@ -1354,7 +1349,7 @@ def edit_news():
 @login_required
 def admin_appeals(page = 1, *args):
 
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "appeals", "enter")
     print ("enter "+str(enter))
@@ -1371,7 +1366,7 @@ def admin_appeals(page = 1, *args):
 #Форма добавления нового обращения
 @administration.route('/new_appeals', methods = ['POST', 'GET'])
 def new_appeals():
-    current_user = get_current_user()
+    current_user = User.current()
 
     url = 'appeals'
     insert = get_permissions(current_user.role.id, current_user.id, url, "insert")
@@ -1429,7 +1424,7 @@ def appeals_status_change():
 #Ответ на обращение
 @administration.route('/answer_appeals', methods = ['POST', 'GET'])
 def answer_appeals():
-    current_user = get_current_user()
+    current_user = User.current()
     id = request.form['pk']
     appeal = Appeals.query.filter(Appeals.id==id).first()
     appeal.answer = request.form['value']
@@ -1445,7 +1440,7 @@ def answer_appeals():
 #Настройки (Придумать потом какие-нибудь настройки)
 #~ @administration.route('/options', methods = ['POST', 'GET'])
 #~ def options():
-    #~ current_user = get_current_user()
+    #~ current_user = User.current()
     #~ operation = request.json.items()
     #~ resp = make_response()
     #~ resp.set_cookie(operation[0][0],operation[0][1], expires=datetime.datetime.now()+datetime.timedelta(days=365))
@@ -1456,7 +1451,7 @@ def answer_appeals():
 @login_required
 def admin_users_print(page = 1, *args):
 
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "users", "enter")
     print ("enter "+str(enter))
@@ -1472,7 +1467,7 @@ def admin_users_print(page = 1, *args):
 @login_required
 def admin_backups(*args):
 
-    current_user = get_current_user()
+    current_user = User.current()
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
 

@@ -5,7 +5,6 @@ from wtforms import TextField, DateField, IntegerField, SelectField
 from wtforms.validators import Required, regexp, Length
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from app.models import Kind, Character, Executor, Send, Answer, Admission
-#, Admission
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from app import db
 

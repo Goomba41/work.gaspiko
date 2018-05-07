@@ -3,7 +3,7 @@
 from app import app, db
 
 from app.authentication.views import login_required
-from app.admin.views import get_counters, get_current_user, get_permissions, forbidden, make_history, get_com
+from app.admin.views import get_counters, get_permissions, forbidden, make_history, get_com
 
 from app.models import Request, Executor, User, Character, Answer, Kind, Send, Admission
 from app.kartoteka.forms import DelExecutorForm, AddRequestForm, DelRequestForm, EditRequestForm
@@ -24,7 +24,7 @@ kartoteka = Blueprint('kartoteka', __name__, url_prefix='/kartoteka')
 @kartoteka.route('/request/<int:page>', methods=['GET', 'POST'])
 @login_required
 def kartoteka_main(page = 1, *args):
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
     print ("enter "+str(enter))
@@ -99,7 +99,7 @@ def kartoteka_main(page = 1, *args):
 @kartoteka.route('/executors', methods=['GET', 'POST'])
 @login_required
 def kartoteka_executors():
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "executors", "enter")
     print ("enter "+str(enter))
@@ -142,7 +142,7 @@ def get_users():
 
 @kartoteka.route('/add_executor', methods = ['POST'])
 def add_executor():
-    current_user = get_current_user()
+    current_user = User.current()
 
     insert = get_permissions(current_user.role.id, current_user.id, "executors", "insert")
     print ("insert "+str(insert))
@@ -172,7 +172,7 @@ def add_executor():
 @kartoteka.route('/statistics', methods=['GET', 'POST'])
 @login_required
 def kartoteka_statistics(page = 1, *args):
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
     print ("enter "+str(enter))
@@ -280,7 +280,7 @@ def kartoteka_statistics(page = 1, *args):
 @kartoteka.route('/request/new', methods=['GET', 'POST'])
 @login_required
 def new_request_kartoteka():
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
     print ("enter "+str(enter))
@@ -327,7 +327,7 @@ def new_request_kartoteka():
 @kartoteka.route('/request/edit', methods=['GET', 'POST'])
 @login_required
 def edit_request():
-    current_user = get_current_user()
+    current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
     #print ("enter "+str(enter))
@@ -478,7 +478,7 @@ def search_request():
     admissions = Admission.query.all()
 
     today = time.strftime("%Y-%m-%d")
-    current_user = get_current_user()
+    current_user = User.current()
     all_counters = get_counters()
     request_count = Request.query.count()
 
@@ -487,7 +487,7 @@ def search_request():
 @kartoteka.route('/request/card', methods=['GET', 'POST'])
 @login_required
 def card_request():
-    current_user = get_current_user()
+    current_user = User.current()
     info_request = Request.query.filter(Request.id==request.args.get('id')).join(Kind).join(Character).join(Answer).join(Send).join(Admission).first()
     print (info_request.admission.name)
     template = "<head><title>Карточка №{{request.args.get('id')}}</title><style> span {text-decoration: underline;} tr {padding:10px;} td {padding:10px;} .trim {text-decoration: none;}</style></head><table style='border: 2px solid black; padding:20px'><tr><th colspan='4'><h1>Карточка №{{request.args.get('id')}}</h1></th></tr><tr><th colspan='4'>Запрос № <span>{{info_request.number}}</span> от <span>{{info_request.date_registration}}</span></th></tr><tr><td>Поступил от: </td><td ><span>{{info_request.surname}} {{info_request.name}}<br>{{info_request.patronymic}}</span></td><td>Способ поступления:</td><td><span>{{info_request.admission.name}}</span></td></tr><tr><td>Исполнен: </td><td><span>{{info_request.date_done}}</span></td><td>Отправлен: </td><td><span>{{info_request.date_send}} ({{info_request.send.name}})</span></td></tr><tr><td>Вид: </td><td><span>{{info_request.kind.name}}</span></td><td>Характер: </td><td><span>{{info_request.character.name}}</span></td></tr><tr><td>Ответ: </td><td><span>{{info_request.answer.name}}</span></td><td>Ксерокопий: </td><td><span>{{info_request.copies}}</span></td></tr><tr></tr><tr><td></td><td></td><td>Исполнитель:</td><td>{{info_request.executor.user.surname}} <span id='1' class='trim'>{{info_request.executor.user.name}}</span> <span id='2' class='trim'>{{info_request.executor.user.patronymic}}</span></td></tr></table><script type='text/javascript'>var text = document.getElementById('1').innerHTML; document.getElementById('1').innerHTML=text.substr(0, text.length-(text.length-1))+'.';var text = document.getElementById('2').innerHTML; document.getElementById('2').innerHTML=text.substr(0, text.length-(text.length-1))+'.'</script>"

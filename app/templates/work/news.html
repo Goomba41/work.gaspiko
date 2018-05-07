@@ -1,30 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
-    <!-- Basic Page Needs
+    <!-- Базовая настройка страницы
     ================================================== -->
     <meta charset="utf-8">
-    <!--[if IE]><meta http-equiv="x-ua-compatible" content="IE=9" /><![endif]-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Внутренний сайт ГАСПИ КО и отдела ИПС</title>
     <meta name="description" content="Внутренний сайт ГАСПИ КО и отдела ИПС, на котором будут размещаться важные новости трудовых будней и документы архива">
     <meta name="keywords" content="ГАСПИ КО, ИПС, Внутренний сайт, Сайт отдела ИПС">
-    <meta name="author" content="Бородавкин Антон Владимирович">
+    <meta name="author" content=" {{ news.user.name }} {{ news.user.surname }}">
 
-    <!-- Favicons
+    <!-- Фавиконка
     ================================================== -->
-    <link rel="shortcut icon" href="{{ url_for('static', filename='work/img/favicon.ico') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='work/img/favicon2.ico') }}" type="image/x-icon">
 
     <!-- Bootstrap -->
     <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='work/css/bootstrap.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='work/fonts/font-awesome/css/font-awesome.css') }}">
 
-    <!-- Slider
+    <!-- Слайдер
     ================================================== -->
     <link href="{{ url_for('static', filename='work/css/owl.carousel.css') }}" rel="stylesheet" media="screen">
     <link href="{{ url_for('static', filename='work/css/owl.theme.css') }}" rel="stylesheet" media="screen">
 
-    <!-- Stylesheet
+    <!-- Стили
     ================================================== -->
     <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='work/css/style.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='work/css/responsive.css') }}">
@@ -35,19 +34,13 @@
 
     <script type="text/javascript" src="{{ url_for('static', filename='work/js/modernizr.custom.js') }}"></script>
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
   </head>
   <body>
-    <!-- Navigation
+    <!-- Навигация
     ==========================================-->
     <nav id="tf-menu" class="navbar navbar-default navbar-fixed-top" style="padding:0;background-color: rgba(0, 0, 0, 1);">
       <div class="container">
-        <!-- Brand and toggle get grouped for better mobile display -->
+        <!-- Брэнд и переключатель на мобильных устройствах -->
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
             <span class="sr-only">Переключить навигацию</span>
@@ -55,11 +48,28 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="{{ url_for('index') }}">КОГБУ ГАСПИ КО</a>
         </div>
 
-        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Контент для перключения, заголовок -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="{{ url_for('index') }}">КОГБУ ГАСПИ КО</a></li>
+                <li>
+                    <a class="page-scroll login-as">
+                    {% if login_as %}
+                        Вы вошли как: <span class="active">{{ login_as.name }}, {{ login_as.role.name }}</span>
+                            {% if login_as.photo %}
+                            <img src="{{ url_for('static', filename='admin/upload/users/'+login_as.photo) }}" alt="..." class="img-circle nav-img">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle nav-img-white">
+                            {% endif %}
+                    {% else %}
+                        Вы гость
+                        <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle nav-img-white">
+                    {% endif %}
+                    </a>
+                </li>
+            </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/" class="page-scroll">Главная</a></li>
             <li><a href="{{url_for('admin.admin')}}" class="page-scroll">Войти</a></li>
@@ -69,16 +79,41 @@
     </nav>
     <br style="clear:both;"/>
 
-    <!-- About Us Page
+    <!-- Мэйн
     ==========================================-->
+<!--
     <div id="tf-home" class="text-center" style="background:url({{ url_for('static', filename='work/uploads/'+news.cover) }}); color:#000000;background-repeat: no-repeat;background-size: cover;">
         <div class="overlay" style="background:0; height:100%;">
             <div class="content" style="padding:6% 0 0; width:70%; margin:auto; background: white; border-radius:20px; margin-bottom: 5%; box-shadow: 0 0 50px 20px rgb(0, 0, 0);">
                 <h1><strong>{{ news.header }}</strong></h1>
-                <p style="font-size: 1.4em;"><span class="color">Автор: {{ news.user.name }} {{ news.user.surname }}, {{ news.user.post.name }} {{ news.user.department.name }}<br/>{{ news.cdate }}</span>{% if session['logged_in'] %}<a class = "edit" href="{{url_for('admin.edit_news', id = news.id)}}"><i class="fa fa-pencil" style="padding-left: 15px;" aria-hidden="true"></i></a>{% endif %}</p>
+                <p style="font-size: 1em;"><span class="color">Автор: {{ news.user.name }} {{ news.user.surname }}, {{ news.user.post.name }} {{ news.user.department.name }}<br/>{{ news.cdate }}</span>{% if session['logged_in'] %}<a class = "edit" href="{{url_for('admin.edit_news', id = news.id)}}"><i class="fa fa-pencil" style="padding-left: 15px;" aria-hidden="true"></i></a>{% endif %}</p>
                 <div style="padding: 10%; text-align: justify; font-family: 'Open Sans';" class="intro">{{ news.text|safe }}</div>
             </div>
         </div>
+    </div>
+-->
+    
+    <div id="tf-news" class="text-center" style="background:url({{ url_for('static', filename='work/uploads/'+news.cover) }}); ">
+            <div class="news-content">
+                <h1 class="news-header"><strong>{{ news.header }}</strong></h1>
+                 <hr>
+                <p class="sign">
+                    {{ news.user.name }} {{ news.user.surname }}
+                    {% if  news.user.photo %}
+                    <img src="{{ url_for('static', filename='admin/upload/users/'+ news.user.photo) }}" alt="..." class="img-circle nav-img">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle nav-img-white">
+                    {% endif %}
+                     | {{ news.user.post.name }} | 
+                    {{ news.cdate }}
+                    {% if session['logged_in'] %}
+                    <a class = "edit" href="{{url_for('admin.edit_news', id = news.id)}}"><i class="fa fa-pencil" style="padding-left: 15px;" aria-hidden="true"></i></a>
+                    {% endif %}
+                </p>
+                <hr>
+                <div style="padding: 10%; text-align: justify; font-family: 'Open Sans';" class="intro">{{ news.text|safe }}</div>
+            </div>
+
     </div>
 
 
