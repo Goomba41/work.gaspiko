@@ -251,12 +251,24 @@ class Executor(db.Model):
         return '<Executor %s>' % (self.id)
 
 #Marshmallow схемы
-
-class UserSchema(ma.ModelSchema):
+class RoleSchema(ma.ModelSchema):
+    class Meta:
+        model = Role
+        fields = ('id', 'name')
+        
+class PostSchema(ma.ModelSchema):
+    class Meta:
+        model = Post
+        fields = ('id', 'name')
+        
+class UserForNewsSchema(ma.ModelSchema):
     class Meta:
         model = User
+        fields = ('id', 'email', 'name', 'surname', 'login', 'photo', 'post', 'role')
+    post = ma.Nested(PostSchema)
+    role = ma.Nested(RoleSchema)
     
 class NewsSchema(ma.ModelSchema):
     class Meta:
         model = News
-    user = ma.Nested(UserSchema)
+    user = ma.Nested(UserForNewsSchema)

@@ -46,7 +46,6 @@
                 <th width="1%">Заголовок</th>
                 <th width="1%">Дата создания</th>
             </tr>
-           {# {% for news in news_all.items %} #}
             {% for news in news_all %}
                 <tr>
                     <td width="1%"><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ news.id }} title="Выберите запись"></td>

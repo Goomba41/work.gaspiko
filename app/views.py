@@ -10,17 +10,21 @@ from config import basedir, PER_PAGE, SQLALCHEMY_DATABASE_URI, AVATARS_FOLDER
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
-import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, ast, redis
+import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, ast, requests
 from collections import defaultdict
 
 
 #Главная (и единственная) страница
 @app.route('/')
-@app.route('/page/<int:page>')
 def index(page=1):
     users_all = User.query.all()
     modules_all = Module.query.all()
-    news_all = News.query.order_by(News.id.desc()).paginate(page, 4, False).items
+    
+    page = request.args.get('page', 1, type=int)
+    size = request.args.get('size', 4, type=int)
+    news_all = requests.get(url_for('API.get_all_news', size = size, page = page, _external=True))
+    pagination = Pagination(page=page, total = News.query.count(), per_page = size, css_framework='bootstrap3')
+    
     login_as=User.current()
     if page == 1:
         tmpl_name = 'work/index.html'
@@ -30,7 +34,7 @@ def index(page=1):
         news_visited = request.cookies.get('news_visited').split(' ')
     else:
         news_visited = []
-    return render_template(tmpl_name, users_all = users_all, modules_all=modules_all, news_all=news_all, page=page, news_visited=news_visited, login_as=login_as)
+    return render_template(tmpl_name, users_all = users_all, modules_all=modules_all, news_all=news_all.json(), page=page, news_visited=news_visited, login_as=login_as)
 
 @app.route('/news/<int:id>')
 def news(id):
