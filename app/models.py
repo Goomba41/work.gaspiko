@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-from app import db
+from app import db, ma
 import time
 from flask import session
 
@@ -142,10 +142,10 @@ class News(db.Model):
     header = db.Column(db.String(255))
     text = db.Column(db.Text)
     cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
-    cover = db.Column(db.String(50))
+    images = db.Column(db.JSON)
 
     def __repr__(self):
-        return 'News %r >' % (self.id)
+        return 'Новость %r' % (self.id)
 
 class Appeals(db.Model):
     __table_args__ = {'schema': 'arhiv'}
@@ -250,3 +250,13 @@ class Executor(db.Model):
     def __repr__(self):
         return '<Executor %s>' % (self.id)
 
+#Marshmallow схемы
+
+class UserSchema(ma.ModelSchema):
+    class Meta:
+        model = User
+    
+class NewsSchema(ma.ModelSchema):
+    class Meta:
+        model = News
+    user = ma.Nested(UserSchema)

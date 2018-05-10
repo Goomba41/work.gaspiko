@@ -46,7 +46,8 @@
                 <th width="1%">Заголовок</th>
                 <th width="1%">Дата создания</th>
             </tr>
-            {% for news in news_all.items %}
+           {# {% for news in news_all.items %} #}
+            {% for news in news_all %}
                 <tr>
                     <td width="1%"><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ news.id }} title="Выберите запись"></td>
                     <td>
@@ -65,10 +66,14 @@
                         </div>
                     </td>
                     <td>{{ news.id }}</td>
-                    <td>
-                        <div class = "profile-photo">
-                            <img style = "width:100%;" src ="{{ url_for('static', filename='work/uploads/'+news.cover) }}"  />
-                        </div>
+                    <td align="center">
+                        {% if news.images %}
+                            {% for image in news.images %}
+                                {% if image.as_cover %}
+                                    <img class = "news-cover" src="{{  image.filename|thumbnail('160x160', crop='fit', quality=100) }}" alt="" />
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                     </td>
                     <td>{{ news.user.surname }}<br/>{{ news.user.name }}</td>
                     <td><a href="#" id="header{{ news.id }}" data-name="text" data-type="text" data-pk="{{ news.id }}" data-url="{{ url_for('admin.fast_news_edit') }}" data-title="Введите текст заголовка">{{ news.header}}</a></td>
@@ -91,8 +96,8 @@
             {{flash_msg(messages)}}
         {% endif %}
     {% endwith %}
-
-    {{ pagination.links }}
+    
+    {{ pagination.links }} 
     <br style="clear:both"/>
 {% endif %}
 

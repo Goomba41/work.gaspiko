@@ -6764,7 +6764,11 @@ button.close {
 }
 
 
-/*Стиль админки*/
+/*
+ ===========================================
+ Стиль админки
+ ===========================================
+ */
 
 .admin-list-group {
     display: flex;
@@ -6784,6 +6788,17 @@ button.close {
     overflow: hidden;
     border-radius: 10px;
     margin-bottom: 10px;
+}
+
+/*Обложка в списке новостей*/
+.news-cover {
+    height: 160px;
+    width: 160px;
+    border-radius: 10px;
+}
+/*Иконки кнопок в управлении изображениями*/
+.actions > button > i {
+    padding:0
 }
 
 .control {
@@ -6860,12 +6875,34 @@ button.close {
 
 span.raise {vertical-align: super;}
 
-@font-face {
-    font-family: PT Sans Narrow Regular;
-    src: url(../fonts/PT_Sans-Narrow-Web-Regular.ttf);
-   }
+/*
+ ===========================================
+ Стили полей ввода
+ ===========================================
+ */
+ 
+ .default-input-text{
+    width: 100%;
+    margin: 2% 0 2% 0;
+ }
+ 
+ .default-input-text-area{
+    width: 100%;
+    margin: 2% 0 2% 0;
+ }
+ 
+ .default-input-file{
+    width: 100%;
+    margin: 2% 0 2% 0;
+ }
 
-@font-face {
-    font-family: MarckScript-Regular;
-    src: url(../fonts/MarckScript-Regular.ttf);
-   }
+/*
+ ===========================================
+ Футер
+ ===========================================
+ */
+
+.copyleft {
+  display:inline-block;
+  transform: rotate(180deg);
+}

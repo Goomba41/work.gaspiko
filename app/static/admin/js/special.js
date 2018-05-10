@@ -154,43 +154,6 @@
         });
     }
 
-    function get(id) {
-         $.ajax({
-            type : "POST",
-            url : "/admin/appeals_status_change",
-            contentType: 'application/json;charset=UTF-8',
-            data : JSON.stringify({"get":id}),
-            dataType: 'json',
-        });
-    }
-    function reject(id) {
-         $.ajax({
-            type : "POST",
-            url : "/admin/appeals_status_change",
-            contentType: 'application/json;charset=UTF-8',
-            data : JSON.stringify({"reject":id}),
-            dataType: 'json',
-        });
-    }
-    function done(id) {
-         $.ajax({
-            type : "POST",
-            url : "/admin/appeals_status_change",
-            contentType: 'application/json;charset=UTF-8',
-            data : JSON.stringify({"done":id}),
-            dataType: 'json',
-        });
-    }
-    function checked(id) {
-         $.ajax({
-            type : "POST",
-            url : "/admin/appeals_status_change",
-            contentType: 'application/json;charset=UTF-8',
-            data : JSON.stringify({"checked":id}),
-            dataType: 'json',
-        });
-    }
-
     $(document).ready(function () {
     $('.reminder_birthday').change(function () {
             if ($('.reminder_birthday').is(':checked')) {

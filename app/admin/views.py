@@ -10,14 +10,11 @@ from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm,
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory, send_file
 from functools import wraps
 from config import basedir, PER_PAGE, SQLALCHEMY_BASIC_URI, AVATARS_FOLDER, REQUEST_FILES_FOLDER, BACKUPS_FOLDER, DB_USER, DB_USER_PSWD
+#from flask_paginate import Pagination, get_page_parameter
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
-import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, redis, subprocess, re, humanize, csv
-from flask_sse import sse
-from collections import defaultdict
-
-from sqlalchemy import *
+import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, redis, subprocess, re, humanize, csv, requests
 
 administration = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -491,7 +488,7 @@ def get_post_javascript_data_id_delete():
                 news = News.query.filter(News.id.in_(ids)).all()
                 for new in news:
                     db.session.delete(new)
-                    os.remove(os.path.join(app.config['COVERS_FOLDER'], new.cover))
+                    os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], new.cover))
                 make_history("news", "удаление", current_user.id)
             if table[0] == 'executors':
                 executors = Executor.query.filter(Executor.id.in_(ids)).all()
@@ -1200,7 +1197,6 @@ def get_post_javascript_data_show():
 
 #Страница со списком новостей
 @administration.route('/news', methods=['GET', 'POST'])
-@administration.route('/news/<int:page>', methods=['GET', 'POST'])
 @login_required
 def admin_news(page = 1, *args):
 
@@ -1211,10 +1207,12 @@ def admin_news(page = 1, *args):
     if not enter:
         return forbidden(403)
 
-    news_all = News.query.order_by(News.id.desc()).paginate(page, PER_PAGE, False)
     all_counters = get_counters()
-    today = time.strftime("%Y-%m-%d")
-    pagination = Pagination(page=page, total = all_counters.get('news_count'), per_page = PER_PAGE, css_framework='bootstrap3')
+    
+    page = request.args.get('page', 1, type=int)
+    size = request.args.get('size', 3, type=int)
+    news_all = requests.get(url_for('API.get_all_news', size = size, page = page, _external=True))
+    pagination = Pagination(page=page, total = all_counters.get('news_count'), per_page = size, css_framework='bootstrap3')
 
     form_delete = DelNewsForm()
     delete = get_permissions(current_user.role.id, current_user.id, "news", "delete")
@@ -1223,7 +1221,10 @@ def admin_news(page = 1, *args):
     if form_delete.validate_on_submit() and delete:
         news_id = form_delete.del_id.data
         news = News.query.filter(News.id == news_id).first()
-        os.remove(os.path.join(app.config['COVERS_FOLDER'], news.cover))
+        if (news.images):
+            for image in news.images:
+                print(image['filename'])
+                os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], image['filename']))
         db.session.delete(news)
         make_history("news", "удаление", current_user.id)
         db.session.commit()
@@ -1233,7 +1234,8 @@ def admin_news(page = 1, *args):
         flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('admin.admin_news', page = page))
 
-    return render_template("admin/list_news.html", news_all = news_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, form_delete=form_delete)
+    return render_template("admin/list_news.html", news_all = news_all.json(), all_counters = all_counters, pagination = pagination,  current_user=current_user, form_delete=form_delete)
+    #return render_template("admin/list_news.html", news_all = news_all.json(), all_counters = all_counters,  current_user=current_user, form_delete=form_delete)
 
 #Быстрое изменение данных записи
 @administration.route('/fast_news_edit', methods = ['POST'])
@@ -1283,19 +1285,25 @@ def new_news():
 
     if form_news_add.validate_on_submit():
         if request.method  == 'POST':
-
-            cover = request.files['cover']
-            if cover:
-                hashname = uuid.uuid4().hex + '.' + cover.filename.rsplit('.', 1)[1]
-                cover.save(os.path.join(app.config['COVERS_FOLDER'], hashname))
-            else:
-                hashname = None
+            
+            images_list = []
+            if request.files:
+                time_hash = uuid.uuid1().hex
+                cover_by_default = False
+                for image in request.files.getlist("images"):
+                    hashname = time_hash+'.'+uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
+                    image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
+                    if not cover_by_default :
+                        images_list.append({'filename':hashname, 'as_cover':1, 'in_gallery':0, 'position':0})
+                        cover_by_default = True
+                    else:
+                        images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
 
             news = News(
             header = form_news_add.header.data,
             text = form_news_add.text.data,
             user_id = current_user.id,
-            cover = hashname )
+            images = images_list )
 
             db.session.add(news)
             make_history("news", "вставку", current_user.id)
@@ -1328,10 +1336,19 @@ def edit_news():
 
     if form_news_edit.validate_on_submit():
         if request.method  == 'POST':
-
-            cover = request.files['cover']
-            if cover:
-                cover.save(os.path.join(app.config['COVERS_FOLDER'], edit_news.cover))
+            
+            if request.files:
+                if (request.files.getlist("images")[0].filename!=''):
+                    if edit_news.images:
+                        images_list = edit_news.images[:] #Клонирование существующего списка
+                    else:
+                        images_list = []
+                    time_hash = uuid.uuid1().hex
+                    for image in request.files.getlist("images"):
+                        hashname = time_hash+'.'+uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
+                        image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
+                        images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
+                        edit_news.images = images_list
 
             edit_news.header = form_news_edit.header.data
             edit_news.text = form_news_edit.text.data
@@ -1341,7 +1358,7 @@ def edit_news():
 
             flash(u"Новость изменена", 'success')
             return redirect(url_for('admin.admin_news'))
-    return render_template("admin/edit_news.html", form_news_edit = form_news_edit, all_counters = all_counters, current_user=current_user, today=today)
+    return render_template("admin/edit_news.html", form_news_edit = form_news_edit, all_counters = all_counters, current_user=current_user, today=today, edit_news=edit_news )
 
 #Страница со списком обращений
 @administration.route('/appeals', methods=['GET', 'POST'])

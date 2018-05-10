@@ -83,7 +83,7 @@
     <!-- Мэйн
     ==========================================-->
 <!--
-    <div id="tf-home" class="text-center" style="background:url({{ url_for('static', filename='work/uploads/'+news.cover) }}); color:#000000;background-repeat: no-repeat;background-size: cover;">
+    <div id="tf-home" class="text-center" style="background:url({{ url_for('static', filename='work/uploads/') }}); color:#000000;background-repeat: no-repeat;background-size: cover;">
         <div class="overlay" style="background:0; height:100%;">
             <div class="content" style="padding:6% 0 0; width:70%; margin:auto; background: white; border-radius:20px; margin-bottom: 5%; box-shadow: 0 0 50px 20px rgb(0, 0, 0);">
                 <h1><strong>{{ news.header }}</strong></h1>
@@ -94,7 +94,14 @@
     </div>
 -->
     
-    <div id="tf-news" class="text-center" style="background:url({{ url_for('static', filename='work/uploads/'+news.cover) }}); ">
+    <div id="tf-news" class="text-center" 
+                        {% if news.images %}
+                            {% for image in news.images %}
+                                {% if  image.as_cover%}
+                                    style="background:url({{ url_for('static', filename=config['NEWS_IMAGES_FOLDER_URL']+image.filename) }}); "
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}>
             <div class="news-content">
                 <h1 class="news-header"><strong>{{ news.header }}</strong></h1>
                  <hr>
@@ -122,7 +129,7 @@
         <div class="container">
             <div class="pull-left fnav">
                 <p>
-                    ВСЕ ПРАВА ЗАЩИЩЕНЫ. COPYRIGHT © 2017-
+                    ВСЕ ПРАВА ЗАЩИЩЕНЫ.  <a href="https://ru.wikipedia.org/wiki/Копилефт">COPYLEFT <span class="copyleft">&copy;</span></a> 2017-
                     <script language="JavaScript" type="text/javascript">
                         now = new Date
                         theYear=now.getYear()

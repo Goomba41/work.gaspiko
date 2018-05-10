@@ -621,6 +621,10 @@ button.btn.tf-btn.btn-default {
     outline-offset: none;
 }
 /* Footer */
+.copyleft {
+  display:inline-block;
+  transform: rotate(180deg);
+}
 nav#footer{
     background: #222222;
     color: #ffffff;

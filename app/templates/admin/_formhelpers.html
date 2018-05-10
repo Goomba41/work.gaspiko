@@ -1,28 +1,13 @@
 {% macro render_field(field) %}
 
     {% if field.type == "TextField" %}
-    
-    
-<!--
-        <div class="input-group" style="margin: 2% 2%;width: 100%;">
-            <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>
-            {{ field(**kwargs)|safe }}
-            {% if field.name == "number" %}
-            <span class="input-group-addon" id="liter"></span>
-            <span class="input-group-addon" id="vipnet">@</span>
-            {% endif %}
-        </div>
--->
-        
-        <div class="input-group" style="margin: 2% 2%;width: 100%;"> 
-            
-            <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>
+
+        <div class="input-group default-input-text"> 
+            <span class="input-group-addon" id="basic-addon1">{{field.label}}</span>
             {{ field(**kwargs)|safe }}
             {% if field.name == "number" %}
             <span class="input-group-addon"   id="liter">-</span>
-            
             <div class="input-group-btn"> 
-
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Литера
                     <span class="caret"></span> <span class="sr-only"></span> 
                 </button> 
@@ -32,7 +17,6 @@
                     <li id="3" class="journal"><a>Н (Непрофильные)</a></li>
                     <li id="4" class="journal"><a>Т (Тематические)</a></li>
                 </ul> 
-                
             </div> 
             {% endif %}
         </div> 
@@ -59,7 +43,7 @@
             </div>
         </div>
     {% elif field.type == "FileField" %}
-      <div class="form-group" style="margin: 2% 2%;">
+      <div class="input-group default-input-file">
         <label for="exampleInputFile">{{field.label}}</label>
         {{ field(**kwargs)|safe }}
         {% if field.name == "filename" %}
@@ -74,7 +58,7 @@
             {{ field(**kwargs)|safe }}
         </div>
     {% elif field.type =="TextAreaField"%}
-        <div class="input-group" style="margin: 2% 2%;width: 100%;">
+        <div class="input-group default-input-text-area">
         {{field.label}}
         {{ field(**kwargs)|safe }}
     </div>
@@ -84,6 +68,11 @@
             </div>
     {% endif %}
 
+
+{#<!--
+Подсветка поля с ошибкой
+====================================================================
+-->#}
     {% if field.errors %}
         {% for error in field.errors %}
             {% if ((field.type == "TextField") or  (field.type == "PasswordField")) %}
@@ -97,6 +86,11 @@
     {% endif %}
 {% endmacro %}
 
+
+{#<!--
+Сообщения об успехе или ошибке
+====================================================================
+-->#}
 {% macro flash_msg(messages) %}
 
     {% for category, message in messages %}

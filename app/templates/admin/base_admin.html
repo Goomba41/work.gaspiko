@@ -8,7 +8,7 @@
         <title>Администрирование</title>
 
         <!-- Иконка сайта -->
-        <link rel="shortcut icon" href="{{ url_for('static', filename='admin/img/favicon.png') }}" type="image/x-icon"/>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='admin/img/favicon.ico') }}" type="image/x-icon"/>
 
         <!-- Описание страницы -->
         <meta name="description" content="" />
@@ -111,7 +111,20 @@
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
                 </button>
-                <span class="navbar-brand">Разработка: <a href="https://vk.com/goomba41">Бородавкин Антон</a> <i class="fa fa-copyright" aria-hidden="true"></i> 2017 - {{ today.split('-')[0] }}</span>
+                <span class="navbar-brand">
+                    <a href="https://ru.wikipedia.org/wiki/Копилефт">COPYLEFT <span class="copyleft">&copy;</span></a> 2017 -
+                    <script language="JavaScript" type="text/javascript">
+                        now = new Date
+                        theYear=now.getYear()
+                        if (theYear < 1900)
+                        theYear=theYear+1900
+                        document.write(theYear)
+                    </script>
+                    Разработка: Бородавкин Антон 
+                    <a href="mailto:anton.borodawkin@yandex.ru"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                    <a href="https://vk.com/goomba41"><i class="fa fa-vk" aria-hidden="true"></i></a>
+                    <a href="https://github.com/Goomba41"><i class="fa fa-github" aria-hidden="true"></i></a>
+                </span>
               </div>
                 <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav navbar-right">
@@ -130,35 +143,4 @@
 
     </body>
     <script type="text/javascript" src="{{ url_for('static', filename='admin/js/loader.js') }}"></script>
-    <script>
-        var source = new EventSource("{{ url_for('sse.stream') }}");
-        source.addEventListener('message', function(event) {
-            var data = JSON.parse(event.data);
-            if (data.author == {{ current_user.id }}) {
-                alert(data.message);
-            }
-            console.log(event.data);
-        }, false);
-        //~ source.addEventListener('open', function(event) {
-            //~ alert("Connection open");
-            //~ console.log(event.data);
-        //~ }, false);
-        source.addEventListener('new', function(event) {
-            var data = JSON.parse(event.data);
-            if ( '{{ current_user.post.name }}' == 'Программист') {
-            alert(data.message);
-            console.log(event.data);
-            }
-        }, false);
-        //~ source.addEventListener('birthday', function(event) {
-            //~ var data = JSON.parse(event.data);
-            //~ if (data.exclude != {{ current_user.id }}) {
-                //~ alert(data.message);
-            //~ }
-            //~ console.log(event.data);
-        //~ }, false);
-        //~ source.addEventListener('error', function(event) {
-            //~ alert("Failed to connect to event stream. Is Redis running?");
-        //~ }, false);
-    </script>
 </html>

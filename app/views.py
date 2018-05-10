@@ -11,7 +11,6 @@ from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
 import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, ast, redis
-from flask_sse import sse
 from collections import defaultdict
 
 

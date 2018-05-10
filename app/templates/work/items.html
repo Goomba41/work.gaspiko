@@ -10,7 +10,13 @@
                             <div class="clearfix"></div>
                             <i class="fa fa-plus"></i>
                         </div>
-                        <img src="{{ url_for('static', filename='work/uploads/'+news.cover) }}" style ="max-width:none; height:100%" class="img-responsive" alt="...">
+                        {% if news.images %}
+                            {% for image in news.images %}
+                                {% if  image.as_cover%}
+                                    <img  src="{{  image.filename|thumbnail('260x260', crop='fit', quality=100) }}" style ="max-width:none; height:100%" class="img-responsive" alt="{{ news.header }}">
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                     </a>
                 </div>
             </div>

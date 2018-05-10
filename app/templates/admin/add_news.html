@@ -28,22 +28,39 @@
         {% endif %}
     {% endwith %}
 
-    <div class="admin_wrapper">
+    <div class="container">
         {% from "admin/_formhelpers.html" import render_field %}
         <form action="" method="POST" name = "form_news_add" enctype="multipart/form-data">
-            <div class="col-sm-11">
-            {{ form_news_add.csrf_token }}
-            {{ render_field(form_news_add.header, size=50, class ="form-control", placeholder ="Максимум 255 символов", autocomplete = True) }}
-            {{ render_field(form_news_add.text, size=50, class ="form-control", autocomplete = True) }}
-            {{ render_field(form_news_add.cover, class ="form-control-file") }}
-            </div>
-            <div class="col-sm-8">
-            <input type="submit" value="Добавить" class="btn btn-lg btn-success">
-            <a href="{{url_for('admin.admin_news')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
-            </div>
-        </form>
-    </div>
-    <script>CKEDITOR.replace( 'text' );</script>
+            <div class="row">
+                <div class="col-lg-12">
+                    {{ form_news_add.csrf_token }}
+                    {{ render_field(form_news_add.header, class ="form-control", placeholder ="Максимум 255 символов", autocomplete = True) }}
+                    {{ render_field(form_news_add.text, class ="form-control", autocomplete = True) }}
+                    {{ render_field(form_news_add.images, class ="form-control-file") }}
+                </div><!-- .col -->
+            </div><!-- .row -->
+            <hr/>
+            <div class="row">
+                <div class="col-lg-12">
+                    <input type="submit" value="Добавить" class="btn btn-lg btn-success">
+                    <a href="{{url_for('admin.admin_news')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+                </div><!-- .col  -->
+            </div><!-- .row  -->
+
+        </form><!-- form  -->
+    </div><!-- .container  -->
+    
+    
+    <script>
+        CKEDITOR.replace( 'text', {
+            language: 'ru',
+            toolbar: [
+                                [ 'Source', '-', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', "Find", "Replace", "SelectAll", "Scayt"],
+                                '/',
+                                [ "Bold", "Italic", 'Underline', 'Strike', 'Subscript', 'Superscript', 'RemoveFormat', '-', 'NumberedList', 'BulletedList', "Outdent", "Indent", '-', "Blockquote", '-', "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock", '-', "Link", "Unlink", "Anchor", '-', "CreatePlaceholder", "Image", "Table", "HorizontalRule", "Smiley", "SpecialChar", "Iframe", "InsertPre"],
+            ]
+        });
+    </script>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

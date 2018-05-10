@@ -28,22 +28,77 @@
         {% endif %}
     {% endwith %}
 
-    <div class="admin_wrapper">
+    <div class="container">
         {% from "admin/_formhelpers.html" import render_field %}
         <form action="" method="POST" name = "form_news_add" enctype="multipart/form-data">
-            <div class="col-sm-11">
-            {{ form_news_edit.csrf_token }}
-            {{ render_field(form_news_edit.header, size=50, class ="form-control", placeholder ="Максимум 255 символов", autocomplete = True) }}
-            {{ render_field(form_news_edit.text, size=50, class ="form-control", autocomplete = True) }}
-            {{ render_field(form_news_edit.cover, class ="form-control-file") }}
-            </div>
-            <div class="col-sm-8">
-            <input type="submit" value="Изменить" class="btn btn-lg btn-success">
-            <a href="{{url_for('admin.admin_news')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
-            </div>
-        </form>
-    </div>
-    <script>CKEDITOR.replace( 'text' );</script>
+            <div class="row">
+                <div class="col-lg-12">
+                    {{ form_news_edit.csrf_token }}
+                    {{ render_field(form_news_edit.header, class ="form-control", placeholder ="Максимум 255 символов", autocomplete = True) }}
+                    {{ render_field(form_news_edit.text, class ="form-control", autocomplete = True) }}
+                    {{ render_field(form_news_edit.images, class ="form-control-file") }}
+                </div><!-- .col -->
+            </div><!-- .row -->
+            
+            {% if images %}
+                {{ images }}
+            {% endif %}
+            
+            {% if edit_news.images %}
+            <hr/>
+            <div class="row" style="text-align:center;" align="center">
+                <h4>Прикрепленные изображения</h4>
+                {% for image in edit_news.images %}
+                     <div class="col-lg-1" style="margin:10px; height:200px; min-width:200px;">
+                        <div class="row" style="text-align:center;padding-bottom:10px;">
+                             <img  src="{{  image.filename|thumbnail('160x160', crop='fit', quality=100) }}"/>  
+                        </div>
+                        <div class="row actions" style="text-align:center;">
+                            <button onclick="copy_origin_link('{{image.filename}}')" type="button" class="btn btn-sm btn-info"><i class="fa fa-link" aria-hidden="true"></i></button>
+                            <button id="{{image.filename}}" type="button" class="btn btn-sm btn-danger"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                            <button id="{{image.filename}}" type="button" class="btn btn-sm btn-default"><i class="fa fa-picture-o" aria-hidden="true"></i></button>
+                            <button id="{{image.filename}}" type="button" class="btn btn-sm btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                            <button id="{{image.filename}}" type="button" class="btn btn-sm btn-default"><i class="fa fa-sort" aria-hidden="true"></i></button>
+                        </div>
+                    </div><!-- .col -->
+                {% endfor %}
+            </div><!-- .row  -->
+            {% endif %}
+            <hr/>
+            
+            
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <input type="submit" value="Изменить" class="btn btn-lg btn-success">
+                    <a href="{{url_for('admin.admin_news')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+                </div><!-- .col  -->
+            </div><!-- .row  -->
+
+
+        </form><!-- form  -->
+    </div><!-- .container  -->
+    
+    
+    
+    
+    <script>
+        CKEDITOR.replace( 'text', {
+            language: 'ru',
+            toolbar: [
+                                [ 'Source', '-', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', "Find", "Replace", "SelectAll", "Scayt"],
+                                '/',
+                                [ "Bold", "Italic", 'Underline', 'Strike', 'Subscript', 'Superscript', 'RemoveFormat', '-', 'NumberedList', 'BulletedList', "Outdent", "Indent", '-', "Blockquote", '-', "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock", '-', "Link", "Unlink", "Anchor", '-', "CreatePlaceholder", "Image", "Table", "HorizontalRule", "Smiley", "SpecialChar", "Iframe", "InsertPre"],
+            ]
+        });
+    </script>
+    <script>
+        function copy_origin_link(image) {
+             var dummyContent = '{{ url_for('static', filename="work/uploads/images/") }}'+image;
+             var dummy = $('<input>').val(dummyContent).appendTo('body').select();
+             document.execCommand('copy');
+        }
+    </script>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
