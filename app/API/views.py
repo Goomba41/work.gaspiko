@@ -44,8 +44,9 @@ def paginate_list(page, size, lst):
                     lst.pop(size)
 
     return lst
-
-
+#----------------------------------------------------------------------------------
+# НОВОСТИ НА ВНЕШНЕЙ
+#----------------------------------------------------------------------------------
 #Список всех новостей
 @API.route('/news', methods=['GET'])
 def get_all_news():
@@ -61,5 +62,17 @@ def get_all_news():
         response = jsonify(paginate_list(request.args.get('page'), request.args.get('size'), news_lst))
     else:
         response = jsonify(news_lst)
+    
+    return response
+#Одна новость
+@API.route('/news/<int:news_id>', methods=['GET'])
+def get_one_news(news_id):
+    
+    print(news_id)
+    news = News.query.filter(News.id==news_id).first()
+    news_schema = NewsSchema()
+    print(news)
+
+    response = jsonify(news_schema.dump(news).data)
     
     return response

@@ -39,11 +39,11 @@ def index(page=1):
 @app.route('/news/<int:id>')
 def news(id):
     login_as=User.current()
-    news = News.query.filter(News.id==id).first()
+    news = requests.get(url_for('API.get_one_news',news_id=id, _external=True)).json()
     news_visited = ""
     resp = make_response(render_template("work/news.html", news=news, login_as=login_as))
     if request.cookies.get('news_visited'):
-        if str(news.id) not in request.cookies.get('news_visited').split(' '):
+        if str(news['id']) not in request.cookies.get('news_visited').split(' '):
             news_visited = request.cookies.get('news_visited') + ' ' + str(news.id)
         else:
             news_visited = request.cookies.get('news_visited')
