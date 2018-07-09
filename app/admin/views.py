@@ -1214,28 +1214,27 @@ def admin_news(page = 1, *args):
     news_all = requests.get(url_for('API.get_all_news', size = size, page = page, _external=True))
     pagination = Pagination(page=page, total = all_counters.get('news_count'), per_page = size, css_framework='bootstrap3')
 
-    form_delete = DelNewsForm()
-    delete = get_permissions(current_user.role.id, current_user.id, "news", "delete")
-    print ("delete "+str(delete))
+    #form_delete = DelNewsForm()
+    #delete = get_permissions(current_user.role.id, current_user.id, "news", "delete")
+    #print ("delete "+str(delete))
 
-    if form_delete.validate_on_submit() and delete:
-        news_id = form_delete.del_id.data
-        news = News.query.filter(News.id == news_id).first()
-        if (news.images):
-            for image in news.images:
-                print(image['filename'])
-                os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], image['filename']))
-        db.session.delete(news)
-        make_history("news", "удаление", current_user.id)
-        db.session.commit()
-        flash(u"Новость удалена", 'success')
-        return redirect(url_for('admin.admin_news', page = page))
-    elif form_delete.validate_on_submit() and not delete:
-        flash(u"Вам запрещено данное действие", 'error')
-        return redirect(url_for('admin.admin_news', page = page))
+    #if form_delete.validate_on_submit() and delete:
+        #news_id = form_delete.del_id.data
+        #news = News.query.filter(News.id == news_id).first()
+        #if (news.images):
+            #for image in news.images:
+                #print(image['filename'])
+                #os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], image['filename']))
+        #db.session.delete(news)
+        #make_history("news", "удаление", current_user.id)
+        #db.session.commit()
+        #flash(u"Новость удалена", 'success')
+        #return redirect(url_for('admin.admin_news', page = page))
+    #elif form_delete.validate_on_submit() and not delete:
+        #flash(u"Вам запрещено данное действие", 'error')
+        #return redirect(url_for('admin.admin_news', page = page))
 
-    return render_template("admin/list_news.html", news_all = news_all.json(), all_counters = all_counters, pagination = pagination,  current_user=current_user, form_delete=form_delete)
-    #return render_template("admin/list_news.html", news_all = news_all.json(), all_counters = all_counters,  current_user=current_user, form_delete=form_delete)
+    return render_template("admin/list_news.html", news_all = news_all.json(), all_counters = all_counters, pagination = pagination,  current_user=current_user)
 
 #Быстрое изменение данных записи
 @administration.route('/fast_news_edit', methods = ['POST'])

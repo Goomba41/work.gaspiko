@@ -52,10 +52,13 @@
                     <td>
                         <div class = "control">
                             <form action="" method="post" name="deluser">
-                            {{form_delete.hidden_tag()}}
+                            {# {{form_delete.hidden_tag()}}  #}
                                 <div>
+                                    <button class="btn-danger" type="button" title="Удалить запись" onclick="delete_news({{ news.id }})"><i class="fa fa-trash fa-control"></i></button>
+<!--
                                     <button class="btn-danger" type="submit" title="Удалить запись" onclick="return confirm('Точно?');"><i class="fa fa-trash fa-control"></i></button>
-                                    {{form_delete.del_id(id="del-"+news.id|string,value=news.id, style = "display:none;")}}
+-->
+                                    {# {{form_delete.del_id(id="del-"+news.id|string,value=news.id, style = "display:none;")}}  #}
                                 </div>
                             </form>
                             <div>

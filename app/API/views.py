@@ -1,12 +1,16 @@
 ﻿#! venv/bin/python
 
-import json, math, requests
+import json, math, requests, os
 from app import app, db
 
 from app.models import News, NewsSchema
 from flask import request, make_response, jsonify, Response, Blueprint, url_for
 
 API = Blueprint('API', __name__, url_prefix='/API/v1.0')
+
+#----------------------------------------------------------------------------------
+# ФУНКЦИИ
+#----------------------------------------------------------------------------------
 
 #Пагинация списка, полученного из API
 def paginate_list(page, size, lst):
@@ -44,9 +48,11 @@ def paginate_list(page, size, lst):
                     lst.pop(size)
 
     return lst
+    
 #----------------------------------------------------------------------------------
 # НОВОСТИ НА ВНЕШНЕЙ
 #----------------------------------------------------------------------------------
+
 #Список всех новостей
 @API.route('/news', methods=['GET'])
 def get_all_news():
@@ -64,15 +70,28 @@ def get_all_news():
         response = jsonify(news_lst)
     
     return response
+    
 #Одна новость
 @API.route('/news/<int:news_id>', methods=['GET'])
 def get_one_news(news_id):
     
-    print(news_id)
     news = News.query.filter(News.id==news_id).first()
     news_schema = NewsSchema()
-    print(news)
 
     response = jsonify(news_schema.dump(news).data)
+    
+    return response
+
+#Удаление новости
+@API.route('/news/<int:news_id>', methods=['DELETE'])
+def delete_one_news(news_id):
+    
+    news = News.query.filter(News.id == news_id).first()
+    # ~ for image in news.images:
+        # ~ os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], image['filename']))
+    # ~ db.session.delete(news)
+    # ~ db.session.commit()
+
+    response = jsonify(news_id)
     
     return response

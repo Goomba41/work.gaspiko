@@ -98,7 +98,7 @@
                         {% if news.images %}
                             {% for image in news.images %}
                                 {% if  image.as_cover%}
-                                    style="background:url({{ url_for('static', filename=config['NEWS_IMAGES_FOLDER_URL']+image.filename) }}); "
+                                    style="background-image:url({{ url_for('static', filename=config['NEWS_IMAGES_FOLDER_URL']+image.filename) }}); "
                                 {% endif %}
                             {% endfor %}
                         {% endif %}>

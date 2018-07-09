@@ -111,6 +111,8 @@
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
                 </button>
+                
+
                 <span class="navbar-brand">
                     <a href="https://ru.wikipedia.org/wiki/Копилефт">COPYLEFT <span class="copyleft">&copy;</span></a> 2017 -
                     <script language="JavaScript" type="text/javascript">
@@ -126,8 +128,10 @@
                     <a href="https://github.com/Goomba41"><i class="fa fa-github" aria-hidden="true"></i></a>
                 </span>
               </div>
+
                 <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav navbar-right">
+                    {# <span class="navbar-brand">Разработка: <a href="https://vk.com/goomba41">Бородавкин Антон</a> <i class="fa fa-copyright" aria-hidden="true"></i> 2017 - 2018</span> #}
+                <ul class="nav navbar-nav navbar-right" {# style="margin-left: 500px;" #}>
                     <li class=""><a href="{{ url_for('admin.admin_appeals') }}" title="Форма для внесения пожеланий и предложений по улучшению информационной системы">
                     {% if current_user.post.name == "Программист" %}
                     {% if all_counters.get('appeals_count_new') %}

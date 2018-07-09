@@ -44,10 +44,10 @@ def news(id):
     resp = make_response(render_template("work/news.html", news=news, login_as=login_as))
     if request.cookies.get('news_visited'):
         if str(news['id']) not in request.cookies.get('news_visited').split(' '):
-            news_visited = request.cookies.get('news_visited') + ' ' + str(news.id)
+            news_visited = request.cookies.get('news_visited') + ' ' + str(news['id'])
         else:
             news_visited = request.cookies.get('news_visited')
     else:
-        news_visited =  str(news.id)
+        news_visited =  str(news['id'])
     resp.set_cookie('news_visited',news_visited, expires=datetime.datetime.now()+datetime.timedelta(days=365))
     return resp
