@@ -49,19 +49,55 @@ def paginate_list(page, size, lst):
                     lst.pop(size)
 
     return lst
+
+
+#Функция обработки склонений
+def get_declension(x, y):
+    inumber = x % 100
+    if inumber >= 11 and inumber <=19:
+        y = y[2]
+    else:
+        iinumber = inumber % 10
+        if iinumber == 1:
+            y = y[0]
+        elif iinumber == 2 or iinumber == 3 or iinumber == 4:
+            y = y[1]
+        else:
+            y = y[2]
+    return (x,y)
     
 #Фильтр для дат для шаблонизатора 
 def format_datetime(value, format='medium'):
-	date=value.split("T")[0] 
-	time=value.split("+")[0].split("T")[1]
+    date=value.split("T")[0] 
+    time=value.split("+")[0].split("T")[1]
 
-	datetime_object = datetime.strptime(date+" "+time, "%Y-%m-%d %H:%M:%S")
+    datetime_object = datetime.strptime(date+" "+time, "%Y-%m-%d %H:%M:%S")
 
-	if format == 'full':
-		format=datetime.strftime(datetime_object, "%Y-%m-%d в %H:%M:%S")
-	elif format == 'medium':
-		format=datetime.strftime(datetime_object, "%Y-%m-%d")
-	return format
+    if format == 'full':
+        format=datetime.strftime(datetime_object, "%Y-%m-%d в %H:%M:%S")
+    elif format == 'medium':
+        format=datetime.strftime(datetime_object, "%Y-%m-%d")
+    elif format == 'since':
+        now = datetime.now()
+        diff = now - datetime_object
+
+        periods = (
+            (diff.seconds, [u"секунда", u"секунды", u"секунд"]),
+            (diff.seconds / 60, [u"минута", u"минуты", u"минут"]),
+            (diff.seconds / 3600, [u"час", u"часа", u"часов"]),
+            (diff.days, [u"день", u"дня", u"дней"]),
+            (diff.days / 7, [u"неделя", u"недели", u"недель"]),
+            (diff.days / 30, [u"месяц", u"месяца", u"месяцев"]),
+            (diff.days / 365, [u"год", u"года", u"лет"]),
+        )
+        
+        for period, declension in periods:
+            period = int(round(period,0))
+            if period!=0:
+                period = get_declension(period, declension)
+                format = "%d %s назад" % (period[0], period[1])
+
+    return format
 
 app.jinja_env.filters['datetime'] = format_datetime
     
