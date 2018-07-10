@@ -6,7 +6,7 @@
                     <a href="{{ url_for('news', id=news.id) }}">
                         <div class="hover-text">
                             <h4>{{ news.header }}</h4>
-                            <p>{{ news.cdate }}</p>
+                            <p>{{ news.cdate.strftime('%Y-%m-%d') }}</p>
                             <div class="clearfix"></div>
                             <i class="fa fa-plus"></i>
                         </div>
