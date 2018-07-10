@@ -5,6 +5,7 @@ from app import app, db
 
 from app.models import News, NewsSchema
 from flask import request, make_response, jsonify, Response, Blueprint, url_for
+from datetime import datetime
 
 API = Blueprint('API', __name__, url_prefix='/API/v1.0')
 
@@ -48,6 +49,21 @@ def paginate_list(page, size, lst):
                     lst.pop(size)
 
     return lst
+    
+#Фильтр для дат для шаблонизатора 
+def format_datetime(value, format='medium'):
+	date=value.split("T")[0] 
+	time=value.split("+")[0].split("T")[1]
+
+	datetime_object = datetime.strptime(date+" "+time, "%Y-%m-%d %H:%M:%S")
+
+	if format == 'full':
+		format=datetime.strftime(datetime_object, "%Y-%m-%d в %H:%M:%S")
+	elif format == 'medium':
+		format=datetime.strftime(datetime_object, "%Y-%m-%d")
+	return format
+
+app.jinja_env.filters['datetime'] = format_datetime
     
 #----------------------------------------------------------------------------------
 # НОВОСТИ НА ВНЕШНЕЙ

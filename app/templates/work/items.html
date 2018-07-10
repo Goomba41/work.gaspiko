@@ -1,12 +1,12 @@
 {% if news_all %}
-        {% for news in news_all %}
+        {% for news in news_all|sort(attribute="cdate", reverse=True) %}
         <div class="col-sm-6 col-md-3 col-lg-3 photography app">
             <div class="portfolio-item" {% if news.id|string not in news_visited %}style="    box-shadow: rgba(0, 0, 0, 0.0745098) 0px 1px 1px inset, rgb(0, 248, 19) 0px 0px 8px; border: solid 2px rgb(4, 255, 0);"{% endif %}>
                 <div class="hover-bg">
                     <a href="{{ url_for('news', id=news.id) }}">
                         <div class="hover-text">
                             <h4>{{ news.header }}</h4>
-                            <p>{{ news.cdate.strftime('%Y-%m-%d') }}</p>
+                            <p>{{ news.cdate|datetime('full') }}</p>
                             <div class="clearfix"></div>
                             <i class="fa fa-plus"></i>
                         </div>
