@@ -113,7 +113,7 @@
                     <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle nav-img-white">
                     {% endif %}
                      | {{ news.user.post.name }} | 
-                    {{ news.cdate }}
+                    {{ news.cdate|datetime('full') }}
                     {% if session['logged_in'] %}
                     <a class = "edit" href="{{url_for('admin.edit_news', id = news.id)}}"><i class="fa fa-pencil" style="padding-left: 15px;" aria-hidden="true"></i></a>
                     {% endif %}

@@ -79,6 +79,7 @@ def get_all_news():
     news_lst = []
     for n in news:
         news_lst.append(news_schema.dump(n).data)
+    news_lst.reverse()
         
     if (request.args.get('page') and request.args.get('size')):
         response = jsonify(paginate_list(request.args.get('page'), request.args.get('size'), news_lst))
