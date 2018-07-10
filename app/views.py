@@ -22,7 +22,7 @@ def index(page=1):
     
     page = request.args.get('page', 1, type=int)
     size = request.args.get('size', 4, type=int)
-    news_all = requests.get(url_for('API.get_all_news', size = size, page = page, _external=True))
+    news_all = requests.get(url_for('API.get_all_news', size = size, page = page, _external=True), verify=False)
     pagination = Pagination(page=page, total = News.query.count(), per_page = size, css_framework='bootstrap3')
     
     login_as=User.current()
@@ -39,7 +39,7 @@ def index(page=1):
 @app.route('/news/<int:id>')
 def news(id):
     login_as=User.current()
-    news = requests.get(url_for('API.get_one_news',news_id=id, _external=True)).json()
+    news = requests.get(url_for('API.get_one_news',news_id=id, _external=True), verify=False).json()
     news_visited = ""
     resp = make_response(render_template("work/news.html", news=news, login_as=login_as))
     if request.cookies.get('news_visited'):

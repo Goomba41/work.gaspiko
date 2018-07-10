@@ -1211,7 +1211,7 @@ def admin_news(page = 1, *args):
     
     page = request.args.get('page', 1, type=int)
     size = request.args.get('size', 3, type=int)
-    news_all = requests.get(url_for('API.get_all_news', size = size, page = page, _external=True))
+    news_all = requests.get(url_for('API.get_all_news', size = size, page = page, _external=True), verify=False)
     pagination = Pagination(page=page, total = all_counters.get('news_count'), per_page = size, css_framework='bootstrap3')
 
     #form_delete = DelNewsForm()
