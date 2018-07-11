@@ -527,6 +527,26 @@ ol.type li a.active { font-weight: 700; }
     margin: 0.5em 0 0 0.5em;
 }
 
+.back-pulse {
+    -webkit-animation-name: back-pulse;
+    animation-name: back-pulse;
+    -webkit-animation-duration: 2s;
+    animation-duration: 2s;
+    -webkit-animation-delay: 0.5s;
+    animation-delay: 0.5s;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    color: #2098D1;
+}
+
+@keyframes back-pulse {
+    50% {
+        color: rgba(119, 121, 115, 0.75);
+    }
+}
+
 /* Testimonials Section */
 #tf-testimonials{
     background: url(../img/05.jpg);

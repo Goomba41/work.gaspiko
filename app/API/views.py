@@ -116,6 +116,17 @@ def fresh_news(value,days):
         return False
         
 app.jinja_env.filters['fresh'] = fresh_news
+
+#Посчет свежих новостей
+def fresh_news_counter(news_list,days):
+    count = 0
+    for i in news_list.json():
+        print(i['cdate'])
+        if fresh_news(i['cdate'],days):
+            count += 1
+        else: break
+
+    return (count)
     
 #----------------------------------------------------------------------------------
 # НОВОСТИ НА ВНЕШНЕЙ
@@ -128,10 +139,10 @@ def get_all_news():
     news = News.query.all()
     news_schema = NewsSchema()
     
-    news_lst = []
+    tmp = []
     for n in news:
-        news_lst.append(news_schema.dump(n).data)
-    news_lst.reverse()
+        tmp.append(news_schema.dump(n).data)
+    news_lst = sorted(tmp, key=lambda k: k['cdate'],reverse=True) 
         
     if (request.args.get('page') and request.args.get('size')):
         response = jsonify(paginate_list(request.args.get('page'), request.args.get('size'), news_lst))

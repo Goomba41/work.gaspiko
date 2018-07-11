@@ -71,7 +71,7 @@
             <li><a href="#tf-about" class="page-scroll">О нас</a></li>
             <li><a href="#tf-team" class="page-scroll">Сотрудники</a></li>
             <li><a href="#tf-services" class="page-scroll">Ресурсы</a></li>
-            <li><a href="#tf-works" class="page-scroll">Новости</a></li>
+            <li><a href="#tf-works" class="page-scroll {% if fresh_news %}back-pulse{% endif %}">Новости {% if fresh_news %}<i class="fa fa-exclamation" aria-hidden="true"></i>{% endif %}</a></li>
             <li><a href="{{url_for('admin.admin')}}" class="page-scroll">Войти</a></li>
           </ul>
         </div><!-- /.navbar-collapse -->
