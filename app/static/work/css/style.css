@@ -653,8 +653,13 @@ button.btn.tf-btn.btn-default {
 }
 /* Footer */
 .copyleft {
-  display:inline-block;
-  transform: rotate(180deg);
+    -webkit-transform: scaleX(-1);
+    -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -khtml-transform: scaleX(-1);
+    -ms-transform: scaleX(-1);
+    transform: scaleX(-1);
+    display: inline-block;
 }
 nav#footer{
     background: #222222;

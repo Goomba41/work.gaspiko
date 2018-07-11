@@ -114,7 +114,8 @@
                 
 
                 <span class="navbar-brand">
-                    <a href="https://ru.wikipedia.org/wiki/Копилефт">COPYLEFT <span class="copyleft">&copy;</span></a> 2017 -
+                    <a href="https://ru.wikipedia.org/wiki/Копилефт">COPYLEFT <span class="copyleft">&copy;</span></a> 
+                    <span style="margin: 0 1em 0 1em;">2017 -
                     <script language="JavaScript" type="text/javascript">
                         now = new Date
                         theYear=now.getYear()
@@ -122,7 +123,8 @@
                         theYear=theYear+1900
                         document.write(theYear)
                     </script>
-                    Разработка: Бородавкин Антон 
+                    </span>
+                    <span style="margin: 0 1em 0 0;">Разработка: Бородавкин Антон</span>
                     <a href="mailto:anton.borodawkin@yandex.ru"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                     <a href="https://vk.com/goomba41"><i class="fa fa-vk" aria-hidden="true"></i></a>
                     <a href="https://github.com/Goomba41"><i class="fa fa-github" aria-hidden="true"></i></a>
@@ -132,13 +134,14 @@
                 <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
                     {# <span class="navbar-brand">Разработка: <a href="https://vk.com/goomba41">Бородавкин Антон</a> <i class="fa fa-copyright" aria-hidden="true"></i> 2017 - 2018</span> #}
                 <ul class="nav navbar-nav navbar-right" {# style="margin-left: 500px;" #}>
+                    {# 
                     <li class=""><a href="{{ url_for('admin.admin_appeals') }}" title="Форма для внесения пожеланий и предложений по улучшению информационной системы">
                     {% if current_user.post.name == "Программист" %}
                     {% if all_counters.get('appeals_count_new') %}
                         <i class="fa fa-exclamation-circle" style="color:red; font-size:1.3em;" aria-hidden="true"></i>
                     {% endif %}
                     <span class="badge btn-info">{{ all_counters.get('appeals_count_checked') }}</span> / <span class="badge btn-success">{{ all_counters.get('appeals_count_done') }}</span> / <span class="badge btn-primary">{{ all_counters.get('appeals_count_all') }}</span>
-                    {% endif %} Обращения</a></li>
+                    {% endif %} Обращения</a></li> #}
                     <li class=""><a href=""><i class="fa fa-question-circle" aria-hidden="true"></i>Помощь</a></li>
                 </ul>
                 </div>
