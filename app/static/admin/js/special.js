@@ -33,6 +33,7 @@ function delete_news(id) {
                     console.log(e);
                 }
             });
+            window.location.href=document.location.origin+document.location.pathname;
         }
     }
 }

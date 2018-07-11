@@ -100,6 +100,22 @@ def format_datetime(value, format='medium'):
     return format
 
 app.jinja_env.filters['datetime'] = format_datetime
+
+#Проверка новости на свежесть
+def fresh_news(value,days):
+    date=value.split("T")[0] 
+    time=value.split("+")[0].split("T")[1]
+
+    datetime_object = datetime.strptime(date+" "+time, "%Y-%m-%d %H:%M:%S")
+    now = datetime.now()
+    diff = now - datetime_object
+    
+    if diff.days<=int(days):
+        return True
+    else:
+        return False
+        
+app.jinja_env.filters['fresh'] = fresh_news
     
 #----------------------------------------------------------------------------------
 # НОВОСТИ НА ВНЕШНЕЙ

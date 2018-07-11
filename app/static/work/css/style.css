@@ -516,6 +516,17 @@ ol.type li a.active { font-weight: 700; }
     border-radius: 50%;
     color: #FCAC45;
 }
+
+#tf-works div.fresh_sign {
+    position: absolute;
+    height: 15%;
+    width: 17%;
+    z-index: 1;
+    background-image: url(/static/work/img/fresh_news.png);
+    background-size: cover;
+    margin: 0.5em 0 0 0.5em;
+}
+
 /* Testimonials Section */
 #tf-testimonials{
     background: url(../img/05.jpg);
