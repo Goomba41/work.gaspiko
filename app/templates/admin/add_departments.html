@@ -2,6 +2,7 @@
 {% block content %}
 
 {% if session['logged_in'] %}
+{# 
     <nav class="navbar navbar-default">
         <div class="container" style ="margin-right: initial; margin-left: initial;">
           <div class="navbar-header">
@@ -20,6 +21,29 @@
           </div>
         </div>
     </nav>
+ #}
+ 
+<div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+    <div class="col p-0">
+
+        <div class="row-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#" title="Панель управления таблицей">Управление</span></a>
+
+                <div class="collapse navbar-collapse" id="primary-nav">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{{url_for('admin.admin_departments')}}"><i class="fa fa-fw fa-list-ol" aria-hidden="true"></i>
+ Список ({{ all_counters.get('department_count') }})</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </div>
+
+            </nav>
+        </div>
 
     {% from "admin/_formhelpers.html" import flash_msg %}
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -28,20 +52,22 @@
         {% endif %}
     {% endwith %}
 
-    <div class="admin_wrapper">
+
         {% from "admin/_formhelpers.html" import render_field %}
-        <form action="" method="POST" name = "form_role_add" enctype="multipart/form-data">
-            <div class="col-sm-4">
+        <form action="" class="form-row p-3 m-auto" method="POST" name = "form_role_add" enctype="multipart/form-data">
+            <div class="col-sm-6">
             {{ form_department_add.csrf_token }}
             {{ render_field(form_department_add.name, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             </div>
-            <div class="col-sm-8">
+            <div class="col-sm-12">
             <input type="submit" value="Добавить" class="btn btn-lg btn-success">
             <a href="{{url_for('admin.admin_departments')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
             </div>
         </form>
-        <br style="clear: both;"/>
+
+
     </div>
+</div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

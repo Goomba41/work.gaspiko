@@ -12,14 +12,14 @@ from wtforms.fields.html5 import TelField
 class AddUserForm(FlaskForm):
     login = TextField(u'Логин', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Логин должен быть в диапазоне от 1 до 15 символов')])
     password = PasswordField(u'Пароль', validators = [Required(message = u'Введите пароль'), Length(min=1, message = u'Пароль должен быть более 8 символов')])
-    photo = FileField(u'Выберите фото профиля', validators = [FileAllowed(['jpg', 'jpeg', 'png', 'gif'], u'Только изображения!')])
+    photo = FileField(u'Фото профиля', render_kw={'lang': "ru"}, validators = [FileAllowed(['jpg', 'jpeg', 'png', 'gif'], u'Только изображения!')])
     surname = TextField(u'Фамилия', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Фамилия должна быть в диапазоне от 1 до 15 символов')])
     name= TextField(u'Имя', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Имя должно быть в диапазоне от 1 до 15 символов')])
     patronymic = TextField(u'Отчетство', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Отчество должно быть в диапазоне от 1 до 15 символов')])
     email = TextField(u'Почта', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=50, message = u'Отчество должно быть в диапазоне от 1 до 50 символов')])
     phone = TelField(u'Телефон', validators = [Required(message = u'Поле не может быть пустым')])
-    birth_date = DateField(u'Дата рождения', id=1, validators = [Required(message = u'Поле не может быть пустым')])
-    work_date = DateField(u'В должности с', id=2, validators = [Required(message = u'Поле не может быть пустым')])
+    birth_date = DateField(u'Дата рождения', id="datepicker-1", validators = [Required(message = u'Поле не может быть пустым')])
+    work_date = DateField(u'В должности с', id="datepicker-2", validators = [Required(message = u'Поле не может быть пустым')])
 
     department_id = QuerySelectField(u'Отдел', get_label=lambda x: x.name, query_factory=lambda: Department.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
     post_id = QuerySelectField(u'Должность', get_label=lambda x: x.name,  query_factory=lambda: Post.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
@@ -35,14 +35,14 @@ class EditUserForm(FlaskForm):
 
     login = TextField(u'Логин')
     password = PasswordField(u'Пароль')
-    photo = FileField(u'Выберите фото профиля', validators = [FileAllowed(['jpg', 'jpeg', 'png', 'gif'], u'Только изображения!')])
+    photo = FileField(u'Фото профиля', render_kw={'lang': "ru"}, validators = [FileAllowed(['jpg', 'jpeg', 'png', 'gif'], u'Только изображения!')])
     surname = TextField(u'Фамилия', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Фамилия должна быть в диапазоне от 1 до 15 символов')])
     name= TextField(u'Имя', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Имя должно быть в диапазоне от 1 до 15 символов')])
     patronymic = TextField(u'Отчетство', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=15, message = u'Отчество должно быть в диапазоне от 1 до 15 символов')])
     email = TextField(u'Почта')
     phone = TelField(u'Телефон')
-    birth_date = DateField(u'Дата рождения', id=1, validators = [Required(message = u'Поле не может быть пустым')])
-    work_date = DateField(u'В должности с', id=2, validators = [Required(message = u'Поле не может быть пустым')])
+    birth_date = DateField(u'Дата рождения', id="datepicker-1", validators = [Required(message = u'Поле не может быть пустым')])
+    work_date = DateField(u'В должности с', id="datepicker-2", validators = [Required(message = u'Поле не может быть пустым')])
 
     status = SelectField(u'Вкл./Выкл.', choices=[('1', u'Вкл.'), ('0', u'Выкл.')])
 
@@ -88,10 +88,10 @@ class AddPermissionForm(FlaskForm):
 class DelNewsForm(FlaskForm):
     del_id = TextField('id', validators = [Required()])
 
-class AddNewsForm(FlaskForm):
-    header = TextField(u'Заголовок', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=255, message = u'Заголовок должен быть в диапазоне от 1 до 255 символов')])
-    text = TextAreaField(u'Текст', validators = [Required(message = u'Поле не может быть пустым')])
-    images = FileField(u'Прикрепите изображения', render_kw={'multiple': True, 'accept':"image/*"}, validators = [Required(message = u'Поле не может быть пустым'), FileAllowed(['jpg', 'jpeg', 'png'], u'Только изображения!')])
+# class AddNewsForm(FlaskForm):
+    # header = TextField(u'Заголовок', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=255, message = u'Заголовок должен быть в диапазоне от 1 до 255 символов')])
+    # text = TextAreaField(u'Текст', validators = [Required(message = u'Поле не может быть пустым')])
+    # images = FileField(u'Прикрепите изображения', render_kw={'multiple': True, 'accept':"image/*"}, validators = [Required(message = u'Поле не может быть пустым'), FileAllowed(['jpg', 'jpeg', 'png'], u'Только изображения!')])
 
 class EditNewsForm(FlaskForm):
     header = TextField(u'Заголовок', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=255, message = u'Заголовок должен быть в диапазоне от 1 до 255 символов')])

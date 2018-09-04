@@ -15,7 +15,7 @@
             }
         });
     </script>
-
+{# 
     <nav class="navbar navbar-default">
         <div class="container" style ="margin-right: initial; margin-left: initial;">
           <div class="navbar-header">
@@ -44,14 +44,119 @@
           </div>
         </div>
     </nav>
+ #}
+ 
+<div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+    <div class="col p-0">
+        
+        <div class="row-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#" title="Панель управления таблицей">Управление</span></a>
 
-    {% from "admin/_formhelpers.html" import flash_msg %}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {{flash_msg(messages)}}
-        {% endif %}
-    {% endwith %}
+                <div class="collapse navbar-collapse" id="primary-nav">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Список всех записей БД 'Картотека запросов'" href="{{url_for('kartoteka.kartoteka_main')}}"><i class="fa fa-list-ol" aria-hidden="true"></i>
+ Список ({{ request_count }})</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Создать запрос в БД 'Картотека запросов'" href="{{url_for('kartoteka.new_request_kartoteka')}}"><i class="fa fa-plus" aria-hidden="true"></i>
+ Создать</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Статистика заполнения БД 'Картотека запросов'" href="{{ url_for('kartoteka.kartoteka_statistics') }}"><i class="fa fa-line-chart" aria-hidden="true"></i>
+ Статистика</a>
+                        </li>
+                        <li class="nav-item active dropdown">
+                            <a id="main-panel-dropdown-administration" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-check-square-o" aria-hidden="true"></i>
+ Выбранное</a>
+                            
+                            <div class="dropdown-menu" aria-labelledby="main-panel-dropdown-administration">
+                                <a class="dropdown-item delete" onclick="delete_executors()" href="#"><i class="fa fa-trash-o" aria-hidden="true"></i>
+ Удалить</a>
+                            </div>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Поиск записей в БД 'Картотека запросов' по параметрам" href="{{ url_for('kartoteka.search_request') }}"><i class="fa fa-search" aria-hidden="true"></i>
+ Поиск</a>
+                        </li>
+                    </ul>
+                    
+                </div>
 
+            </nav>
+        </div>
+        
+        {% from "admin/_formhelpers.html" import flash_msg %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {{flash_msg(messages)}}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row p-3 m-auto">
+
+            <div class="col">
+                <table class="table table-striped table-bordered table-hover model-list" >
+                    <tr>
+                        <th><input type="checkbox" name="rowtoggle" class="action-rowtoggle" title="Выделение всех записей" width="1%"></th>
+                        <th width="1%">Управление</th>
+                        <th width="1%">ID</th>
+                        <th width="1%">Фотокарточка</th>
+                        <th width="1%">Имя</th>
+                        <th width="1%">Должность</th>
+                    </tr>
+                    {% for executor in executors_all %}
+                        <tr>
+                            <td width="1%"><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ executor.id }} title="Выберите запись"></td>
+                            <td>
+                                <div class = "control">
+                                    <form action="" method="post" name="deluser">
+                                    {{form_delete.hidden_tag()}}
+                                        <div>
+                                            <button class="btn btn-danger" type="submit" title="Удалить запись" onclick="return confirm('Точно?');"><i class="fa fa-fw fa-trash fa-control p-0"></i></button>
+                                            {{form_delete.del_id(id="del-"+executor.id|string,value=executor.id, style = "display:none;")}}<br>
+                                        </div>
+                                    </form>
+                                </div>
+                                <br/>
+                            </td>
+                            <td>{{ executor.id }}</td>
+                            <td>
+                                <div class = "profile-photo">
+                                {% if executor.user.photo is none  %}
+                                    <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/anonymous.png') }}"  />
+                                {% else %}
+                                    <img style = "width:100%;" src ="{{ url_for('static', filename='admin/upload/users/'+executor.user.photo) }}"  />
+                                {% endif %}
+                                </div>
+                            </td>
+                            <td>{{ executor.user.surname }} {{ executor.user.name }} {{ executor.user.patronymic }}</td>
+                            <td>{{ executor.user.post.name }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="col">
+                    <a style ="color:;"href="#" id="post" data-name="executor" data-type="select" data-pk="" data-url="{{url_for('kartoteka.add_executor')}}" data-title="Выберите исполнителя из списка">
+                        <button class="btn btn-success" type="button">
+                            Добавить исполнителя
+                        </button>
+                    </a>
+
+                <script>
+                    $('#post').editable({
+                        source: users,
+                        success: function (e) {
+                            location.reload();
+                        }
+                    });
+                </script>
+            </div>
+        </div>
+
+{# 
     <div class="col-sm-6">
         <table class="table table-striped table-bordered table-hover model-list" >
             <tr>
@@ -109,14 +214,16 @@
             });
         </script>
     </div>
-    <br style="clear: both;"/>
+ #}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {{flash_msg(messages)}}
-        {% endif %}
-    {% endwith %}
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {{flash_msg(messages)}}
+            {% endif %}
+        {% endwith %}
+    </div>
+</div>
 {% endif %}
 
 {% endblock %}

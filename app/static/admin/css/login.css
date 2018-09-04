@@ -6,18 +6,6 @@
     font-family: PT Sans Narrow Regular; 
     src: url(../fonts/PT_Sans-Narrow-Web-Regular.ttf); 
    }
-@font-face {
-    font-family: Play Regular; 
-    src: url(../fonts/Play-Regular.ttf); 
-   }
-@font-face {
-    font-family: Play Bold; 
-    src: url(../fonts/Play-Bold.ttf);
-   }
-@font-face {
-    font-family: Lobster Regular; 
-    src: url(../fonts/Lobster-Regular.ttf); 
-   }
 
 
 #page-preloader {
@@ -26,34 +14,21 @@
     top: 0;
     right: 0;
     bottom: 0;
-    background: #000;
-    z-index: 100500;
+    z-index: 100;
+    background-color: white;
 }
 
 #page-preloader .spinner {
+    position: absolute;
+    background: url(../img/loader.gif) no-repeat;
+    background-size: ;
+    background-position: center center;
     width: 100%;
     height: 100%;
-    position: absolute;
-    background: url('../img/spinner.gif') no-repeat 50% 50%;
-    margin: -16px 0 0 -16px;
-}
-
-a {
-    text-decoration: none;
-    padding: 10px 0;
-}
-
-* {
-box-sizing: border-box;
-font-family: Play Regular;
-}
- 
-*:focus {
-    outline: none;
 }
 
 #main {
-    font-family: Arial;
+    font-family: PT Sans Narrow Regular;
     background-color: #3498DB;
     padding: 50px;
 }
@@ -61,28 +36,19 @@ font-family: Play Regular;
 .login {
     margin: 20px auto;
     width: 300px;
-    background-color: #3498DB;
-}
-
-.login-screen {
     background-color: #FFF;
     padding: 20px;
     border-radius: 5px
 }
-
  
 .app-title {
     text-align: center;
     color: #777;
-    font-family: Play Regular;
+    font-family: PT Sans Narrow Regular;
     font-size: xx-large;
     margin: 0 auto 10%;
 }
  
-.login-form {
-    text-align: center;
-}
-
 .btn {
     border: 2px solid transparent;
     background: #3498DB;
@@ -102,23 +68,4 @@ font-family: Play Regular;
  
 .btn:hover {
     background-color: #2980B9;
-}
- 
-.login-link {
-    font-size: 12px;
-    color: #444;
-    display: block;
-    margin-top: 12px;
-}
-
-button {
-    margin: 0 0 10px 5px;
-}
-
-.btn-logo{
-    width: 10%;
-    height: 100%;
-    float: right;
-    font-size: 150%;
-    margin-right: 7%;
 }

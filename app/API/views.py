@@ -3,7 +3,7 @@
 import json, math, requests, os
 from app import app, db
 
-from app.models import News, NewsSchema
+from app.models import News, NewsSchema, User
 from flask import request, make_response, jsonify, Response, Blueprint, url_for
 from datetime import datetime
 
@@ -49,7 +49,6 @@ def paginate_list(page, size, lst):
                     lst.pop(size)
 
     return lst
-
 
 #Функция обработки склонений
 def get_declension(x, y):
@@ -117,7 +116,7 @@ def fresh_news(value,days):
         
 app.jinja_env.filters['fresh'] = fresh_news
 
-#Посчет свежих новостей
+#Подсчет свежих новостей
 def fresh_news_counter(news_list,days):
     count = 0
     for i in news_list.json():
@@ -129,7 +128,7 @@ def fresh_news_counter(news_list,days):
     return (count)
     
 #----------------------------------------------------------------------------------
-# НОВОСТИ НА ВНЕШНЕЙ
+# API НОВОСТЕЙ
 #----------------------------------------------------------------------------------
 
 #Список всех новостей
@@ -166,12 +165,25 @@ def get_one_news(news_id):
 @API.route('/news/<int:news_id>', methods=['DELETE'])
 def delete_one_news(news_id):
     
-    news = News.query.filter(News.id == news_id).first()
-    # ~ for image in news.images:
-        # ~ os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], image['filename']))
-    # ~ db.session.delete(news)
-    # ~ db.session.commit()
+    can = User.can("delete","news")
+    
+    if can:
+        news = News.query.filter(News.id == news_id).first()
+        for image in news.images:
+            os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], image['filename']))
+        db.session.delete(news)
+        db.session.commit()
 
-    response = jsonify(news_id)
+        response = jsonify(news_id)
+    else:
+        response = Response(
+            response=json.dumps({'type':'fail', 'text':'Пользователю запрещено удаление!'}),
+            status=403,
+            mimetype='application/json'
+        )
     
     return response
+
+#----------------------------------------------------------------------------------
+# API ПОЛЬЗОВАТЕЛЕЙ СИСТЕМЫ
+#----------------------------------------------------------------------------------

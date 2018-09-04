@@ -3,7 +3,8 @@
 from app import app, db
 
 from app.authentication.views import login_required
-from app.admin.views import get_counters, get_permissions, forbidden, make_history, get_com
+from app.admin.views import get_counters, get_permissions, forbidden, make_history
+from app.API.views import get_declension
 
 from app.models import Request, Executor, User, Character, Answer, Kind, Send, Admission
 from app.kartoteka.forms import DelExecutorForm, AddRequestForm, DelRequestForm, EditRequestForm
@@ -71,7 +72,7 @@ def kartoteka_main(page = 1, *args):
 
     pages_total = request_all.count()
     request_all = request_all.paginate(page, 20, False)
-    pagination = Pagination(page=page, total = pages_total, per_page = 20, css_framework='bootstrap3')
+    pagination = Pagination(page=page, total = pages_total, per_page = 20, css_framework='bootstrap4')
     today = time.strftime("%Y-%m-%d")
 
 
@@ -263,7 +264,7 @@ def kartoteka_statistics(page = 1, *args):
 
             print(Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args))
             result = Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args).count()
-            result = get_com(result, [u"запрос", u"запроса", u"запросов"])
+            result = get_declension(result, [u"запрос", u"запроса", u"запросов"])
             result = {"queries":[{"col":str(result[0]),"string":result[1]}]}
             print (result)
 

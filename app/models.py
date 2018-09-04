@@ -38,6 +38,35 @@ class User(db.Model):
             return User.query.filter(User.id == session['user_id']).first()
         else:
             return None
+            
+    def can(operation, url):
+        user_info = User.current()
+        
+        table_id = Table_db.query.filter(Table_db.url == url).first().id
+        perms = Permission.query.filter(((Permission.role_id==user_info.role_id)|(Permission.user_id==user_info.id))&(Permission.table_id == table_id)).all()
+
+
+        bool_lst = []
+        temp = False
+
+        if operation == "enter":
+            for perm in perms:
+                bool_lst.append(perm.enter)
+        if operation == "insert":
+            for perm in perms:
+                bool_lst.append(perm.insert)
+        if operation == "update":
+            for perm in perms:
+                bool_lst.append(perm.update)
+        if operation == "delete":
+            for perm in perms:
+                bool_lst.append(perm.delete)
+
+        for boolval in bool_lst:
+            temp = temp or boolval
+    
+        return temp
+
 
     def __repr__(self):
         return 'Пользователь id:%i, имя:%r ' % (self.id, self.name)

@@ -2,6 +2,7 @@
 {% block content %}
 
 {% if session['logged_in'] %}
+<!--
     <nav class="navbar navbar-default">
         <div class="container" style ="margin-right: initial; margin-left: initial;">
           <div class="navbar-header">
@@ -20,67 +21,115 @@
           </div>
         </div>
     </nav>
+-->
 
-    {% from "admin/_formhelpers.html" import flash_msg %}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {{flash_msg(messages)}}
-        {% endif %}
-    {% endwith %}
+    <div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+        <div class="col p-0">
 
-    <div class="alert alert-info" role="alert" style="margin-top:20px;">
-        <strong>Оставьте</strong> поле пароля <strong>пустым</strong>, если пароль <strong>не нуждается</strong> в изменении
+            <div class="row-fluid">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <a class="navbar-brand" href="#" title="Панель управления таблицей">Управление</span></a>
+
+                    <div class="collapse navbar-collapse" id="primary-nav">
+                        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                            
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{{url_for('admin.admin_users')}}"><i class="fa fa-list-ol" aria-hidden="true"></i>
+     Список ({{ all_counters.get('user_count') }})</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{{url_for('admin.new_user')}}"><i class="fa fa-plus" aria-hidden="true"></i> Создать</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{{ url_for('admin.admin_permissions') }}"><i class="fa fa-id-card" aria-hidden="true"></i>
+     Разрешения</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{{ url_for('admin.admin_history_all') }}"><i class="fa fa-history" aria-hidden="true"></i>
+     История</a>
+                            </li>
+                        </ul>
+                        
+                    </div>
+
+                </nav>
+            </div>
+
+            {% from "admin/_formhelpers.html" import flash_msg %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {{flash_msg(messages)}}
+                {% endif %}
+            {% endwith %}
+
+            <div class="alert alert-info" role="alert" style="margin-top:20px;">
+                <strong>Оставьте</strong> поле пароля <strong>пустым</strong>, если пароль <strong>не нуждается</strong> в изменении
+            </div>
+
+
+            {% from "admin/_formhelpers.html" import render_field %}
+            <form action="" class="form-row p-3 m-auto" method="POST" name = "form_user_edit" enctype="multipart/form-data">
+                <div class="col-6">
+                {{ form_user_edit.csrf_token }}
+                {{ render_field(form_user_edit.login, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+                {{ render_field(form_user_edit.password, size=50, class ="form-control", placeholder ="Минимум 8 символов", autocomplete = True) }}
+                {{ render_field(form_user_edit.surname, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+                {{ render_field(form_user_edit.name, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+                {{ render_field(form_user_edit.patronymic, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
+                {{ render_field(form_user_edit.email, size=50, class ="form-control", placeholder ="Максимум 50 символов", autocomplete = True) }}
+                {{ render_field(form_user_edit.phone, size=50, class ="form-control input-medium bfh-phone", placeholder ="Введите номер телефона", autocomplete = True, **{'data-format': '+7 (ddd) ddd-dd-dd'}) }}
+                {{ render_field(form_user_edit.birth_date, class ="form-control") }}
+                </div>
+                <div class="col-6">
+                {{ render_field(form_user_edit.department_id, class ="form-control") }}
+                {{ render_field(form_user_edit.post_id, class ="form-control") }}
+                {{ render_field(form_user_edit.role_id, class ="form-control") }}
+                {{ render_field(form_user_edit.work_date, class ="form-control") }}
+                {{ render_field(form_user_edit.photo, class ="custom-file-input") }}
+                {{ render_field(form_user_edit.status, class ="form-control") }}
+                </div>
+                
+                <div class="row-fluid p-3">
+                    <input type="submit" value="Изменить" class="btn btn-lg btn-success">
+                    <a href="{{url_for('admin.admin_users')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+                </div>
+
+            </form>
+
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {{flash_msg(messages)}}
+                {% endif %}
+            {% endwith %}
+        </div>
     </div>
-
-    <div class="admin_wrapper">
-        {% from "admin/_formhelpers.html" import render_field %}
-        <form action="" method="POST" name = "form_user_edit" enctype="multipart/form-data">
-            <div class="col-sm-6">
-            {{ form_user_edit.csrf_token }}
-            {{ render_field(form_user_edit.login, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
-            {{ render_field(form_user_edit.password, size=50, class ="form-control", placeholder ="Минимум 8 символов", autocomplete = True) }}
-            {{ render_field(form_user_edit.surname, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
-            {{ render_field(form_user_edit.name, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
-            {{ render_field(form_user_edit.patronymic, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
-            {{ render_field(form_user_edit.email, size=50, class ="form-control", placeholder ="Максимум 50 символов", autocomplete = True) }}
-            {{ render_field(form_user_edit.phone, size=50, class ="form-control input-medium bfh-phone", placeholder ="Введите номер телефона", autocomplete = True, **{'data-format': '+7 (ddd) ddd-dd-dd'}) }}
-            {{ render_field(form_user_edit.birth_date, class ="form-control") }}
-            </div>
-            <div class="col-sm-6">
-            {{ render_field(form_user_edit.department_id, class ="form-control") }}
-            {{ render_field(form_user_edit.post_id, class ="form-control") }}
-            {{ render_field(form_user_edit.role_id, class ="form-control") }}
-            {{ render_field(form_user_edit.work_date, class ="form-control") }}
-            {{ render_field(form_user_edit.photo, class ="form-control-file") }}
-            {{ render_field(form_user_edit.status, class ="form-control") }}
-            </div>
-            <div class="col-sm-8">
-            <input type="submit" value="Изменить" class="btn btn-lg btn-success">
-            <a href="{{url_for('admin.admin_users')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
-            </div>
-        </form>
-        <br style="clear: both;"/>
-    </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {{flash_msg(messages)}}
-        {% endif %}
-    {% endwith %}
+    
+    <script>
+        var today;
+        today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+        $('#datepicker-1').datepicker({
+            locale: 'ru-ru',
+            format: 'yyyy-mm-dd',
+            uiLibrary: 'bootstrap4',
+            iconsLibrary: 'fontawesome',
+            maxDate: today,
+            weekStartDay: 1,
+            width: 496
+        });
+        $('#datepicker-2').datepicker({
+            locale: 'ru-ru',
+            format: 'yyyy-mm-dd',
+            uiLibrary: 'bootstrap4',
+            iconsLibrary: 'fontawesome',
+            maxDate: today,
+            weekStartDay: 1,
+            width: 496
+        });
+    </script>
 
 {% endif %}
 
-<script type="text/javascript">
-  $(function () {
-    $('#datetimepicker1').datetimepicker({
-        locale: 'ru',
-        format: 'YYYY-MM-DD'
-    });
-    $('#datetimepicker2').datetimepicker({
-        locale: 'ru',
-        format: 'YYYY-MM-DD'
-    });
-  });
-</script>
+
 
 {% endblock %}

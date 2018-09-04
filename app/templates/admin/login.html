@@ -8,7 +8,7 @@
         <title>Администрирование - вход</title>
 
         <!-- Иконка сайта -->
-        <link rel="shortcut icon" href="{{ url_for('static', filename='admin/img/favicon.gif') }}" type="image/x-icon"/>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='admin/img/favicon.ico') }}" type="image/x-icon"/>
 
         <!-- Описание страницы -->
         <meta name="description" content="" />
@@ -17,15 +17,21 @@
         <meta name="keywords" content="" />
 
         <!-- Стили -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/css-reset.css') }}" type="text/css" media="screen" >
-        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap.css') }}" type="text/css" media="screen" >
-        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-theme.css') }}" type="text/css" media="screen" >
+        
+        <!-- Bootstrap-4 -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-4/bootstrap.css') }}" type="text/css" media="screen" >
+        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-4/bootstrap-grid.css') }}" type="text/css" media="screen" >
+        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-4/bootstrap-reboot.css') }}" type="text/css" media="screen" >
+        
         <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/login.css') }}" type="text/css" media="screen" >
         <link rel="stylesheet" href="{{ url_for('static', filename='admin/fonts/font-awesome-4.7.0/css/font-awesome.css') }}" >
 
+        <!-- Javascripts -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap.js') }}"></script>
+        
+        <!-- Bootstrap-4 -->
+        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-4/bootstrap.js') }}"></script>
 
     </head>
 
@@ -34,29 +40,29 @@
         <div id="page-preloader"><span class="spinner"></span></div>
 
         <div class="login">
-                <div class="login-screen">
-                    <div class="app-title">
+
+                <div class="app-title">
                         <h1>Войдите с помощью вашего логина и пароля:</h1>
-                    </div>
-                    <div class="login-form">
-                        {% from "admin/_formhelpers.html" import render_field %}
-                        <form action="" method="POST" name = "album_name" enctype="multipart/form-data">
-                            {{ form_login.csrf_token }}
-                            {{ render_field(form_login.login, size=50, class ="form-control", placeholder ="Введите логин") }}
-                            {{ render_field(form_login.password, size=50, class ="form-control", placeholder ="Введите пароль") }}
-                            <br/>
-                            <input type="submit" value="Войти" class="btn btn-lg btn-success password">
-                            <a href="{{url_for('index')}}"><button type="button" class="btn btn-lg btn-danger">Назад</button></a>
-                            <br/>
-                        </form>
-                    </div>
-                        {% from "admin/_formhelpers.html" import flash_msg %}
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {{flash_msg(messages)}}
-                            {% endif %}
-                        {% endwith %}
                 </div>
+                <div class="login-form">
+                        {% from "admin/_formhelpers.html" import render_field %}
+                        <form action="" method="POST" name = "" enctype="multipart/form-data">
+                        {{ form_login.csrf_token }}
+                        {{ render_field(form_login.login, class ="form-control", placeholder ="Введите логин") }}
+                        {{ render_field(form_login.password, class ="form-control", placeholder ="Введите пароль") }}
+                                <br/>
+                                <input type="submit" value="Войти" class="btn btn-primary">
+                                <a class="btn btn-primary" href="{{url_for('index')}} role="button">Назад</a>
+                                <br/>
+                        </form>
+                </div>
+                {% from "admin/_formhelpers.html" import flash_msg %}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                                {{flash_msg(messages)}}
+                        {% endif %}
+                {% endwith %}
+
         </div>
     </body>
     <script type="text/javascript" src="{{ url_for('static', filename='admin/js/loader.js') }}"></script>

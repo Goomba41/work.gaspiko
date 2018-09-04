@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------------------------------
-// ОБРАЩЕНИЕ К API
+// ОБРАЩЕНИЯ К API
 //-------------------------------------------------------------------------------------------------
 
 // Удаление  новостей
@@ -15,11 +15,20 @@ function delete_news(id) {
                     contentType: 'application/json;charset=UTF-8',
                     dataType: 'json',
                     success: function (e) {
-                        console.log(e);
+                        message = {"type":"success", "text":"Удалено записей: "+to_delete.length};
+                        localStorage.setItem("message", JSON.stringify(message));
+                        location.reload(true);
+                    },
+                    error: function (e) {
+                        message = e.responseJSON;
+                        $('#message').addClass('show');
+                        $('#message').addClass(message['type']);
+                        $('#message').html(message['text']);
+                        setTimeout("$('#message').removeClass('show');", 2500);
                     }
                 });
+
             });
-            window.location.href=document.location.origin+document.location.pathname;
         }
    }
    else {
@@ -30,12 +39,21 @@ function delete_news(id) {
                 contentType: 'application/json;charset=UTF-8',
                 dataType: 'json',
                 success: function (e) {
-                    console.log(e);
+                    message = {"type":"success", "text":"Удалена запись №"+e};
+                    localStorage.setItem("message", JSON.stringify(message));
+                    location.reload(true);
+                },
+                error: function (e) {
+                    message = e.responseJSON;
+                    $('#message').addClass('show');
+                    $('#message').addClass(message['type']);
+                    $('#message').html(message['text']);
+                    setTimeout("$('#message').removeClass('show');", 2500);
                 }
             });
-            window.location.href=document.location.origin+document.location.pathname;
         }
     }
+
 }
    
 //-------------------------------------------------------------------------------------------------

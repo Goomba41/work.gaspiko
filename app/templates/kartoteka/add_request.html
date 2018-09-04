@@ -1,7 +1,7 @@
 {% extends "admin/base_admin.html" %}
 {% block content %}
 
-{% if session['logged_in'] %}
+{% if session['logged_in'] %}{# 
     <nav class="navbar navbar-default">
         <div class="container" style ="margin-right: initial; margin-left: initial;">
           <div class="navbar-header">
@@ -23,7 +23,45 @@
             </ul>
           </div>
         </div>
-    </nav>
+    </nav> #}
+    
+    
+<div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+    <div class="col p-0">
+        
+        <div class="row-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#" title="Панель управления таблицей">Управление</span></a>
+
+                <div class="collapse navbar-collapse" id="primary-nav">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Список всех записей БД 'Картотека запросов'" href="{{url_for('kartoteka.kartoteka_main')}}"><i class="fa fa-list-ol" aria-hidden="true"></i>
+ Список ({{ request_count }})</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Создать запрос в БД 'Картотека запросов'" href="{{url_for('kartoteka.new_request_kartoteka')}}"><i class="fa fa-plus" aria-hidden="true"></i>
+ Создать</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Добавить\удалить исполнителей запросов в БД 'Картотека запросов'" href="{{ url_for('kartoteka.kartoteka_executors') }}"><i class="fa fa-users" aria-hidden="true"></i>
+ Исполнители</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Статистика заполнения БД 'Картотека запросов'" href="{{ url_for('kartoteka.kartoteka_statistics') }}"><i class="fa fa-line-chart" aria-hidden="true"></i>
+ Статистика</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Поиск записей в БД 'Картотека запросов' по параметрам" href="{{ url_for('kartoteka.search_request') }}"><i class="fa fa-search" aria-hidden="true"></i>
+ Поиск</a>
+                        </li>
+                    </ul>
+                    
+                </div>
+
+            </nav>
+        </div>
 
     {% from "admin/_formhelpers.html" import flash_msg %}
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -32,10 +70,9 @@
         {% endif %}
     {% endwith %}
 
-        <div class="admin_wrapper">
         {% from "admin/_formhelpers.html" import render_field %}
-        <form action="" method="POST" id="form_user_add" name = "form_user_add" enctype="multipart/form-data">
-            <div class="col-sm-6">
+        <form action="" class="form-row p-3 m-auto" method="POST" id="form_user_add" name = "form_user_add" enctype="multipart/form-data">
+            <div class="col-6">
             {{ form_request_add.csrf_token }}
             {{ render_field(form_request_add.number, size=50, class ="form-control", placeholder ="Максимум 10 символов", autocomplete = True) }}
             {{ render_field(form_request_add.date_registration, class ="form-control") }}
@@ -43,19 +80,20 @@
             {{ render_field(form_request_add.name, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             {{ render_field(form_request_add.patronymic, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             </div>
-            <div class="col-sm-6">
+            <div class="col-6">
             {{ render_field(form_request_add.kind_id, class ="form-control") }}
             {{ render_field(form_request_add.admission_id, class ="form-control") }}
             {{ render_field(form_request_add.character_id, class ="form-control") }}
             {{ render_field(form_request_add.executor_id, class ="form-control") }}
             </div>
-            <div class="col-sm-8">
-            <input type="submit" value="Добавить" class="btn btn-lg btn-success">
-            <a href="{{url_for('kartoteka.kartoteka_main')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+            <div class="row-fluid p-3">
+                <input type="submit" value="Добавить" class="btn btn-lg btn-success">
+                <a href="{{url_for('kartoteka.kartoteka_main')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
             </div>
         </form>
-        <br style="clear: both;"/>
+
     </div>
+</div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -115,15 +153,21 @@
                   .attr('value', ins_str)
                   .appendTo('#form_user_add');
      });
+</script>
 
 
-  $(function () {
-    $('#datetimepicker1').datetimepicker({
-        locale: 'ru',
-        format: 'YYYY-MM-DD',
-        defaultDate: "{{ today }}",
+<script>
+    var today;
+    today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+    $('#datepicker-1').datepicker({
+        locale: 'ru-ru',
+        format: 'yyyy-mm-dd',
+        uiLibrary: 'bootstrap4',
+        iconsLibrary: 'fontawesome',
+        maxDate: today,
+        weekStartDay: 1,
+        width: 496
     });
-  });
 </script>
 
 {% endif %}

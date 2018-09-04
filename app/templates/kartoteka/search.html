@@ -2,6 +2,7 @@
 {% block content %}
 
 {% if session['logged_in'] %}
+{# 
     <nav class="navbar navbar-default">
         <div class="container" style ="margin-right: initial; margin-left: initial;">
           <div class="navbar-header">
@@ -24,7 +25,41 @@
           </div>
         </div>
     </nav>
+ #}
+ 
+<div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+  <div class="col p-0">
+        
+    <div class="row-fluid">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#" title="Панель управления таблицей">Управление</span></a>
 
+            <div class="collapse navbar-collapse" id="primary-nav">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    
+                    <li class="nav-item active">
+                        <a class="nav-link" title="Список всех записей БД 'Картотека запросов'" href="{{url_for('kartoteka.kartoteka_main')}}"><i class="fa fa-list-ol" aria-hidden="true"></i>
+Список ({{ request_count }})</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" title="Создать запрос в БД 'Картотека запросов'" href="{{url_for('kartoteka.new_request_kartoteka')}}"><i class="fa fa-plus" aria-hidden="true"></i>
+Создать</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" title="Добавить\удалить исполнителей запросов в БД 'Картотека запросов'" href="{{ url_for('kartoteka.kartoteka_executors') }}"><i class="fa fa-users" aria-hidden="true"></i>
+Исполнители</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" title="Статистика заполнения БД 'Картотека запросов'" href="{{ url_for('kartoteka.kartoteka_statistics') }}"><i class="fa fa-line-chart" aria-hidden="true"></i>
+Статистика</a>
+                    </li>
+                </ul>
+                
+            </div>
+
+        </nav>
+    </div>
+        
     {% from "admin/_formhelpers.html" import flash_msg %}
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -32,153 +67,321 @@
         {% endif %}
     {% endwith %}
 
-        <div class="admin_wrapper">
-            <div class="col-sm-6">
-                <div class="input-group" style="margin: 2% 2%;width: 100%;">
-                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="number">Номер запроса</label></span>
-                            <input autocomplete="" class="form-control" id="search" name="number"  size="50" type="text" value="">
-                        </div>
-                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
-                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="executor_id">Исполнитель</label></span>
-                            <select class="form-control" id="search" name="executor">
-                                <option></option>
-                                {% for executor in executors %}
-                                    <option value="{{ executor.id }}">{{ executor.user.surname }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
-                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="number">Фамилия</label></span>
-                            <input autocomplete="" class="form-control" id="search" name="surname"  size="50" type="text" value="">
-                        </div>
-                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
-                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="kind">Вид запроса</label></span>
-                            <select class="form-control" id="search" name="kind">
-                                <option></option>
-                                {% for kind in kinds %}
-                                    <option>{{ kind.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
-                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="character">Способ поступления</label></span>
-                            <select class="form-control" id="search" name="admission">
-                                <option></option>
-                                {% for admission in admissions %}
-                                    <option>{{ admission.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
-                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="character">Характер запроса</label></span>
-                            <select class="form-control" id="search" name="character">
-                                <option></option>
-                                {% for character in characters %}
-                                    <option>{{ character.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
-                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="answer">Характер ответа</label></span>
-                            <select class="form-control" id="search" name="answer">
-                                <option></option>
-                                {% for answer in answers %}
-                                    <option>{{ answer.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="input-group" style="margin: 2% 2%;width: 100%;">
-                            <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="send">Способ отправки</label></span>
-                            <select class="form-control" id="search" name="send">
-                                <option></option>
-                                {% for send in sends %}
-                                    <option>{{ send.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="form-group" style="margin: 2% 2%; width: 100%;">
-                            <div class="input-group date" id="datetimepicker1">
-                                <span class="input-group-addon" style="width: 30%;" id="basic-addon1" data-vivaldi-spatnav-clickable="1"><label for="1">Дата регистрации</label></span>
-                                <input class="form-control" id="search" name="date_registration" type="text" value="">
-                                <span class="input-group-addon" data-vivaldi-spatnav-clickable="1">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="form-group" style="margin: 2% 2%; width: 100%;">
-                            <div class="input-group date" id="datetimepicker2">
-                                <span class="input-group-addon" style="width: 30%;" id="basic-addon1" data-vivaldi-spatnav-clickable="1"><label for="1">Дата исполнения</label></span>
-                                <input class="form-control" id="search" name="date_done" type="text" value="">
-                                <span class="input-group-addon" data-vivaldi-spatnav-clickable="1">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="form-group" style="margin: 2% 2%; width: 100%;">
-                            <div class="input-group date" id="datetimepicker3">
-                                <span class="input-group-addon" style="width: 30%;" id="basic-addon1" data-vivaldi-spatnav-clickable="1"><label for="1">Дата отправки</label></span>
-                                <input class="form-control" id="search" name="date_send" type="text" value="">
-                                <span class="input-group-addon" data-vivaldi-spatnav-clickable="1">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
-
-                    <script type="text/javascript">
-                      $(function () {
-                        $('#datetimepicker1').datetimepicker({
-                            locale: 'ru',
-                            format: 'YYYY-MM-DD'
-                        });
-                        $('#datetimepicker2').datetimepicker({
-                            locale: 'ru',
-                            format: 'YYYY-MM-DD'
-                        });
-                        $('#datetimepicker3').datetimepicker({
-                            locale: 'ru',
-                            format: 'YYYY-MM-DD'
-                        });
-                      });
-                    </script>
-                    <script type="text/javascript">
-                        function search_request() {
-                            {#var send_data = {}
-                            $( "input#search" ).each(function() {
-                                if ($( this ).val()){ send_data[$( this ).attr('name')]=$( this ).val();alert($( this ).val();) }
-                            });
-                            console.log(send_data)
-                             $.ajax({
-                                type : "POST",
-                                url : "{{ url_for('kartoteka.kartoteka_main') }}",
-                                contentType: 'application/json;charset=UTF-8',
-                                data : JSON.stringify(send_data),
-                                dataType: 'json',
-                            });
-                            $.post( "{{ url_for('kartoteka.print_post') }}", send_data )#}
-                            var send_data = '?'
-                            $( "input#search" ).each(function() {
-                                if ($( this ).val()){ send_data=send_data+$( this ).attr('name')+'='+$( this ).val()+'&'; }
-                            });
-                            $( "select#search" ).each(function() {
-                                if ($( this ).val()){ send_data=send_data+$( this ).attr('name')+'='+$('option:selected', this).val()+'&'; }
-                            });
-                            //~ alert($('option:selected', this).text())
-                            window.location = "{{ url_for('kartoteka.kartoteka_main') }}" + send_data;
-                        }
-                    </script>
+{# _ 
+<!--
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="password">{{field.label.text}}</span>
             </div>
+            {{ field(**kwargs)|safe }}
+            {% if field.name == "number" %}
+            <div class="input-group-append">
+                <span class="input-group-text" id="liter">&mdash;</span>
+            </div>
+            
+            <div class="input-group-append">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Литера</button>
+                <div class="dropdown-menu">
+                    <a id="1" class="journal dropdown-item" href="#">@ (VipNet)</a>
+                    <a id="2" class="journal dropdown-item" href="#">П (Социально-правовые)</a>
+                    <a id="3" class="journal dropdown-item" href="#">Н (Непрофильные)</a>
+                    <a id="4" class="journal dropdown-item" href="#">Т (Тематические)</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+-->#}
+        
+        
+
+    <div class="form-row p-3 m-auto">
+      <div class="col-6">
+        
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Номер запроса</span>
+          </div>
+          <input autocomplete="" id="search" name="number" class="form-control" placeholder="Поиск по номеру запроса" size="50" type="text" value="">
+        </div>
+        
+<!--
+        <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                    <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="number">Номер запроса</label></span>
+                    <input autocomplete="" class="form-control" id="search" name="number"  size="50" type="text" value="">
+                </div>
+-->
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="search">Исполнитель</label>
+          </div>
+          <select class="custom-select" id="search" name="executor">
+            <option selected></option>
+            {% for executor in executors %}
+                <option value="{{ executor.id }}">{{ executor.user.surname }}</option>
+            {% endfor %}
+          </select>
+        </div>
+                
+<!--
+                <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                    <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="executor_id">Исполнитель</label></span>
+                    <select class="form-control" id="search" name="executor">
+                        <option></option>
+                        {% for executor in executors %}
+                            <option value="{{ executor.id }}">{{ executor.user.surname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+-->
+                
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Фамилия</span>
+          </div>
+          <input autocomplete="" class="form-control" id="search" name="surname" placeholder="Поиск по фамилии запросившего" size="50" type="text" value="">
+        </div>
+<!--
+                <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                    <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="number">Фамилия</label></span>
+                    <input autocomplete="" class="form-control" id="search" name="surname"  size="50" type="text" value="">
+                </div>
+-->
+                
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="search">Вид запроса</label>
+          </div>
+          <select class="custom-select" id="search" name="kind">
+            <option selected></option>
+            {% for kind in kinds %}
+              <option>{{ kind.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
 
 <!--
-         <i class="fa fa-search" aria-hidden="true" ></i>
+                <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                    <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="kind">Вид запроса</label></span>
+                    <select class="form-control" id="search" name="kind">
+                        <option></option>
+                        {% for kind in kinds %}
+                            <option>{{ kind.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 -->
-        <br style="clear: both;"/>
-        <input type="button" value="Найти" class="btn btn-lg btn-success" onclick="search_request()">
+
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="search">Способ поступления</label>
+          </div>
+          <select class="custom-select" id="search" name="admission">
+            <option selected></option>
+            {% for admission in admissions %}
+                <option>{{ admission.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+<!--
+                <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                    <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="character">Способ поступления</label></span>
+                    <select class="form-control" id="search" name="admission">
+                        <option></option>
+                        {% for admission in admissions %}
+                            <option>{{ admission.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+-->
+
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="search">Характер запроса</label>
+          </div>
+          <select class="custom-select" id="search" name="character">
+            <option selected></option>
+            {% for character in characters %}
+                <option>{{ character.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+
+<!--
+                <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                    <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="character">Характер запроса</label></span>
+                    <select class="form-control" id="search" name="character">
+                        <option></option>
+                        {% for character in characters %}
+                            <option>{{ character.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+-->
+
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="search">Характер ответа</label>
+          </div>
+          <select class="custom-select" id="search" name="answer">
+            <option selected></option>
+            {% for answer in answers %}
+                <option>{{ answer.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+<!--
+                <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                    <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="answer">Характер ответа</label></span>
+                    <select class="form-control" id="search" name="answer">
+                        <option></option>
+                        {% for answer in answers %}
+                            <option>{{ answer.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+-->
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="search">Способ отправки</label>
+          </div>
+          <select class="custom-select" id="search" name="send">
+            <option selected></option>
+            {% for send in sends %}
+                <option>{{ send.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+<!--
+                <div class="input-group" style="margin: 2% 2%;width: 100%;">
+                    <span class="input-group-addon" style="width: 30%;" id="basic-addon1"><label for="send">Способ отправки</label></span>
+                    <select class="form-control" id="search" name="send">
+                        <option></option>
+                        {% for send in sends %}
+                            <option>{{ send.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+-->
+
+        <div class="input-group mb-3 date">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Дата регистрации</span>
+            </div>
+            <input class="form-control date_registration" id="search" name="date_registration">
+        </div>
+        <div class="input-group mb-3 date">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Дата исполнения</span>
+            </div>
+            <input class="form-control date_done" id="search" name="date_done">
+        </div>
+        <div class="input-group mb-3 date">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Дата отправки</span>
+            </div>
+            <input class="form-control date_send" id="search" name="date_send">
+        </div>
+
+<!--
+                <div class="form-group" style="margin: 2% 2%; width: 100%;">
+                    <div class="input-group date" id="datetimepicker1">
+                        <span class="input-group-addon" style="width: 30%;" id="basic-addon1" data-vivaldi-spatnav-clickable="1"><label for="1">Дата регистрации</label></span>
+                        <input class="form-control" id="search" name="date_registration" type="text" value="">
+                        <span class="input-group-addon" data-vivaldi-spatnav-clickable="1">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+-->
+<!--
+
+                <div class="form-group" style="margin: 2% 2%; width: 100%;">
+                    <div class="input-group date" id="datetimepicker2">
+                        <span class="input-group-addon" style="width: 30%;" id="basic-addon1" data-vivaldi-spatnav-clickable="1"><label for="1">Дата исполнения</label></span>
+                        <input class="form-control" id="search" name="date_done" type="text" value="">
+                        <span class="input-group-addon" data-vivaldi-spatnav-clickable="1">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin: 2% 2%; width: 100%;">
+                    <div class="input-group date" id="datetimepicker3">
+                        <span class="input-group-addon" style="width: 30%;" id="basic-addon1" data-vivaldi-spatnav-clickable="1"><label for="1">Дата отправки</label></span>
+                        <input class="form-control" id="search" name="date_send" type="text" value="">
+                        <span class="input-group-addon" data-vivaldi-spatnav-clickable="1">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+-->
+
+            <script>
+                var today;
+                today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+                $('.date_registration').datepicker({
+                    locale: 'ru-ru',
+                    format: 'yyyy-mm-dd',
+                    uiLibrary: 'bootstrap4',
+                    iconsLibrary: 'fontawesome',
+                    maxDate: today,
+                    weekStartDay: 1,
+                    width: 496
+                });
+                $('.date_done').datepicker({
+                    locale: 'ru-ru',
+                    format: 'yyyy-mm-dd',
+                    uiLibrary: 'bootstrap4',
+                    iconsLibrary: 'fontawesome',
+                    maxDate: today,
+                    weekStartDay: 1,
+                    width: 496
+                });
+                $('.date_send').datepicker({
+                    locale: 'ru-ru',
+                    format: 'yyyy-mm-dd',
+                    uiLibrary: 'bootstrap4',
+                    iconsLibrary: 'fontawesome',
+                    maxDate: today,
+                    weekStartDay: 1,
+                    width: 496
+                });
+            </script>
+            <script type="text/javascript">
+                function search_request() {
+                    {#var send_data = {}
+                    $( "input#search" ).each(function() {
+                        if ($( this ).val()){ send_data[$( this ).attr('name')]=$( this ).val();alert($( this ).val();) }
+                    });
+                    console.log(send_data)
+                     $.ajax({
+                        type : "POST",
+                        url : "{{ url_for('kartoteka.kartoteka_main') }}",
+                        contentType: 'application/json;charset=UTF-8',
+                        data : JSON.stringify(send_data),
+                        dataType: 'json',
+                    });
+                    $.post( "{{ url_for('kartoteka.print_post') }}", send_data )#}
+                    
+                    var send_data = '?'
+                    $( "input#search" ).each(function() {
+                        if ($( this ).val()){ send_data=send_data+$( this ).attr('name')+'='+$( this ).val()+'&'; }
+                    });
+                    $( "select#search" ).each(function() {
+                        if ($( this ).val()){ send_data=send_data+$( this ).attr('name')+'='+$('option:selected', this).val()+'&'; }
+                    });
+                    //~ alert($('option:selected', this).text())
+                    window.location = "{{ url_for('kartoteka.kartoteka_main') }}" + send_data;
+                }
+            </script>
+      </div>
+    </div>
+    <div class="form-row p-3 m-auto">
+      <input type="button" value="Найти" class="btn btn-lg btn-success" onclick="search_request()">
     </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -186,7 +389,8 @@
         {% endif %}
     {% endwith %}
 
-
+  </div>
+</div>
 
 {% endif %}
 

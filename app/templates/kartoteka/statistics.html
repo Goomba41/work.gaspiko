@@ -2,7 +2,7 @@
 {% block content %}
 
 {% if session['logged_in'] %}
-
+{# 
 <nav class="navbar navbar-default">
         <div class="container" style ="margin-right: initial; margin-left: initial;">
           <div class="navbar-header">
@@ -24,21 +24,308 @@
             </ul>
           </div>
         </div>
-    </nav>
+    </nav> #}
 
 
-    {% from "admin/_formhelpers.html" import flash_msg %}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {{flash_msg(messages)}}
-        {% endif %}
-    {% endwith %}
+<div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+    <div class="col p-0">
+        
+        <div class="row-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#" title="Панель управления таблицей">Управление</span></a>
 
-    <div class="col-sm-12">
-        <h2>Статистика заполнения БД "Картотека запросов":</h2>
+                <div class="collapse navbar-collapse" id="primary-nav">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Список всех записей БД 'Картотека запросов'" href="{{url_for('kartoteka.kartoteka_main')}}"><i class="fa fa-list-ol" aria-hidden="true"></i>
+ Список ({{ request_count }})</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Создать запрос в БД 'Картотека запросов'" href="{{url_for('kartoteka.new_request_kartoteka')}}"><i class="fa fa-plus" aria-hidden="true"></i>
+ Создать</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Добавить\удалить исполнителей запросов в БД 'Картотека запросов'" href="{{ url_for('kartoteka.kartoteka_executors') }}"><i class="fa fa-users" aria-hidden="true"></i>
+ Исполнители</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Поиск записей в БД 'Картотека запросов' по параметрам" href="{{ url_for('kartoteka.search_request') }}"><i class="fa fa-search" aria-hidden="true"></i>
+ Поиск</a>
+                        </li>
+                    </ul>
+                    
+                </div>
 
-        <h3>Всего записей в БД: <span class="badge btn-primary" style="font-size:1em;">{{ request_count }}</span></h3></br>
+            </nav>
+        </div>
 
+        {% from "admin/_formhelpers.html" import flash_msg %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {{flash_msg(messages)}}
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-row p-3 m-auto">
+            <h3>Всего записей в БД: <span class="btn-outline-primary">{{ request_count }}</span></h3>
+        </div>
+        
+        <div class="form-row p-3 m-auto">
+            <div class="card card-primary border-primary w-100">
+                <div class="card-header bg-primary text-white"><strong>Статистика по периоду:</strong></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="statistic_date_type">Тип даты</label>
+                                </div>
+                                <select class="custom-select" id="statistic_date_type">
+                                    <option value="1">Дата регистрации</option>
+                                    <option value="2">Дата исполнения</option>
+                                    <option value="3">Дата отправки</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="statistic_kind_type">Вид запроса</label>
+                                </div>
+                                <select class="custom-select" id="statistic_kind_type">
+                                    <option selected></option>
+                                    {% for kind in request_kinds %}
+                                    <option value="{{ kind.id }}">{{ kind.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="statistic_admission">Способ поступления</label>
+                                </div>
+                                <select class="custom-select" id="statistic_admission">
+                                    <option selected></option>
+                                    {% for admission in request_admissions %}
+                                    <option value="{{ admission.id }}">{{ admission.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="statistic_character_type">Характер запроса</label>
+                                </div>
+                                <select class="custom-select" id="statistic_character_type">
+                                    <option selected></option>
+                                    {% for character in request_characters %}
+                                    <option value="{{ character.id }}">{{ character.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="statistic_answer_type">Характер ответа</label>
+                                </div>
+                                <select class="custom-select" id="statistic_answer_type">
+                                    <option selected></option>
+                                    {% for answer in request_answers %}
+                                    <option value="{{ answer.id }}">{{ answer.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="statistic_send_type">Способ отправки</label>
+                                </div>
+                                <select class="custom-select" id="statistic_send_type">
+                                    <option selected></option>
+                                    {% for send in request_sends %}
+                                    <option value="{{ send.id }}">{{ send.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="statistic_executor">Исполнитель</label>
+                                </div>
+                                <select class="custom-select" id="statistic_executor">
+                                    <option selected></option>
+                                    {% for executor in request_executors %}
+                                    <option value="{{ executor[0] }}">{{ executor[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="input-group mb-3 date">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Начальная дата</span>
+                                </div>
+                                <input class="form-control period_date" id="start_date">
+                            </div>
+                            <div class="input-group mb-3 date">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Конечная дата</span>
+                                </div>
+                                <input class="form-control period_date" id="end_date">
+                            </div>
+
+
+                        </div>
+                        <div class="col-6">
+                            <span id="result" style="font-size: 4vw;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row-fluid p-3">
+            <div class="col">
+                <div class="accordion" id="accordion_statistics">
+                    
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                                <h5 class="mb-0">
+                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                <strong>Количество по характеру запроса <i class="fa fa-caret-down" aria-hidden="true"></i></strong>
+                                        </button>
+                                </h5>
+                        </div>
+
+                        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion_statistics">
+                  
+                            <table class="table table-hover">
+                                <th>Характер запроса</th>
+                                <th>Количество запросов</th>
+                                <tbody>
+                                {% for count in count_requests_haracter %}
+                                    <tr>
+                                        <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="headingTwo">
+                                <h5 class="mb-0">
+                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                                                <strong>Количество по году запроса <i class="fa fa-caret-down" aria-hidden="true"></i></strong>
+                                        </button>
+                                </h5>
+                        </div>
+
+                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion_statistics">
+                  
+                            <table class="table table-hover">
+                                <th>Год</th>
+                                <th>Количество запросов</th>
+                                <tbody>
+                                {% for count in count_requests_year %}
+                                    <tr>
+                                        <td style="padding-right:10px;">{{ count[0] }}:</td><td><strong>{{ count[1] }}</strong></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="headingThree">
+                                <h5 class="mb-0">
+                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                                                <strong>Количество по характеру ответа <i class="fa fa-caret-down" aria-hidden="true"></i></strong>
+                                        </button>
+                                </h5>
+                        </div>
+
+                        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion_statistics">
+                  
+                            <table class="table table-hover">
+                                <th>Характер ответа</th>
+                                <th>Количество запросов</th>
+                                <tbody>
+                                {% for count in count_requests_answer %}
+                                    <tr>
+                                        <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="headingFour">
+                                <h5 class="mb-0">
+                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+                                                <strong>Количество по виду запроса <i class="fa fa-caret-down" aria-hidden="true"></i></strong>
+                                        </button>
+                                </h5>
+                        </div>
+
+                        <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion_statistics">
+                  
+                            <table class="table table-hover">
+                                <th>Вид запроса</th>
+                                <th>Количество запросов</th>
+                                <tbody>
+                                {% for count in count_requests_kind %}
+                                    <tr>
+                                        <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="headingFive">
+                                <h5 class="mb-0">
+                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+                                                <strong>Количество по исполнителям <i class="fa fa-caret-down" aria-hidden="true"></i></strong>
+                                        </button>
+                                </h5>
+                        </div>
+
+                        <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordion_statistics">
+                  
+                            <table class="table table-hover">
+                                <th>Вид запроса</th>
+                                <th>Количество запросов</th>
+                                <tbody>
+                                {% for count in count_requests_users %}
+                                    <tr>
+                                        <td style="padding-right:10px;">{{ count[1] }}:</td><td><strong>{{ count[2] }}</strong></td>
+                                    </tr>
+                                {% endfor %}
+                                    <tr class="btn-danger">
+                                        <td  style="padding-right:10px;">Прочие:</td><td><strong>{{ count_requests_users_others }}</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+        </div>
+        
+        {# 
+    <div class="form-row p-3 m-auto">
         <div class="panel panel-primary ">
             <div class="panel-heading">
                 <h3 class="panel-title">Статистика по периоду: </span></h3>
@@ -158,8 +445,8 @@
                 </div>
 
             </div>
-        </div>
-
+        </div> #}
+{# 
         <div class = "col-sm-6 ">
             <div class="panel panel-info">
             <!-- Default panel contents -->
@@ -292,44 +579,85 @@
                 </div>
             </div>
         </div>
-
+ #}
     </div>
+    
+    </div>
+</div>
 
-    <br style="clear: both; padding-bottom:60px;" />
 
     <script>
-        $(function () {
-                $('#datetimepicker1').datetimepicker({
-                    locale: 'ru',
-                    format: 'YYYY-MM-DD'
-                });
-                $('#datetimepicker2').datetimepicker({
-                    locale: 'ru',
-                    format: 'YYYY-MM-DD',
-                    useCurrent: false
-                });
-            });
+        var today;
+        today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+        $('#start_date').datepicker({
+            locale: 'ru-ru',
+            format: 'yyyy-mm-dd',
+            uiLibrary: 'bootstrap4',
+            iconsLibrary: 'fontawesome',
+            maxDate: today,
+            weekStartDay: 1,
+            width: 496,
+        });
+        $('#end_date').datepicker({
+            locale: 'ru-ru',
+            format: 'yyyy-mm-dd',
+            uiLibrary: 'bootstrap4',
+            iconsLibrary: 'fontawesome',
+            maxDate: today,
+            weekStartDay: 1,
+            width: 496,
+            minDate: function () {
+                return $('#start_date').val();
+            }
+        });
+        
+        
+        //$(function () {
+                //$('#datetimepicker1').datetimepicker({
+                    //locale: 'ru',
+                    //format: 'YYYY-MM-DD'
+                //});
+                //$('#datetimepicker2').datetimepicker({
+                    //locale: 'ru',
+                    //format: 'YYYY-MM-DD',
+                    //useCurrent: false
+                //});
+            //});
 
         var begin = {}
         var end = {}
 
-        $("#datetimepicker1").on("dp.change", function (e) {
-            $('#datetimepicker2').data("DateTimePicker").minDate(e.date);
-
-            begin = { begin: e.date }; //~ при изменении значения даты записываем в словарь begin
+        $("#start_date").on("change", function (e) {
+            
+            begin = { begin: $(this).val() }; //~ при изменении значения даты записываем в словарь begin
             $.extend( begin, end ); //~ и сливаем словарь begin и словарь end (слияние происходит в первый словарь)
             send_dates(begin); //~ и посылаем словарь в функцию отправки
 
         });
+        //$("#datetimepicker1").on("dp.change", function (e) {
+            //$('#datetimepicker2').data("DateTimePicker").minDate(e.date);
 
-        $("#datetimepicker2").on("dp.change", function (e) {
-            $('#datetimepicker1').data("DateTimePicker").maxDate(e.date);
+            //begin = { begin: e.date }; //~ при изменении значения даты записываем в словарь begin
+            //$.extend( begin, end ); //~ и сливаем словарь begin и словарь end (слияние происходит в первый словарь)
+            //send_dates(begin); //~ и посылаем словарь в функцию отправки
 
-            end = { end: e.date }; //~ при изменении значения даты записываем в словарь end
+        //});
+
+        $("#end_date").on("change", function (e) {
+            
+            end = { end: $(this).val() }; //~ при изменении значения даты записываем в словарь end
             $.extend( begin, end );
             send_dates(begin);
 
         });
+        //$("#datetimepicker2").on("dp.change", function (e) {
+            //$('#datetimepicker1').data("DateTimePicker").maxDate(e.date);
+
+            //end = { end: e.date }; //~ при изменении значения даты записываем в словарь end
+            //$.extend( begin, end );
+            //send_dates(begin);
+
+        //});
 
         $( "#statistic_date_type" ).change(function() {
             send_dates(begin);

@@ -3,35 +3,21 @@
 from app import app, db
 
 from app.authentication.views import login_required
+from app.API.views import get_declension
 
 from app.models import User, Department, Role, Post, Important_news, Table_db, History, Permission, Module, News, Appeals, Executor, Request
-from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, AddNewsForm, EditNewsForm
+from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, EditNewsForm
+# AddNewsForm,
 
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory, send_file
 from functools import wraps
 from config import basedir, PER_PAGE, SQLALCHEMY_BASIC_URI, AVATARS_FOLDER, REQUEST_FILES_FOLDER, BACKUPS_FOLDER, DB_USER, DB_USER_PSWD
-#from flask_paginate import Pagination, get_page_parameter
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
 import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, redis, subprocess, re, humanize, csv, requests
 
 administration = Blueprint('admin', __name__, url_prefix='/admin')
-
-#Функция обработки склонений
-def get_com(x, y):
-    inumber = x % 100
-    if inumber >= 11 and inumber <=19:
-        y = y[2]
-    else:
-        iinumber = inumber % 10
-        if iinumber == 1:
-            y = y[0]
-        elif iinumber == 2 or iinumber == 3 or iinumber == 4:
-            y = y[1]
-        else:
-            y = y[2]
-    return (x,y)
 
 #Функция счета стажа
 #~ @app.template_filter('standing')
@@ -69,9 +55,9 @@ def standing():
                 date_result[1] = 0
 
         time_worked = [
-        get_com(date_result[0], [u"год", u"года", u"лет"]),
-        get_com(date_result[1], [u"месяц", u"месяца", u"месяцев"]),
-        get_com(date_result[2],  [u"день", u"дня", u"дней"])]
+        get_declension(date_result[0], [u"год", u"года", u"лет"]),
+        get_declension(date_result[1], [u"месяц", u"месяца", u"месяцев"]),
+        get_declension(date_result[2],  [u"день", u"дня", u"дней"])]
 
         return time_worked
     return dict(standing=_standing)
@@ -299,26 +285,6 @@ def admin():
         flash(u"Вам запрещено данное действие", 'error')
         return redirect(url_for('admin.admin'))
 
-    # Попытка сделать напоминание за день до дня рождения пользователя: проблема - как запомнить что сообщение уже отработало
-    #~ if request.cookies.get('reminder_birthday'):
-        #~ reminder_birthday_state = request.cookies.get('reminder_birthday')
-    #~ else:
-        #~ reminder_birthday_state =  'off'
-    #~ if reminder_birthday_state == 'on':
-        #~ birth_celebrate_wth_nxt_mnt = dict(birth_celebrate)
-        #~ for user in users_all:
-            #~ if user.birth_date.month ==  int(time.strftime("%m"))+1:
-                #~ birth_celebrate_wth_nxt_mnt.update({'%s %s %s'%(user.surname, user.name, user.patronymic):[user.birth_date.day, user.id]})
-        #~ days = calendar.monthrange(int(time.strftime("%Y")), int(time.strftime("%m")))
-        #~ tmp_d =  int(time.strftime("%m")) + 1
-        #~ if tmp_d > days[1]:
-            #~ tmp_d = 1
-        #~ for key, value in birth_celebrate_wth_nxt_mnt.iteritems():
-            #~ if value[0] ==  tmp_d:
-                #~ congrats = "У пользователя " + str(key.encode('utf-8')+" завтра день рождения, не забудьте поздравить!")
-                #~ sse.publish({"message": congrats, "exclude":value[1], "retry":30000}, type='birthday', retry=30)
-                #~ sse.publish({"message": "У пользователя %s завтра день рождения, не забудьте поздравить!"%(key.encode('utf-8')), "exclude":value[1], "retry":30000}, type='birthday', retry=30)
-
     return render_template("admin/admin.html",  current_user=current_user, permissions = permissions, last_login=session['last_login'], time_worked = time_worked, birth_celebrate=birth_celebrate,
     today=today, all_counters=all_counters, important_news_all=important_news_all, form_delete=form_delete, celebration=celebration)
 
@@ -376,7 +342,7 @@ def new_important():
             db.session.commit()
         destination = url_for('admin.admin')
         response = Response(
-            response=json.dumps({'url':destination,'plus':'<i class="fa fa-plus fa-control" aria-hidden="true"></i>'}),
+            response=json.dumps({'url':destination,'plus':'<i class="fa fa-plus fa-control p-0" aria-hidden="true"></i>'}),
             status=200,
             mimetype='application/json'
         )
@@ -405,7 +371,7 @@ def admin_users(page = 1, *args):
     users_all = User.query.order_by(User.id.asc()).paginate(page, PER_PAGE, False)
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
-    pagination = Pagination(page=page, total = all_counters.get('user_count'), per_page = PER_PAGE, css_framework='bootstrap3')
+    pagination = Pagination(page=page, total = all_counters.get('user_count'), per_page = PER_PAGE, css_framework='bootstrap4')
 
     form_delete = DelUserForm()
     delete = get_permissions(current_user.role.id, current_user.id, "users", "delete")
@@ -782,7 +748,7 @@ def admin_roles(page = 1, *args):
     roles_all = Role.query.order_by(Role.id.asc()).paginate(page, PER_PAGE, False)
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
-    pagination = Pagination(page=page, total = all_counters.get('role_count'), per_page = PER_PAGE, css_framework='bootstrap3')
+    pagination = Pagination(page=page, total = all_counters.get('role_count'), per_page = PER_PAGE, css_framework='bootstrap4')
 
     form_delete = DelRoleForm()
 
@@ -873,7 +839,7 @@ def admin_departments(page = 1, *args):
     departments_all = Department.query.order_by(Department.id.asc()).paginate(page, PER_PAGE, False)
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
-    pagination = Pagination(page=page, total = all_counters.get('department_count'), per_page = PER_PAGE, css_framework='bootstrap3')
+    pagination = Pagination(page=page, total = all_counters.get('department_count'), per_page = PER_PAGE, css_framework='bootstrap4')
 
     form_delete = DelDepartmentForm()
 
@@ -964,7 +930,7 @@ def admin_posts(page = 1, *args):
     posts_all = Post.query.order_by(Post.id.asc()).paginate(page, PER_PAGE, False)
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
-    pagination = Pagination(page=page, total = all_counters.get('post_count'), per_page = PER_PAGE, css_framework='bootstrap3')
+    pagination = Pagination(page=page, total = all_counters.get('post_count'), per_page = PER_PAGE, css_framework='bootstrap4')
 
     form_delete = DelPostForm()
 
@@ -1051,7 +1017,8 @@ def admin_history(page = 1, *args):
     actions_all = actions_all.paginate(page, 100, False)
 
     today = time.strftime("%Y-%m-%d")
-    pagination = Pagination(page=page, total = all_count, per_page = 100, css_framework='bootstrap3')
+    pagination = Pagination(page=page, total = all_count, per_page = 100, css_framework='bootstrap4')
+    
 
     return render_template("admin/list_history.html", actions_all = actions_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today)
 
@@ -1090,7 +1057,7 @@ def admin_history_all(page = 1, *args):
     response3=json.dumps(list_for_return2, ensure_ascii=False)
 
     today = time.strftime("%Y-%m-%d")
-    pagination = Pagination(page=page, total = all_count, per_page = 100, css_framework='bootstrap3')
+    pagination = Pagination(page=page, total = all_count, per_page = 100, css_framework='bootstrap4')
 
     return render_template("admin/list_history.html", actions_all = actions_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today, response = response, response2 = response2, response3=response3)
 
@@ -1195,47 +1162,6 @@ def get_post_javascript_data_show():
             )
         return response
 
-#Страница со списком новостей
-@administration.route('/news', methods=['GET', 'POST'])
-@login_required
-def admin_news(page = 1, *args):
-
-    current_user = User.current()
-
-    enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
-    print ("enter "+str(enter))
-    if not enter:
-        return forbidden(403)
-
-    all_counters = get_counters()
-    
-    page = request.args.get('page', 1, type=int)
-    size = request.args.get('size', 3, type=int)
-    news_all = requests.get(url_for('API.get_all_news', size = size, page = page, _external=True), verify=False)
-    pagination = Pagination(page=page, total = all_counters.get('news_count'), per_page = size, css_framework='bootstrap3')
-
-    #form_delete = DelNewsForm()
-    #delete = get_permissions(current_user.role.id, current_user.id, "news", "delete")
-    #print ("delete "+str(delete))
-
-    #if form_delete.validate_on_submit() and delete:
-        #news_id = form_delete.del_id.data
-        #news = News.query.filter(News.id == news_id).first()
-        #if (news.images):
-            #for image in news.images:
-                #print(image['filename'])
-                #os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], image['filename']))
-        #db.session.delete(news)
-        #make_history("news", "удаление", current_user.id)
-        #db.session.commit()
-        #flash(u"Новость удалена", 'success')
-        #return redirect(url_for('admin.admin_news', page = page))
-    #elif form_delete.validate_on_submit() and not delete:
-        #flash(u"Вам запрещено данное действие", 'error')
-        #return redirect(url_for('admin.admin_news', page = page))
-
-    return render_template("admin/list_news.html", news_all = news_all.json(), all_counters = all_counters, pagination = pagination,  current_user=current_user)
-
 #Быстрое изменение данных записи
 @administration.route('/fast_news_edit', methods = ['POST'])
 def fast_news_edit():
@@ -1262,55 +1188,6 @@ def fast_news_edit():
     else:
         flash(u"Вам запрещено данное действие", 'error')
         return jsonify("Запрещено данное действие")
-
-#Форма добавления нового пользователя
-@administration.route('/news/new', methods=['GET', 'POST'])
-@login_required
-def new_news():
-    current_user = User.current()
-
-    enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
-    print ("enter "+str(enter))
-    insert = get_permissions(current_user.role.id, current_user.id, "news", "insert")
-    print ("insert "+str(insert))
-
-    if not enter or not insert:
-        return forbidden(403)
-
-    today = time.strftime("%Y-%m-%d")
-
-    form_news_add = AddNewsForm()
-    all_counters = get_counters()
-
-    if form_news_add.validate_on_submit():
-        if request.method  == 'POST':
-            
-            images_list = []
-            if request.files:
-                time_hash = uuid.uuid1().hex
-                cover_by_default = False
-                for image in request.files.getlist("images"):
-                    hashname = time_hash+'.'+uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
-                    image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
-                    if not cover_by_default :
-                        images_list.append({'filename':hashname, 'as_cover':1, 'in_gallery':0, 'position':0})
-                        cover_by_default = True
-                    else:
-                        images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
-
-            news = News(
-            header = form_news_add.header.data,
-            text = form_news_add.text.data,
-            user_id = current_user.id,
-            images = images_list )
-
-            db.session.add(news)
-            make_history("news", "вставку", current_user.id)
-            db.session.commit()
-
-            flash(u"Новость добавлена", 'success')
-            return redirect(url_for('admin.admin_news'))
-    return render_template("admin/add_news.html", form_news_add = form_news_add, all_counters = all_counters, current_user=current_user, today=today)
 
 #Форма изменения новости
 @administration.route('/news/edit', methods=['GET', 'POST'])
@@ -1375,7 +1252,7 @@ def admin_appeals(page = 1, *args):
     appeals_all = Appeals.query.order_by(Appeals.id.desc()).paginate(page, PER_PAGE, False)
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
-    pagination = Pagination(page=page, total = all_counters.get('appeals_count_all'), per_page = PER_PAGE, css_framework='bootstrap3')
+    pagination = Pagination(page=page, total = all_counters.get('appeals_count_all'), per_page = PER_PAGE, css_framework='bootstrap4')
 
     return render_template("admin/list_appeals.html", appeals_all = appeals_all, all_counters = all_counters, pagination = pagination,  current_user=current_user, today=today)
 
@@ -1574,4 +1451,74 @@ def download_backups(path):
 
 
 
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+# ОТРАБОТАННЫЕ ФУНКЦИИ
+#-----------------------------------------------------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+# НОВОСТИ
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+
+#Список новостей в админке
+@administration.route('/news', methods=['GET', 'POST'])
+@login_required
+def admin_news(page = 1, *args):
+        
+    can = User.can("enter","news")
+    if not can:
+        return forbidden(403)
+
+    all_counters = get_counters()
+    
+    page = request.args.get('page', 1, type=int)
+    size = request.args.get('size', 3, type=int)
+    
+    news_all = requests.get(url_for('API.get_all_news', size = size, page = page, _external=True), verify=False)
+    pagination = Pagination(page=page, total = all_counters.get('news_count'), per_page = size, css_framework='bootstrap4')
+
+    return render_template("admin/list_news.html", news_all = news_all.json(), all_counters = all_counters, pagination = pagination)
+
+#Форма добавления новой новости
+@administration.route('/news/new', methods=['GET', 'POST'])
+@login_required
+def new_news():
+    
+    c_user = User.current()
+    
+    can = User.can("enter","news") and User.can("insert","news")
+    if not can:
+        return forbidden(403)
+
+    # form_news_add = AddNewsForm()
+    all_counters = get_counters()
+
+    # if form_news_add.validate_on_submit():
+        # if request.method  == 'POST':
+            
+            # images_list = []
+            # if request.files:
+                # time_hash = uuid.uuid1().hex
+                # cover_by_default = False
+                # for image in request.files.getlist("images"):
+                    # hashname = time_hash+'.'+uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
+                    # image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
+                    # if not cover_by_default :
+                        # images_list.append({'filename':hashname, 'as_cover':1, 'in_gallery':0, 'position':0})
+                        # cover_by_default = True
+                    # else:
+                        # images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
+
+            # news = News(
+            # header = form_news_add.header.data,
+            # text = form_news_add.text.data,
+            # user_id = c_user.id,
+            # images = images_list )
+
+            # db.session.add(news)
+            # make_history("news", "вставку", c_user.id)
+            # db.session.commit()
+
+            # flash(u"Новость добавлена", 'success')
+            # return redirect(url_for('admin.admin_news'))
+    # return render_template("admin/add_news.html", form_news_add = form_news_add, all_counters = all_counters)
+    return render_template("admin/add_news.html", all_counters = all_counters)

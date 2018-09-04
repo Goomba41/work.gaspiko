@@ -2,6 +2,8 @@
 {% block content %}
 
 {% if session['logged_in'] %}
+<div class="container mw-100" style="margin-top:3.95em;margin-bottom:4em;">
+    <div class="col">
 
         {% from "admin/_formhelpers.html" import flash_msg %}
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -10,272 +12,406 @@
             {% endif %}
         {% endwith %}
 
-        <div class="container" style = "margin-top: 2%; margin-bottom: 2%;">
-            <div class="row">
-
-                {% if not birth_celebrate %}
-                {% else %}
-                    {% for key, value in  birth_celebrate.items() %}
-                        {% if value[0]|int == (today.split('-')[2])|int %}
-                            <!--Панель с поздравлением с днем рождения -->
-                            <div class="col-sm-12">
-                                <div class="panel panel-success">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title"><strong>ПОЗДРАВЛЯЕМ <i class="fa fa-birthday-cake" aria-hidden="true"></i></strong></h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <div class="col-sm-4" style="text-align:center;">
-                                            <strong style="font-family:MarckScript-Regular; font-size: 2.5em">{{ key }}</strong><br/>
-                                            <span style="font-family:MarckScript-Regular; font-size: 1.5em;">От лица всех сотрудников архива поздравляем Вас <br/><strong style="font-size: 2em;">С ДНЕМ РОЖДЕНИЯ</strong></span><br/>
-                                            <strong style="font-size: 4em;"><i class="fa fa-birthday-cake" aria-hidden="true"></i></strong>
+        
+        {% if not birth_celebrate %}
+        {% else %}
+            {% for key, value in  birth_celebrate.items() %}
+                {% if value[0]|int == (today.split('-')[2])|int %}
+                
+                        <div class="row pt-3">
+                                
+                                <div class="card card-success border-success w-100">
+                                        <div class="card-header bg-success text-white"><strong>ПОЗДРАВЛЯЕМ <i class="fa fa-birthday-cake" aria-hidden="true"></i></strong></div>
+                                        <div class="card-body">
+                                                <div class="row">
+                                                        <div class="col-9 birthday-text" >
+                                                                <span class="upper font-BadScript">
+                                                                        <strong>{{ key }}</strong><br/>
+                                                                        От лица всех сотрудников архива поздравляем Вас<br/>
+                                                                        <strong>С ДНЕМ РОЖДЕНИЯ </strong><i class="fa fa-birthday-cake" aria-hidden="true"></i>
+                                                                </span>
+                                                        </div>
+                                                        <div class="col-3">
+                                                                {% if value[1] == 2 %}
+                                                                <img class="user-avatar-mainscreen" src ="{{ url_for('static', filename='admin/img/programmer3.gif') }}" alt="Birthday_programmer" />
+                                                                {% else %}
+                                                                <img class="user-avatar-mainscreen" src ="{{ url_for('static', filename='admin/img/flowers.png') }}" alt="Other_birthday" />
+                                                                {% endif %}
+                                                        </div>
+                                                </div>
+                                                
                                         </div>
-                                        {% if value[1] == 2 %}
-                                        <div class="col-sm-8">
-                                            <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/programmer3.gif') }}"  />
-                                        </div>
-                                        {% else %}
-                                        <div class="col-sm-6">
-                                            <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/flowers.png') }}"  />
-                                        </div>
-                                        {% endif %}
-                                    </div>
                                 </div>
-                            </div>
-                            <!-- --------------------------------- -->
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-
-{#
-                {% if not worktime_celebrate %}
-                {% else %}
-                    {% for key, value in  worktime_celebrate.items() %}
-                        {% if value[0]|int ==  (today.split('-')[2])|int %}
-                            <!--Панель с поздравлением о стаже-->
-                            <div class="col-sm-12">
-                                <div class="panel panel-success">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title"><strong>ПОЗДРАВЛЯЕМ</strong></h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <div class="col-sm-4" style="text-align:center;">
-                                            <strong style="font-family:MarckScript-Regular; font-size: 2.5em">{{ key }}</strong><br/>
-                                            <span style="font-family:MarckScript-Regular; font-size: 1.5em;">От лица всех сотрудников архива поздравляем Вас <br/><strong style="font-size: 2em;">с {{ time_worked[0] }}-ым годом работы в архиве</strong></span><br/>
-                                        </div>
-                                        {% if value[1]|int == 2 %}
-                                        <div class="col-sm-8">
-                                            <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/programmer.gif') }}"  />
-                                        </div>
-                                        {% else %}
-                                        <div class="col-sm-4">
-                                            <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/books.png') }}"  />
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/books.png') }}"  />
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- --------------------------------- -->
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-#}
-
-                    <!--Панель с поздравлением-->
-                    {% for key, value in celebration.items() %}
-                        {% if (key | date)[0] == (today.split('-')[1])|int and (key | date)[1] == (today.split('-')[2])|int %}
-                            <div class="col-sm-12">
-                                <div class="panel panel-warning">
-                                    <div class="panel-heading">
-                                        <a style="color:#8a6d3b; text-decoration: none;" data-toggle="collapse" href="#collapse2"><h3 class="panel-title"><strong style="text-transform: uppercase;">Сегодня праздник: {{ value[0] }} <i class="fa fa-caret-down" aria-hidden="true"></i></strong></h3></a>
-                                    </div>
-                                    <div id="collapse2" class="panel-collapse collapse">
-                                        <div class="panel-body">
-                                            <div style="text-align:justify;">
-                                                {{ value[1]|safe }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-
-
-
-
-                <!--Панель с информацией о пользователе-->
-                <div class="col-sm-12">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h3 class="panel-title"><strong>Информация о пользователе</strong></h3>
+                                
                         </div>
-                        <div class="panel-body">
-                            <a href="#" class = "profile col-sm-1 " >
-                                <div class = "profile-photo">
-                                    {% if current_user.photo is none  %}
-                                        <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/anonymous.png') }}"  />
-                                    {% else %}
-                                        <img style = "width:100%;" src ="{{ url_for('static', filename='admin/upload/users/'+current_user.photo) }}"  />
-                                    {% endif %}
+        
+                {% endif %}
+            {% endfor %} 
+        {% endif %}
+        
+        
+        
+        <div class="row pt-3">
+                
+                <div class="card card-primary border-primary w-100">
+                        <div class="card-header bg-primary text-white"><strong>Информация о пользователе</strong></div>
+                        <div class="card-body">
+                                <div class="row">
+                                        <div class="col-3">
+                                                {% if current_user.photo is none  %}
+                                                <img class="user-avatar-mainscreen" src ="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="User avatar" />
+                                                {% else %}
+                                                <img class="user-avatar-mainscreen" src ="{{ url_for('static', filename='admin/upload/users/'+current_user.photo) }}" alt="User avatar" />
+                                                {% endif %}
+                                        </div>
+                                        <div class="col-9">
+                                                <h5 class="card-title"><strong>{{ current_user.surname }} {{ current_user.name }} {{ current_user.patronymic }}</strong></h5>
+                                                <ul>
+                                                    <li>Последний раз вход совершен: <strong>{{ last_login }}</strong></li>
+                                                    <li>Вам присвоена роль: <strong>{{ current_user.role.name }}</strong></li>
+                                                    <li>Ваш отдел: <strong>{{ current_user.department.name }}</strong></li>
+                                                    <li>Ваша должность: <strong>{{ current_user.post.name }}</strong></li>
+                                                    <li>Ваш стаж: <strong>{{ time_worked[0][0] }} {{ time_worked[0][1] }} {{ time_worked[1][0] }} {{ time_worked[1][1] }} {{ time_worked[2][0] }} {{ time_worked[2][1] }}</strong></li>
+                                                    <li><i class="fa fa-history" aria-hidden="true"></i><a href="{{ url_for('admin.admin_history') }}">История действий пользователя</a></li>
+                                                </ul>
+                                        </div>
                                 </div>
-                            </a>
-                            <div class = "col-sm-5">
-                                <ul class="">
-                                    <li>ФИО: <strong>{{ current_user.surname }} {{ current_user.name }} {{ current_user.patronymic }}</strong></li>
-                                    <li>Последний раз вход совершен: <strong>{{ last_login }}</strong></li>
-                                    <li>Вам присвоена роль: <strong>{{ current_user.role.name }}</strong></li>
-                                    <li>Ваш отдел: <strong>{{ current_user.department.name }}</strong></li>
-                                    <li>Ваша должность: <strong>{{ current_user.post.name }}</strong></li>
-                                    <li>Ваш стаж: <strong>{{ time_worked[0][0] }} {{ time_worked[0][1] }} {{ time_worked[1][0] }} {{ time_worked[1][1] }} {{ time_worked[2][0] }} {{ time_worked[2][1] }}</strong></li>
-                                    <li><i class="fa fa-history" aria-hidden="true"></i><a href="{{ url_for('admin.admin_history') }}">История действий пользователя</a></li>
-                                </ul>
-                            </div>
-{#
-                            <div class = "col-sm-4">
-                                <h3 style="margin-top:0;">Настройки</h3>
-                                <ul class="">
-                                    <li><input type="checkbox" name="reminder_birthday" class="reminder_birthday" id="" title="Включить функцию" style="display:initial;" {% if reminder_birthday_state == 'on' %}checked="checked"{% endif %}> <strong>Напоминать о днях рождениях за день</strong></li>
-                                </ul>
-                            </div>
-#}
-                            <br style="clear:both"/>
-                            <div class = "col-sm-12 ">
-                                <div class="panel panel-info">
-                                  <!-- Default panel contents -->
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title">
-                                            <a style="text-decoration: none;" data-toggle="collapse" href="#collapse1"><strong>Ваши полномочия <i class="fa fa-caret-down" aria-hidden="true"></i></strong></a>
-                                        </h4>
-                                    </div>
-                                    <div id="collapse1" class="panel-collapse collapse">
+                                <div class="row pt-3">
+                                        <div class="col">
+                                                <div class="accordion" id="permissions-list-mainscreen">
 
-                                            <table class="table">
-                                                <th>Как</th>
-                                                <th>Можете осуществлять</th>
-                                                <th>В таблице</th>
-                                                <th>Модуля</th>
-                                                <tbody>
-                                                    {% for permission in permissions %}
+                                                        <div class="card-header" id="permissions-card-heading">
+                                                                <h5 class="mb-0">
+                                                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapsePermissionsMainscreen" aria-expanded="true" aria-controls="collapsePermissionsMainscreen">
+                                                                                <strong>Ваши полномочия <i class="fa fa-caret-down" aria-hidden="true"></i></strong>
+                                                                        </button>
+                                                                </h5>
+                                                        </div>
 
-                                                    <tr>
-                                                        <td>{{ permission.role.name }}{{ permission.user.name }}</td>
-                                                        <td>
-                                                            {% if permission.enter %}<span class="label label-primary">просмотр</span> {% endif %}
-                                                            {% if permission.insert %}<span class="label label-success">вставку</span> {% endif %}
-                                                            {% if permission.update %}<span class="label label-warning">изменение</span> {% endif %}
-                                                            {% if permission.delete %}<span class="label label-danger">удаление</span> {% endif %}
-                                                        </td>
-                                                        <td>{{ permission.table.name }}</td>
-                                                        <td>{{ permission.table.module_parent.name }}</td>
-                                                    </tr>
+                                                        <div id="collapsePermissionsMainscreen" class="collapse" aria-labelledby="permissions-card-heading" data-parent="#permissions-list-mainscreen">
+                                                  
+                                                                <table class="table table-hover">
+                                                                        <thead>
+                                                                                <tr>
+                                                                                        <th scope="col">Как</th>
+                                                                                        <th scope="col">Можете осуществлять</th>
+                                                                                        <th scope="col">В таблице</th>
+                                                                                        <th scope="col">Модуля</th>
+                                                                                </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                                {% for permission in permissions %}
+                                                                                <tr>
+                                                                                        <td>{{ permission.role.name }}{{ permission.user.name }}</td>
+                                                                                        <td>
+                                                                                                {% if permission.enter %}<button type="button" class="btn btn-primary">просмотр</button>{% endif %}
+                                                                                                {% if permission.insert %}<button type="button" class="btn btn-success">вставку</button>{% endif %}
+                                                                                                {% if permission.update %}<button type="button" class="btn btn-warning">изменение</button>{% endif %}
+                                                                                                {% if permission.delete %}<button type="button" class="btn btn-danger">удаление</button>{% endif %}
+                                                                                        </td>
+                                                                                        <td>{{ permission.table.name }}</td>
+                                                                                        <td>{{ permission.table.module_parent.name }}</td>
+                                                                                </tr>
+                                                                                {% endfor %}
+                                                                        </tbody>
+                                                                </table>
+
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                        </div>
+                </div>
+                
+        </div>
+        
+
+        <div class="row pt-3">
+                <div class="col pl-0">
+                
+                        <div class="card card-primary border-primary w-100">
+                                <div class="card-header bg-primary text-white"><strong>События в текущем месяце:</strong></div>
+                                <div class="card-body p-0">
+                                        <ul class="list-group">
+                                            {% if not birth_celebrate %}
+                                                <li class="list-group-item list-group-item-danger">В этом месяце нет дней рождений</li>
+                                            {% else %}
+                                                {% for key, value in  birth_celebrate.items() %}
+                                                    <li class="list-group-item list-group-item-success"><strong>{{ key }}</strong><br/> празднует день рождения <strong>{{ value[0] }} числа</strong></li>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% for key, value in celebration.items() %}
+                                                {% if (key | date)[0] == (today.split('-')[1])|int %}
+                                                    <li class="list-group-item list-group-item-warning"><strong>{{ value[0] }}</strong> {{ (key | date)[1] }} числа</li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                </div>
+                        </div>
+                        
+                </div>
+
+                <div class="col pr-0">
+                        <div class="card card-danger border-danger w-100">
+                                <div class="card-header bg-danger text-white">
+                                        <strong>Важная информация:</strong>
+                                </div>
+                                <div class="card-body p-0">
+                                        <ul class="list-group">
+                                                <li class="list-group-item list-group-item-danger">
+                                                        Уважаемые архивисты, перед началом работы ознакомтесь, пожалуйста, со следующей важной информацией:
+                                                </li>
+                                        </ul>
+                                </div>
+                        </div>
+                </div
+{# 
+                <div class="col pr-0">
+                                <div class="card card-danger border-danger w-100">
+                                <div class="card-header bg-danger text-white">
+                                        <strong>Важная информация:</strong>
+                                        {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
+                                            <a href="#" id="text" data-type="textarea" data-pk="" data-title="Важная информация" data-placeholder="Введите текст сюда..."><i class="fa fa-plus fa-control p-0" aria-hidden="true"></i></a>
+                                            <script>
+                                                $('#text').editable({
+                                                    url: "{{ url_for('admin.new_important') }}",
+                                                    escape: false,
+                                                    ajaxOptions: {
+                                                        dataType: 'json'
+                                                    },
+                                                    success: function(response, newValue) {
+                                                        location.reload();
+                                                        return {newValue: response.plus}
+                                                    }
+                                                });
+                                            </script>
+                                        {% endif %}
+                                </div>
+                                <div class="card-body p-0">
+                                        <ul class="list-group">
+                                                <li class="list-group-item list-group-item-danger">
+                                                        Уважаемые архивисты, перед началом работы ознакомтесь, пожалуйста, со следующей важной информацией:
+                                                </li>
+                                                    {% for news in important_news_all %}
+                                                        <li class="list-group-item">
+                                                        {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
+                                                            <form action="" method="post" name="delimportant">
+                                                                {{form_delete.hidden_tag()}}
+                                                                    <button class="btn btn-transparent"  type="submit" title="Удалить запись" onclick="return confirm('Точно?');"><i class="fa fa-trash p-0"></i></button>
+                                                                    Автор: {{ news.user.surname }} {{ news.user.name }}, {{ news.user.role.name }} | Истекает: <a href="#" id="expired{{ news.id }}" data-url="{{ url_for('admin.fast_important_edit') }}" data-name="expired" data-type="combodate" data-template="YYYY-MM-DD HH:mm" data-format="YYYY-MM-DD HH:mm" data-viewformat="YYYY-MM-DD HH:mm" data-pk="{{ news.id }}" data-title="Установите дату и время, когда новость будет удалена">{% if news.expired is not none %}{{ news.expired }}{% endif %}</a>
+                                                                    {{form_delete.del_id(id="del-"+news.id|string,value=news.id, style = "display:none;")}}
+                                                            </form>
+                                                            <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> <a href="#" id="text{{ news.id }}" data-name="text" data-type="textarea" data-pk="{{ news.id }}" data-url="{{ url_for('admin.fast_important_edit') }}" data-title="Введите текст новости">{{ news.text }}</a>
+
+<!--
+                                                            <script>
+                                                                $('#text{{ news.id }}').editable({
+                                                                    success: function(e) {
+                                                                        console.log(e);
+                                                                        location.reload();
+                                                                    }
+                                                                });
+                                                                $('#expired{{ news.id }}').editable({
+                                                                    placement: 'left',
+                                                                    emptytext: 'Никогда',
+                                                                    combodate: {
+                                                                            minYear: {{ today.split('-')[0]|int }},
+                                                                            maxYear: {{ today.split('-')[0]|int +1 }},
+                                                                        },
+                                                                    success: function() {
+                                                                        location.reload();
+                                                                    }
+                                                                });
+                                                            </script>
+-->
+ 
+                                                        {% else %}
+                                                        <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> {{ news.text }}</li>
+                                                        {% endif %}
 
                                                     {% endfor %}
-                                                </tbody>
-                                            </table>
-
-                                    </div>
+                                        </ul>
                                 </div>
+                        </div>
+                </div>#}
+        </div>
+
+        {# 
+        
+<!--
+          =======================================================================
+          BOOTSTRAP 3 УДАЛИТЬ
+          =======================================================================          
+-->
+        
+        <!--Панель с информацией о пользователе-->
+<!--
+        <div class="col-sm-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>Информация о пользователе</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <a href="#" class = "profile col-sm-1 " >
+                        <div class = "profile-photo">
+                            {% if current_user.photo is none  %}
+                                <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/anonymous.png') }}"  />
+                            {% else %}
+                                <img style = "width:100%;" src ="{{ url_for('static', filename='admin/upload/users/'+current_user.photo) }}"  />
+                            {% endif %}
+                        </div>
+                    </a>
+                    <div class = "col-sm-5">
+                        <ul class="">
+                            <li>ФИО: <strong>{{ current_user.surname }} {{ current_user.name }} {{ current_user.patronymic }}</strong></li>
+                            <li>Последний раз вход совершен: <strong>{{ last_login }}</strong></li>
+                            <li>Вам присвоена роль: <strong>{{ current_user.role.name }}</strong></li>
+                            <li>Ваш отдел: <strong>{{ current_user.department.name }}</strong></li>
+                            <li>Ваша должность: <strong>{{ current_user.post.name }}</strong></li>
+                            <li>Ваш стаж: <strong>{{ time_worked[0][0] }} {{ time_worked[0][1] }} {{ time_worked[1][0] }} {{ time_worked[1][1] }} {{ time_worked[2][0] }} {{ time_worked[2][1] }}</strong></li>
+                            <li><i class="fa fa-history" aria-hidden="true"></i><a href="{{ url_for('admin.admin_history') }}">История действий пользователя</a></li>
+                        </ul>
+                    </div>
+
+                    <br style="clear:both"/>
+                    <div class = "col-sm-12 ">
+                        <div class="panel panel-info">
+
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a style="text-decoration: none;" data-toggle="collapse" href="#collapse1"><strong>Ваши полномочия <i class="fa fa-caret-down" aria-hidden="true"></i></strong></a>
+                                </h4>
+                            </div>
+                            <div id="collapse1" class="panel-collapse collapse">
+
+                                    <table class="table">
+                                        <th>Как</th>
+                                        <th>Можете осуществлять</th>
+                                        <th>В таблице</th>
+                                        <th>Модуля</th>
+                                        <tbody>
+                                            {% for permission in permissions %}
+
+                                            <tr>
+                                                <td>{{ permission.role.name }}{{ permission.user.name }}</td>
+                                                <td>
+                                                    {% if permission.enter %}<span class="label label-primary">просмотр</span> {% endif %}
+                                                    {% if permission.insert %}<span class="label label-success">вставку</span> {% endif %}
+                                                    {% if permission.update %}<span class="label label-warning">изменение</span> {% endif %}
+                                                    {% if permission.delete %}<span class="label label-danger">удаление</span> {% endif %}
+                                                </td>
+                                                <td>{{ permission.table.name }}</td>
+                                                <td>{{ permission.table.module_parent.name }}</td>
+                                            </tr>
+
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- --------------------------------- -->
-
-                <!--Панель с информацией о днях рождения пользователей-->
-                <div class="col-sm-4">
-                    <div class="panel panel-info">
-                        <div class="panel-heading">
-                            <h3 class="panel-title"><strong>События в текущем месяце:</strong></h3>
-                        </div>
-                        <ul class="list-group">
-                            {% if not birth_celebrate %}
-                                <li class="list-group-item list-group-item-danger">В этом месяце нет дней рождений</li>
-                            {% else %}
-                                {% for key, value in  birth_celebrate.items() %}
-                                    <li class="list-group-item list-group-item-success"><strong>{{ key }}</strong><br/> празднует день рождения <strong>{{ value[0] }} числа</strong></li>
-                                {% endfor %}
-                            {% endif %}
-                            {% for key, value in celebration.items() %}
-                                {% if (key | date)[0] == (today.split('-')[1])|int %}
-                                    <li class="list-group-item list-group-item-warning"><strong>{{ value[0] }}</strong> {{ (key | date)[1] }} числа</li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-                <!-- --------------------------------- -->
-
-                <!--Панель забыл зачем-->
-                <div class="col-sm-8">
-                    <div class="panel panel-danger">
-                        <div class="panel-heading">
-                            <h3 class="panel-title"><strong>Важная информация</strong>
-                                {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
-                                    <a href="#" id="text" data-type="textarea" data-pk="" data-title="Важная информация" data-placeholder="Введите текст сюда..."><i class="fa fa-plus fa-control" aria-hidden="true"></i></a>
-                                    <script>
-                                        $('#text').editable({
-                                            url: "{{ url_for('admin.new_important') }}",
-                                            escape: false,
-                                            ajaxOptions: {
-                                                dataType: 'json'
-                                            },
-                                            success: function(response, newValue) {
-                                                location.reload();
-                                                return {newValue: response.plus}
-                                            }
-                                        });
-                                    </script>
-                                {% endif %}
-                            </h3>
-                        </div>
-                        <div class="panel-body list-group-item-danger" >
-                            Уважаемые архивисты, перед началом работы ознакомтесь, пожалуйста, со следующей важной информацией:
-                        </div>
-                        <ul class="list-group">
-                            {% for news in important_news_all %}
-                                <li class="list-group-item">
-                                {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
-                                    <form action="" method="post" name="delimportant">
-                                        {{form_delete.hidden_tag()}}
-                                            <button class="important-delete"  type="submit" title="Удалить запись" onclick="return confirm('Точно?');"><i class="fa fa-trash"></i></button>
-                                            Автор: {{ news.user.surname }} {{ news.user.name }}, {{ news.user.role.name }} | Истекает: <a href="#" id="expired{{ news.id }}" data-url="{{ url_for('admin.fast_important_edit') }}" data-name="expired" data-type="combodate" data-template="YYYY-MM-DD HH:mm" data-format="YYYY-MM-DD HH:mm" data-viewformat="YYYY-MM-DD HH:mm" data-pk="{{ news.id }}" data-title="Установите дату и время, когда новость будет удалена">{% if news.expired is not none %}{{ news.expired }}{% endif %}</a>
-                                            {{form_delete.del_id(id="del-"+news.id|string,value=news.id, style = "display:none;")}}
-                                    </form>
-                                    <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> <a href="#" id="text{{ news.id }}" data-name="text" data-type="textarea" data-pk="{{ news.id }}" data-url="{{ url_for('admin.fast_important_edit') }}" data-title="Введите текст новости">{{ news.text }}</a>
-                                    <script>
-                                        $('#text{{ news.id }}').editable({
-                                            success: function(e) {
-                                                console.log(e);
-                                                location.reload();
-                                            }
-                                        });
-                                        $('#expired{{ news.id }}').editable({
-                                            placement: 'left',
-                                            emptytext: 'Никогда',
-                                            combodate: {
-                                                    minYear: {{ today.split('-')[0]|int }},
-                                                    maxYear: {{ today.split('-')[0]|int +1 }},
-                                                },
-                                            success: function() {
-                                                location.reload();
-                                            }
-                                        });
-                                    </script>
-                                {% else %}
-                                <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> {{ news.text }}</li>
-                                {% endif %}
-
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-                <!-- --------------------------------- -->
-
             </div>
         </div>
+-->
+        <!-- --------------------------------- -->
+
+        <!--Панель с информацией о днях рождения пользователей-->
+<!--
+        <div class="col-sm-4">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>События в текущем месяце:</strong></h3>
+                </div>
+                <ul class="list-group">
+                    {% if not birth_celebrate %}
+                        <li class="list-group-item list-group-item-danger">В этом месяце нет дней рождений</li>
+                    {% else %}
+                        {% for key, value in  birth_celebrate.items() %}
+                            <li class="list-group-item list-group-item-success"><strong>{{ key }}</strong><br/> празднует день рождения <strong>{{ value[0] }} числа</strong></li>
+                        {% endfor %}
+                    {% endif %}
+                    {% for key, value in celebration.items() %}
+                        {% if (key | date)[0] == (today.split('-')[1])|int %}
+                            <li class="list-group-item list-group-item-warning"><strong>{{ value[0] }}</strong> {{ (key | date)[1] }} числа</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+-->
+        <!-- --------------------------------- -->
+
+        <!--Панель забыл зачем-->
+<!--
+        <div class="col-sm-8">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>Важная информация</strong>
+                        {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
+                            <a href="#" id="text" data-type="textarea" data-pk="" data-title="Важная информация" data-placeholder="Введите текст сюда..."><i class="fa fa-plus fa-control" aria-hidden="true"></i></a>
+                            <script>
+                                $('#text').editable({
+                                    url: "{{ url_for('admin.new_important') }}",
+                                    escape: false,
+                                    ajaxOptions: {
+                                        dataType: 'json'
+                                    },
+                                    success: function(response, newValue) {
+                                        location.reload();
+                                        return {newValue: response.plus}
+                                    }
+                                });
+                            </script>
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="panel-body list-group-item-danger" >
+                    Уважаемые архивисты, перед началом работы ознакомтесь, пожалуйста, со следующей важной информацией:
+                </div>
+                <ul class="list-group">
+                    {% for news in important_news_all %}
+                        <li class="list-group-item">
+                        {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
+                            <form action="" method="post" name="delimportant">
+                                {{form_delete.hidden_tag()}}
+                                    <button class="important-delete"  type="submit" title="Удалить запись" onclick="return confirm('Точно?');"><i class="fa fa-trash"></i></button>
+                                    Автор: {{ news.user.surname }} {{ news.user.name }}, {{ news.user.role.name }} | Истекает: <a href="#" id="expired{{ news.id }}" data-url="{{ url_for('admin.fast_important_edit') }}" data-name="expired" data-type="combodate" data-template="YYYY-MM-DD HH:mm" data-format="YYYY-MM-DD HH:mm" data-viewformat="YYYY-MM-DD HH:mm" data-pk="{{ news.id }}" data-title="Установите дату и время, когда новость будет удалена">{% if news.expired is not none %}{{ news.expired }}{% endif %}</a>
+                                    {{form_delete.del_id(id="del-"+news.id|string,value=news.id, style = "display:none;")}}
+                            </form>
+                            <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> <a href="#" id="text{{ news.id }}" data-name="text" data-type="textarea" data-pk="{{ news.id }}" data-url="{{ url_for('admin.fast_important_edit') }}" data-title="Введите текст новости">{{ news.text }}</a>
+                            <script>
+                                $('#text{{ news.id }}').editable({
+                                    success: function(e) {
+                                        console.log(e);
+                                        location.reload();
+                                    }
+                                });
+                                $('#expired{{ news.id }}').editable({
+                                    placement: 'left',
+                                    emptytext: 'Никогда',
+                                    combodate: {
+                                            minYear: {{ today.split('-')[0]|int }},
+                                            maxYear: {{ today.split('-')[0]|int +1 }},
+                                        },
+                                    success: function() {
+                                        location.reload();
+                                    }
+                                });
+                            </script>
+                        {% else %}
+                        <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> {{ news.text }}</li>
+                        {% endif %}
+
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+-->
+        <!-- --------------------------------- -->#}
+
+
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -283,8 +419,9 @@
             {% endif %}
         {% endwith %}
 
-        <br style="clear: both;"/>
+    </div>
+</div>
 {% endif %}
 
 {% endblock %}
-<br style="clear: both;"/>
+

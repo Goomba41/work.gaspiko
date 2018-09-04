@@ -1,12 +1,12 @@
 {% macro render_field(field) %}
 
     {% if field.type == "TextField" %}
-
+{# _
         <div class="input-group default-input-text"> 
             <span class="input-group-addon" id="basic-addon1">{{field.label}}</span>
             {{ field(**kwargs)|safe }}
             {% if field.name == "number" %}
-            <span class="input-group-addon"   id="liter">-</span>
+            <span class="input-group-addon" id="liter">-</span>
             <div class="input-group-btn"> 
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Литера
                     <span class="caret"></span> <span class="sr-only"></span> 
@@ -19,21 +19,57 @@
                 </ul> 
             </div> 
             {% endif %}
-        </div> 
-
+        </div>  #}
         
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="password">{{field.label.text}}</span>
+            </div>
+            {{ field(**kwargs)|safe }}
+            {% if field.name == "number" %}
+            <div class="input-group-append">
+                <span class="input-group-text" id="liter">&mdash;</span>
+            </div>
+            
+            <div class="input-group-append">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Литера</button>
+                <div class="dropdown-menu">
+                    <a id="1" class="journal dropdown-item" href="#">@ (VipNet)</a>
+                    <a id="2" class="journal dropdown-item" href="#">П (Социально-правовые)</a>
+                    <a id="3" class="journal dropdown-item" href="#">Н (Непрофильные)</a>
+                    <a id="4" class="journal dropdown-item" href="#">Т (Тематические)</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+
     {% elif field.type == "PasswordField" %}
-        <div class="input-group" style="margin: 2% 2%;width: 100%;">
-            <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>
-            {{ field(**kwargs)|safe }}
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="password">{{field.label.text}}</span>
         </div>
+        {{ field(**kwargs)|safe }}
+    </div>
+        
+        
     {% elif field.type == "TelField" %}
-        <div class="input-group" style="margin: 2% 2%;width: 100%;">
-            <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>
+    {# 
+        <div class="input-group">
+            <span class="input-group-addon" id="phone">{{field.label}}</span>
             {{ field(**kwargs)|safe }}
+        </div> #}
+        
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="password">{{field.label.text}}</span>
         </div>
+        {{ field(**kwargs)|safe }}
+    </div>
+    
+        
     {% elif field.type == "DateField" %}
-        <div class="form-group" style="margin: 2% 2%; width: 100%;">
+        {# <div class="form-group">
             <div class="input-group date"  id="datetimepicker{{field.id}}">
                 <span class="input-group-addon" style="width: 30%;" id="basic-addon1">{{field.label}}</span>
                 {{ field(**kwargs)|safe }}
@@ -41,8 +77,20 @@
                 <span class="glyphicon glyphicon-calendar"></span>
                 </span>
             </div>
+        </div> #}
+        
+
+        <div class="input-group mb-3 date">
+            <div class="input-group-prepend">
+                <span class="input-group-text">{{field.label.text}}</span>
+            </div>
+            {{ field(**kwargs)|safe }}
         </div>
+
+        
+        
     {% elif field.type == "FileField" %}
+    {# 
       <div class="input-group default-input-file">
         <label for="exampleInputFile">{{field.label}}</label>
         {{ field(**kwargs)|safe }}
@@ -51,16 +99,36 @@
         {% else %}
             <small id="fileHelp" class="form-text text-muted" style="color: #860808">Разрешенные типы файлов: jpeg, jpg, png</small>
         {% endif %}
+      </div> #}
+      
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="avatar_input_addon">{{field.label.text}}</span>
       </div>
+      <div class="custom-file">
+        {{ field(**kwargs)|safe }}
+        {% if field.name == "filename" %}
+        <label class="custom-file-label" for="filename">Выберите файл архивной справки</label>
+        {% else %}
+        <label class="custom-file-label" for="photo">Выберите файл для фотографии профиля</label>
+        {% endif %}
+      </div>
+    </div>
+      
+      
     {% elif field.type =="SelectField"  or field.type == "QuerySelectField"%}
-            <div class="input-group" style="margin: 2% 2%;width: 100%;">
-            <span class="input-group-addon"  style="width: 30%;" id="basic-addon1">{{field.label}}</span>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">{{field.label.text}}</span>
+            </div>
             {{ field(**kwargs)|safe }}
         </div>
     {% elif field.type =="TextAreaField"%}
+    
         <div class="input-group default-input-text-area">
         {{field.label}}
         {{ field(**kwargs)|safe }}
+        
     </div>
     {% else %}
             <div class="input-group" style="margin: 2% 2%;width: 100%;">
