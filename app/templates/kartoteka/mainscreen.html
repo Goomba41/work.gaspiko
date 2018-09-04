@@ -199,7 +199,7 @@
                         <td>{{ request.answer.name }}</td>
                         <td>
                         {% if request.filename %}
-                            <a href="{{ url_for('kartoteka.download', filename=request.filename) }}">{{ request.filename }}</a>
+                            <a title="Файл справки: {{ request.filename }}" href="{{ url_for('kartoteka.download', filename=request.filename) }}"><i class="fa fa-file-text fa-3x" aria-hidden="true"></i></a>
                         {% endif %}
                         </td>
                     </tr>
