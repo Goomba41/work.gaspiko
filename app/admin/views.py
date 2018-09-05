@@ -6,7 +6,7 @@ from app.authentication.views import login_required
 from app.API.views import get_declension
 
 from app.models import User, Department, Role, Post, Important_news, Table_db, History, Permission, Module, News, Appeals, Executor, Request
-from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, DelNewsForm, EditNewsForm
+from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, EditNewsForm
 # AddNewsForm,
 
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory, send_file
@@ -1489,36 +1489,6 @@ def new_news():
     if not can:
         return forbidden(403)
 
-    # form_news_add = AddNewsForm()
     all_counters = get_counters()
 
-    # if form_news_add.validate_on_submit():
-        # if request.method  == 'POST':
-            
-            # images_list = []
-            # if request.files:
-                # time_hash = uuid.uuid1().hex
-                # cover_by_default = False
-                # for image in request.files.getlist("images"):
-                    # hashname = time_hash+'.'+uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
-                    # image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
-                    # if not cover_by_default :
-                        # images_list.append({'filename':hashname, 'as_cover':1, 'in_gallery':0, 'position':0})
-                        # cover_by_default = True
-                    # else:
-                        # images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
-
-            # news = News(
-            # header = form_news_add.header.data,
-            # text = form_news_add.text.data,
-            # user_id = c_user.id,
-            # images = images_list )
-
-            # db.session.add(news)
-            # make_history("news", "вставку", c_user.id)
-            # db.session.commit()
-
-            # flash(u"Новость добавлена", 'success')
-            # return redirect(url_for('admin.admin_news'))
-    # return render_template("admin/add_news.html", form_news_add = form_news_add, all_counters = all_counters)
     return render_template("admin/add_news.html", all_counters = all_counters)

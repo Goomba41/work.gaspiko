@@ -45,26 +45,37 @@
                         <h1>Войдите с помощью вашего логина и пароля:</h1>
                 </div>
                 <div class="login-form">
-                        {% from "admin/_formhelpers.html" import render_field %}
-                        <form action="" method="POST" name = "" enctype="multipart/form-data">
-                        {{ form_login.csrf_token }}
-                        {{ render_field(form_login.login, class ="form-control", placeholder ="Введите логин") }}
-                        {{ render_field(form_login.password, class ="form-control", placeholder ="Введите пароль") }}
-                                <br/>
-                                <input type="submit" value="Войти" class="btn btn-primary">
-                                <a class="btn btn-primary" href="{{url_for('index')}} role="button">Назад</a>
-                                <br/>
-                        </form>
-                </div>
-                {% from "admin/_formhelpers.html" import flash_msg %}
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                                {{flash_msg(messages)}}
-                        {% endif %}
-                {% endwith %}
 
+                        <form class="form-signin" method="post" action="{{ url_for('login.login_process', next=request.args.get('next')) }}">
+                                <div class="input-group mb-1">
+                                        <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputLoginLabel"><i class="fa fa-fw fa-user p-0" aria-hidden="true"></i></span>
+                                        </div>
+                                        <input type="text" id="inputLogin" name="login" class="form-control" placeholder="Логин" required="" autofocus="">
+                                </div>
+                                <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputPasswordLabel"><i class="fa fa-fw fa-key p-0" aria-hidden="true"></i></span>
+                                        </div>
+                                        <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Пароль" required="" autofocus="">
+                                </div>
+                            
+                            <button class="btn btn-lg btn-block btn-signin" type="submit">Войти</button>
+                            <a class="btn btn-primary" href="{{url_for('index')}} role="button">Назад</a>
+                        </form><!-- /form -->
+                        
+                </div>
+                
+                {#
+<!--            К реализации функционал восстановления пароля
+                <a href="#" title="Забыли пароль?" class="forgot-password">Забыли пароль?</a> 
+-->
+                #}
+ 
+                <div class="alert alert-danger mt-3 login-error" role="alert"></div>
         </div>
     </body>
     <script type="text/javascript" src="{{ url_for('static', filename='admin/js/loader.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='admin/js/login.js') }}"></script>
 </html>
 

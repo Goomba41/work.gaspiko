@@ -2,55 +2,86 @@
 
 from app import app, db
 
-from app.authentication.models import User
-from app.authentication.forms import LoginForm
+from app.models import User
 
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint
 from functools import wraps
-from config import basedir, SQLALCHEMY_DATABASE_URI
+from urllib.parse import urlparse, urljoin
 import time, os, hashlib, json, datetime
 
+
 authentication = Blueprint('login', __name__, url_prefix='/login')
+
+#Проверка URL
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+           ref_url.netloc == test_url.netloc
 
 #Проверка сессии на логин
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in'):
-            return redirect(url_for('login.login'))
+            return redirect(url_for('login.login', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
 
-#Функция проверки доступа пользователя и логин
-@authentication.route('/', methods=['GET', 'POST'])
+#Отображение шаблона логина
+@authentication.route('/')
 def login():
-    form_login = LoginForm()
+    return render_template('admin/login.html')
 
-    if form_login.validate_on_submit():
-        login_user = form_login.login.data
-        login_password = form_login.password.data
+#Функция проверки доступа пользователя и логин
+@authentication.route('/login-process', methods=['GET', 'POST'])
+def login_process():
+    
+    login_user = request.form['login']
+    login_password = request.form['password']
 
-        user_data = User.query.filter(User.login == login_user).first()
-        if (user_data):
-            if ((user_data.status==1) or (user_data.role.id==1)):
-                password_hash = hashlib.md5(login_password.encode("utf-8"))
-                if ((user_data.login==login_user) and (user_data.password==password_hash.hexdigest())):
-                    session['logged_in'] = True
-                    session['user_id'] = user_data.id
-                    session['last_login'] = user_data.last_login
+    # Подумать над запросом пользователя через API
+    user = User.query.filter(User.login == login_user).first()
+    if user:
+        if ((user.status==1) or (user.role.id==1)):
+            password_hash = hashlib.md5(login_password.encode("utf-8"))
+            if ((user.login==login_user) and (user.password==password_hash.hexdigest())):
+                session['logged_in'] = True
+                session['user_id'] = user.id
+                session['last_login'] = user.last_login
 
-                    user_data.last_login = time.strftime("%Y-%m-%d %H:%M:%S")
-                    db.session.commit()
+                user.last_login = time.strftime("%Y-%m-%d %H:%M:%S")
+                db.session.commit()
+                
+                next = request.args.get('next')
+                if not is_safe_url(next) or next is None:
+                    next = url_for("admin.admin")
 
-                    return redirect(url_for('admin.admin'))
-                else:
-                    flash(u"Неправильное сочетание логина и пароля, повторите ввод", 'error')
+                response = Response(
+                response=json.dumps({'next':str(next)}),
+                status=200,
+                mimetype='application/json'
+                )
             else:
-                flash(u"Ваш пользователь отключен. Пожалуйста, обратитесь к системному администратору", 'error')
+                response = Response(
+                response=json.dumps({'result':"Неправильное сочетание логина и пароля, повторите ввод!"}),
+                status=403,
+                mimetype='application/json'
+                )
         else:
-            flash(u"Пользователя с таким логином не существует", 'error')
-
-    return render_template('admin/login.html', form_login=form_login)
+            response = Response(
+            response=json.dumps({'result':"Ваш пользователь отключен. Пожалуйста, обратитесь к системному администратору!"}),
+            status=403,
+            mimetype='application/json'
+            )
+    else:
+        response = Response(
+        response=json.dumps({'result':"Пользователя с таким логином не существует!"}),
+        status=404,
+        mimetype='application/json'
+        )
+    
+    return response
 
 #Функция выхода пользователя из сессии
 @authentication.route("/logout")

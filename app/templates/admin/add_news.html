@@ -2,76 +2,85 @@
 {% block content %}
 
 {% if session['logged_in'] %}
-    <nav class="navbar navbar-default">
-        <div class="container" style ="margin-right: initial; margin-left: initial;">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
-              <span class="sr-only">Навигация</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">Управление</a>
-          </div>
-          <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-2">
-            <ul class="nav navbar-nav">
-                <li class=""><a href="{{url_for('admin.admin_news')}}">Список  <span class="badge">{{ all_counters.get('news_count') }}</span></a></li>
-            </ul>
-          </div>
+    
+<div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+    <div class="col p-0">
+
+        <div class="row-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#" title="Панель управления таблицей">Управление</span></a>
+
+                <div class="collapse navbar-collapse" id="primary-nav">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{{url_for('admin.admin_news')}}"><i class="fa fa-list-ol" aria-hidden="true"></i>
+ Список ({{ all_counters.get('news_count') }})</a>
+                        </li>
+                    </ul>
+                    
+                </div>
+
+            </nav>
         </div>
-    </nav>
 
-    <div class="container">
-        {# {% from "admin/_formhelpers.html" import render_field %} #}
-        <form action="" method="POST" name = "form_news_add" enctype="multipart/form-data">
-            <div class="row">
-                <div class="col-lg-12">
-                    {# 
-                    {{ form_news_add.csrf_token }}
-                    {{ render_field(form_news_add.header, class ="form-control", placeholder ="Максимум 255 символов", autocomplete = True) }}
-                    {{ render_field(form_news_add.text, class ="form-control", autocomplete = True) }}
-                    {{ render_field(form_news_add.images, class ="form-control-file") }}
-                     #}
-                </div><!-- .col -->
-                <div class="col-lg-12">
-                    <div class="input-group">
-                        <span class="input-group-addon" id="title">Заголовок</span>
-                        <input required type="text" class="form-control" placeholder="Максимум 255 символов" aria-describedby="title">
+        <form action="{{ url_for('API.post_news')}}" id="add" class="form-row p-3 m-auto">
+            
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="header-addon">Заголовок новости</span>
+                    </div>
+                    <input maxlength="255" name="header" id="header" type="text" class="form-control" placeholder="Введите заголовок новости (не более 255 символов)" aria-label="header" aria-describedby="header-addon" required autofocus>
+                </div>
+                
+            </div>
+
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="imagesLabel">Изображения</span>
+                    </div>
+                    <div class="custom-file">
+                        <input type="file" name="images" id="images" class="custom-file-input" id="imagesInput" aria-describedby="imagesLabel" required multiple accept="image/*" lang="ru">
+                        <label class="custom-file-label" for="images">Выберите файлы изображений для новости</label>
                     </div>
                 </div>
-                <div class="col-lg-12">
-                    2
-                </div>
-                <div class="col-lg-12">
-                    <div class="input-group default-input-file">
-                        <label for="exampleInputFile">Изображения</label>
-                        <input required multiple type="file" class ="form-control-file" aria-describedby="exampleInputFile">
-                        <small id="fileHelp" class="form-text text-muted" style="color: #860808">Разрешенные типы файлов: jpeg, jpg, png</small>
-                    </div>
-                </div>
-            </div><!-- .row -->
-            <hr/>
-            <div class="row">
-                <div class="col-lg-12">
-                    <input type="submit" value="Добавить" class="btn btn-lg btn-success">
-                    <a href="{{url_for('admin.admin_news')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
-                </div><!-- .col  -->
-            </div><!-- .row  -->
+            
+            </div>
 
-        </form><!-- form  -->
-    </div><!-- .container  -->
+            <div class="col-12">
+                
+                <textarea name="text" id="myEditor" required></textarea>
+                
+            </div>
+
+            <div class="row-fluid p-3">
+                <input type="submit" value="Добавить" class="btn btn-lg btn-success" id="save">
+                <input type="submit" value="Сохранить и добавить новую" class="btn btn-lg btn-primary" id="with_reset">
+                <input type="submit" value="Сохранить и редактировать" class="btn btn-lg btn-warning" id="with_edit">
+                <a href="{{url_for('admin.admin_news')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+            </div>
+        </form>
     
     
-    <script>
-        CKEDITOR.replace( 'text', {
-            language: 'ru',
-            toolbar: [
-                        [ 'Source', '-', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', "Find", "Replace", "SelectAll", "Scayt"],
-                            '/',
-                        [ "Bold", "Italic", 'Underline', 'Strike', 'Subscript', 'Superscript', 'RemoveFormat', '-', 'NumberedList', 'BulletedList', "Outdent", "Indent", '-', "Blockquote", '-', "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock", '-', "Link", "Unlink", "Anchor", '-', "CreatePlaceholder", "Image", "Table", "HorizontalRule", "Smiley", "SpecialChar", "Iframe", "InsertPre"],
-            ]
-        });
-    </script>
+    </div>
+</div>
+    
+<script>
+    var editor = CKEDITOR.replace( 'text', {
+        language: 'ru',
+        height: 400,
+        toolbar: [
+                    [ 'Source', '-', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', "Find", "Replace", "SelectAll", "Scayt"],
+                        '/',
+                    [ "Bold", "Italic", 'Underline', 'Strike', 'Subscript', 'Superscript', 'RemoveFormat', '-', 'NumberedList', 'BulletedList', "Outdent", "Indent", '-', "Blockquote", '-', "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock", '-', "Link", "Unlink", "Anchor", '-', "CreatePlaceholder", "Image", "Table", "HorizontalRule", "Smiley", "SpecialChar", "Iframe", "InsertPre"],
+        ],
+        removePlugins: 'resize',
+    });
+</script>
 
 
 {% endif %}

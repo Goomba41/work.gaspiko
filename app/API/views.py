@@ -4,8 +4,9 @@ import json, math, requests, os
 from app import app, db
 
 from app.models import News, NewsSchema, User
-from flask import request, make_response, jsonify, Response, Blueprint, url_for
+from flask import request, make_response, jsonify, Response, Blueprint, url_for, json
 from datetime import datetime
+import hashlib, uuid
 
 API = Blueprint('API', __name__, url_prefix='/API/v1.0')
 
@@ -126,7 +127,7 @@ def fresh_news_counter(news_list,days):
         else: break
 
     return (count)
-    
+
 #----------------------------------------------------------------------------------
 # API НОВОСТЕЙ
 #----------------------------------------------------------------------------------
@@ -178,6 +179,63 @@ def delete_one_news(news_id):
     else:
         response = Response(
             response=json.dumps({'type':'fail', 'text':'Пользователю запрещено удаление!'}),
+            status=403,
+            mimetype='application/json'
+        )
+    
+    return response
+    
+#Добавление новости
+@API.route('/news', methods=['POST'])
+def post_news():
+    
+    c_user = User.current()
+    can = User.can("insert","news")
+    
+    if can:
+        try:
+            form_data = json.loads(request.form['data'])
+
+            images_list = []
+            if request.files:
+                time_hash = uuid.uuid1().hex
+                cover_by_default = False
+                for image in request.files.getlist("images"):
+                    hashname = time_hash+'.'+uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
+                    image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
+                    if not cover_by_default :
+                        images_list.append({'filename':hashname, 'as_cover':1, 'in_gallery':0, 'position':0})
+                        cover_by_default = True
+                    else:
+                        images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
+
+            news = News(
+            header = form_data['header'],
+            text = form_data['text'],
+            user_id = c_user.id,
+            images = images_list )
+
+            db.session.add(news)
+            db.session.commit()
+            
+            n_list=url_for('admin.admin_news')
+            n_edit=url_for('admin.edit_news', id=news.id)
+
+            response = Response(
+                response=json.dumps({'type':'success', 'text':'Добавлено!', 'list':n_list, 'edit':n_edit}),
+                status=200,
+                mimetype='application/json'
+            )
+        except:
+            response = Response(
+            response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),
+            status=500,
+            mimetype='application/json'
+            )
+            return response
+    else:
+        response = Response(
+            response=json.dumps({'type':'fail', 'text':'Пользователю запрещено добавление!'}),
             status=403,
             mimetype='application/json'
         )

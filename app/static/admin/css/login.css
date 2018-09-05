@@ -69,3 +69,34 @@
 .btn:hover {
     background-color: #2980B9;
 }
+
+.input-group-prepend {
+    width : 20%; /*adjust as needed*/
+}
+
+.input-group-prepend .input-group-text {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    text-align: right;
+}
+
+.login-error {
+    visibility: hidden;
+    opacity:0;
+    height:0;
+    -webkit-transition: height 0s linear 0.5s, visibility 0s linear 0.5s, opacity 0.5s ease-in-out;
+    -moz-transition: height 0s linear 0.5s, visibility 0s linear 0.5s, opacity 0.5s ease-in-out;
+    -ms-transition: height 0s linear 0.5s, visibility 0s linear 0.5s, opacity 0.5s ease-in-out;
+    -o-transition: height 0s linear 0.5s, visibility 0s linear 0.5s, opacity 0.5s ease-in-out;
+    transition: height 0s linear 0.5s, visibility 0s linear 0.5s, opacity 0.5s ease-in-out;
+}
+
+.login-error.show {
+    visibility: visible;
+    height:100%;
+    opacity:1;
+    transition-delay:0s;
+}

@@ -2,6 +2,39 @@
 // ОБРАЩЕНИЯ К API
 //-------------------------------------------------------------------------------------------------
 
+
+    
+$(document).ready(function(){
+    (function ($) {
+        $.fn.serializeFormJSON = function () {
+
+            var o = {};
+            var a = this.serializeArray();
+            $.each(a, function () {
+                if (o[this.name]) {
+                    if (!o[this.name].push) {
+                        o[this.name] = [o[this.name]];
+                    }
+                    o[this.name].push(this.value || '');
+                }
+                else {
+                    o[this.name] = this.value || '';
+                }
+            });
+            return o;
+        };
+    })(jQuery);
+
+    $("form input[type=submit]").click(function() {
+        $("input[type=submit]", $(this).parents("form")).removeAttr("clicked");
+        $(this).attr("clicked", "true");
+    });
+});
+
+//-------------------------------------------------------------------------------------------------
+// НОВОСТИ
+//-------------------------------------------------------------------------------------------------
+
 // Удаление  новостей
 function delete_news(id) {
    if (id == undefined) {
@@ -55,7 +88,60 @@ function delete_news(id) {
     }
 
 }
-   
+
+//Добавление новости
+$(document).ready(function(){
+    $("form#add").submit(function(e) {
+        e.preventDefault(); //Отменить стандартные действия при отправке формы (релоад)
+        
+        var button_type = $("input[type=submit][clicked=true]").attr("id");
+        
+        CKEDITOR.instances.myEditor.updateElement(); //Перед сериализацией формы обновить редактор текста, чтобы обновился его текст
+        
+        var data = $(this).serializeFormJSON(); //Сериализируем форму в JSON формат
+        
+        var formData = new FormData();
+        formData.append('data', JSON.stringify(data)); //Добавляем данные в форму
+
+        $.each($("input[type='file']"), function(i, file) { //Добавляем файлы из ввода файлов
+            $.each($(this)[0].files, function(i, file) {
+                formData.append('images',file);
+            });
+        });
+        
+        $.ajax({ //Отсылаем запрос
+            type : "POST",
+            url : $(this).attr("action"),
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : formData,
+            dataType: 'json',
+            success: function (response) {
+                    message = {"type":"success", "text":"Новость успешно добавлена!"};
+                    localStorage.setItem("message", JSON.stringify(message));
+                    
+                    if (button_type=="with_reset") {
+                        location.reload(true);
+                    }
+                    else if (button_type=="save") {
+                        window.location = response['list'] ;
+                    }
+                    else if (button_type=="with_edit") {
+                        window.location = response['edit'] ;
+                    }
+            },
+            error: function(response) {
+                message = response.responseJSON;
+                $('#message').addClass('show');
+                $('#message').addClass(message['type']);
+                $('#message').html(message['text']);
+                setTimeout("$('#message').removeClass('show');", 2500);
+            }
+        });//AJAX
+        return false;
+    });//form send
+});
 //-------------------------------------------------------------------------------------------------
 // 
 //-------------------------------------------------------------------------------------------------
