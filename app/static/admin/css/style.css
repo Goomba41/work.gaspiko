@@ -165,3 +165,33 @@ span.font-BadScript {
 .fail {
     background-color: #e91b20;
 }
+
+/*
+ ===========================================
+ Новости в админке
+ ===========================================
+ */
+
+.link-copy-overlay {
+    background-color: black;
+    opacity: 0;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    transition: .5s ease;
+}
+
+.card-img-container:hover .link-copy-overlay {
+  opacity: 0.75;
+}
+.card-img-container {
+  position: relative;
+  width: 100%;
+}
+
+.link-copy-overlay > i {
+    color:white;
+}
+
+

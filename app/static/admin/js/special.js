@@ -162,7 +162,7 @@ $(document).ready(function(){
                 formData.append('images',file);
             });
         });
-        
+                
         $.ajax({ //Отсылаем запрос
             type : "PUT",
             url : $(this).attr("action"),
@@ -170,7 +170,6 @@ $(document).ready(function(){
             contentType: false,
             processData: false,
             data : formData,
-            dataType: 'json',
             success: function (response) {
                     message = {"type":"success", "text":"Новость успешно отредактирована!"};
                     localStorage.setItem("message", JSON.stringify(message));
@@ -196,6 +195,50 @@ $(document).ready(function(){
         return false;
     });//form send
 });
+
+$(document).ready(function(){
+    $("button.news-img-btn").click(function(e) {
+        
+        console.log();
+        console.log();
+        
+        var formData = new FormData();
+        formData.append('action', $(this).data('action'));
+        formData.append('filename', $(this).attr('id'));
+
+        $.ajax({
+            type : "PUT",
+            url : $(this).data('url'),
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : formData,
+            success: function (response) {
+                    //message = {"type":"success", "text":"Новость успешно отредактирована!"};
+                    //localStorage.setItem("message", JSON.stringify(message));
+                    
+                    //if (button_type=="with_reset") {
+                        //location.reload(true);
+                    //}
+                    //else if (button_type=="save") {
+                        //window.location = response['list'] ;
+                    //}
+                    //else if (button_type=="with_new") {
+                        //window.location = response['new'] ;
+                    //}
+            },
+            error: function(response) {
+                message = response.responseJSON;
+                $('#message').addClass('show');
+                $('#message').addClass(message['type']);
+                $('#message').html(message['text']);
+                setTimeout("$('#message').removeClass('show');", 2500);
+            }
+        });
+
+    });
+});
+
 //-------------------------------------------------------------------------------------------------
 // 
 //-------------------------------------------------------------------------------------------------

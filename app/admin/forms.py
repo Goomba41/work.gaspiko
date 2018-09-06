@@ -84,8 +84,3 @@ class AddPermissionForm(FlaskForm):
     insert = BooleanField(u'Вставка')
     update = BooleanField(u'Изменение')
     delete = BooleanField(u'Удаление')
-
-# class EditNewsForm(FlaskForm):
-    # header = TextField(u'Заголовок', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=255, message = u'Заголовок должен быть в диапазоне от 1 до 255 символов')])
-    # text = TextAreaField(u'Текст', validators = [Required(message = u'Поле не может быть пустым')])
-    # images = FileField(u'Прикрепите изображения', render_kw={'multiple': True, 'accept':"image/*"}, validators = [FileAllowed(['jpg', 'jpeg', 'png'], u'Только изображения!')])

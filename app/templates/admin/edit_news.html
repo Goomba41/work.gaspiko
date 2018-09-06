@@ -20,7 +20,10 @@
                             <a class="nav-link" href="{{url_for('admin.new_news')}}"><i class="fa fa-plus" aria-hidden="true"></i>
  Создать</a>
                         </li>
-                        
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{{url_for('news', id = edit_news.id)}}"><i class="fa fa-fw fa-eye fa-control p-0" aria-hidden="true"></i>
+ Смотреть</a>
+                        </li>
                     </ul>
                     
                 </div>
@@ -59,48 +62,56 @@
                 <textarea name="text" id="myEditor" required>{{ edit_news.text }}</textarea>
             </div>
             
-            
+            {% if edit_news.images %}
             <div class="col-12 mt-3 mb-3">
                 <div class="row m-0 flex-row flex-nowrap" style="overflow-x: scroll;">
                 {% for image in edit_news.images %}
                     <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                        <div class="card card-block m-2" >
-                            <img class="card-img-top" src="{{ image.filename|thumbnail('160x160', crop='fit', quality=100) }}" alt="Card image cap">
+                        <div class="card card-block m-2 bg-light" >
+                            <div class="card-img-container" title="Скопировать ссылку для вставки по тексту">
+                                <img class="card-img-top news-image-control" src="{{ image.filename|thumbnail('160x160', crop='fit', quality=100) }}" alt="Card image cap">
+                                <div class="card-img-overlay link-copy-overlay" onclick="copy_origin_link('{{image.filename}}')">
+                                    <i class="fa fa-link fa-3x fa-fw p-0" aria-hidden="true"></i>
+                                </div>
+                            </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="input-group m-1">
-                                        <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3">
+                                        <input type="text" class="form-control" id="image-title" aria-describedby="" placeholder="Заголовок">
+                                        <div class="input-group-append">
+                                            <button id="{{image.filename}}" title="Сохранить" type="button" class="btn btn-success news-img-btn"><i class="fa fa-fw p-0 fa-floppy-o" aria-hidden="true"></i></button>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <button onclick="copy_origin_link('{{image.filename}}')" title="Скопировать ссылку на файл для вставки по тексту" type="button" class="btn btn-sm btn-info m-1"><i class="fa fa-fw p-0 fa-link" aria-hidden="true"></i></button>
-                                    {% if image.in_gallery %}
-                                    <button id="{{image.filename}}" title="Изображение находится в галерее" type="button" class="btn btn-sm btn-success m-1"><i class="fa fa-fw p-0 fa-picture-o" aria-hidden="true"></i></button>
-                                    {% else %}
-                                    <button id="{{image.filename}}" title="Вставить в галерею в новости" type="button" class="btn btn-sm btn-default m-1"><i class="fa fa-fw p-0 fa-picture-o" aria-hidden="true"></i></button>
-                                    {% endif %}
-                                    {% if image.as_cover %}
-                                    <button id="{{image.filename}}" title="Отмечено как обложка" type="button" class="btn btn-sm btn-success m-1"><i class="fa fa-fw p-0 fa-eye" aria-hidden="true"></i></button>
-                                    {% else %}
-                                    <button id="{{image.filename}}" title="Отметить как обложку" type="button" class="btn btn-sm btn-default m-1"><i class="fa fa-fw p-0 fa-eye" aria-hidden="true"></i></button>
-                                    {% endif %}
-                                    {# <button id="{{image.filename}}" title="" type="button" class="btn btn-sm btn-default m-1"><i class="fa fa-fw p-0 fa-sort" aria-hidden="true"></i></button> #}
-                                    {% if image.as_cover %}
-                                    <button id="{{image.filename}}" title="Нельзя открепить обложку" type="button" class="btn btn-sm btn-danger disabled m-1"><i class="fa fa-fw p-0 fa-trash" aria-hidden="true"></i></button>
-                                    {% else %}
-                                    <button id="{{image.filename}}" title="Открепить изображение" type="button" class="btn btn-sm btn-danger m-1"><i class="fa fa-fw p-0 fa-trash" aria-hidden="true"></i></button>
-                                    {% endif %}
+                                    <div class="col-6 p-0">
+                                        {% if not image.as_cover %}
+                                        <button id="{{image.filename}}" title="Открепить изображение" type="button" class="float-left btn btn-sm btn-danger m-1 news-img-btn" data-action="delete" data-url="{{ url_for('API.update_news_images', news_id=edit_news.id) }}"><i class="fa fa-fw p-0 fa-trash" aria-hidden="true"></i></button>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-6 p-0">
+                                        {% if image.in_gallery %}
+                                        <button id="{{image.filename}}" title="Изображение находится в галерее" type="button" class="btn btn-sm btn-success m-1 float-right news-img-btn"><i class="fa fa-fw p-0 fa-picture-o" aria-hidden="true"></i></button>
+                                        {% else %}
+                                        <button id="{{image.filename}}" title="Вставить в галерею в новости" type="button" class="btn btn-sm btn-default m-1 float-right news-img-btn"><i class="fa fa-fw p-0 fa-picture-o" aria-hidden="true"></i></button>
+                                        {% endif %}
+                                        {% if image.as_cover %}
+                                        <button id="{{image.filename}}" title="Отмечено как обложка" type="button" class="btn btn-sm btn-success m-1 float-right news-img-btn"><i class="fa fa-fw p-0 fa-eye" aria-hidden="true"></i></button>
+                                        {% else %}
+                                        <button id="{{image.filename}}" title="Отметить как обложку" type="button" class="btn btn-sm btn-default m-1 float-right news-img-btn"><i class="fa fa-fw p-0 fa-eye" aria-hidden="true"></i></button>
+                                        {% endif %}
+                                        {# <button id="{{image.filename}}" title="" type="button" class="btn btn-sm btn-default m-1 float-right news-img-btn"><i class="fa fa-fw p-0 fa-sort" aria-hidden="true"></i></button> #}
+                                    </div>
+
                                 </div>
+
                             </div>
                         </div>
                     </div>
                 {% endfor %}
                 </div>
-                
-                
-                
             </div>
-            
+            {% endif %}
             
 
             <div class="row-fluid p-3">
@@ -115,80 +126,25 @@
     </div>
 </div>
 
-
-    {# <div class="container">
-        {% from "admin/_formhelpers.html" import render_field %}
-        <form action="" method="POST" name = "form_news_add" enctype="multipart/form-data">
-            <div class="row">
-                <div class="col-lg-12">
-                    {{ form_news_edit.csrf_token }}
-                    {{ render_field(form_news_edit.header, class ="form-control", placeholder ="Максимум 255 символов", autocomplete = True) }}
-                    {{ render_field(form_news_edit.text, class ="form-control", autocomplete = True) }}
-                    {{ render_field(form_news_edit.images, class ="form-control-file") }}
-                </div><!-- .col -->
-            </div><!-- .row -->
-            
-            {% if images %}
-                {{ images }}
-            {% endif %}
-            
-            {% if edit_news.images %}
-            <hr/>
-            <div class="row" style="text-align:center;" align="center">
-                <h4>Прикрепленные изображения</h4>
-                {% for image in edit_news.images %}
-                     <div class="col-lg-1" style="margin:10px; height:200px; min-width:200px;">
-                        <div class="row" style="text-align:center;padding-bottom:10px;">
-                             <img  src="{{  image.filename|thumbnail('160x160', crop='fit', quality=100) }}"/>  
-                        </div>
-                        <div class="row actions" style="text-align:center;">
-                            <button onclick="copy_origin_link('{{image.filename}}')" type="button" class="btn btn-sm btn-info"><i class="fa fa-link" aria-hidden="true"></i></button>
-                            <button id="{{image.filename}}" type="button" class="btn btn-sm btn-danger"><i class="fa fa-trash" aria-hidden="true"></i></button>
-                            <button id="{{image.filename}}" type="button" class="btn btn-sm btn-default"><i class="fa fa-picture-o" aria-hidden="true"></i></button>
-                            <button id="{{image.filename}}" type="button" class="btn btn-sm btn-default"><i class="fa fa-eye" aria-hidden="true"></i></button>
-                            <button id="{{image.filename}}" type="button" class="btn btn-sm btn-default"><i class="fa fa-sort" aria-hidden="true"></i></button>
-                        </div>
-                    </div><!-- .col -->
-                {% endfor %}
-            </div><!-- .row  -->
-            {% endif %}
-            <hr/>
-            
-            
-            
-            <div class="row">
-                <div class="col-lg-12">
-                    <input type="submit" value="Изменить" class="btn btn-lg btn-success">
-                    <a href="{{url_for('admin.admin_news')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
-                </div><!-- .col  -->
-            </div><!-- .row  -->
-
-
-        </form><!-- form  -->
-    </div><!-- .container  --> #}
-    
-    
-    
-    
-    <script>
-        CKEDITOR.replace( 'text', {
-            language: 'ru',
-            height: 400,
-            toolbar: [
-                        [ 'Source', '-', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', "Find", "Replace", "SelectAll", "Scayt"],
-                            '/',
-                        [ "Bold", "Italic", 'Underline', 'Strike', 'Subscript', 'Superscript', 'RemoveFormat', '-', 'NumberedList', 'BulletedList', "Outdent", "Indent", '-', "Blockquote", '-', "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock", '-', "Link", "Unlink", "Anchor", '-', "CreatePlaceholder", "Image", "Table", "HorizontalRule", "Smiley", "SpecialChar", "Iframe", "InsertPre"],
-            ],
-            removePlugins: 'resize',
-        });
-    </script>
-    <script>
-        function copy_origin_link(image) {
-             var dummyContent = '{{ url_for('static', filename="work/uploads/images/") }}'+image;
-             var dummy = $('<input>').val(dummyContent).appendTo('body').select();
-             document.execCommand('copy');
-        }
-    </script>
+<script>
+    CKEDITOR.replace( 'text', {
+        language: 'ru',
+        height: 400,
+        toolbar: [
+                    [ 'Source', '-', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo', '-', "Find", "Replace", "SelectAll", "Scayt"],
+                        '/',
+                    [ "Bold", "Italic", 'Underline', 'Strike', 'Subscript', 'Superscript', 'RemoveFormat', '-', 'NumberedList', 'BulletedList', "Outdent", "Indent", '-', "Blockquote", '-', "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock", '-', "Link", "Unlink", "Anchor", '-', "CreatePlaceholder", "Image", "Table", "HorizontalRule", "Smiley", "SpecialChar", "Iframe", "InsertPre"],
+        ],
+        removePlugins: 'resize',
+    });
+</script>
+<script>
+    function copy_origin_link(image) {
+         var dummyContent = '{{ url_for('static', filename="work/uploads/images/") }}'+image;
+         var dummy = $('<input>').val(dummyContent).appendTo('body').select();
+         document.execCommand('copy');
+    }
+</script>
 
 {% endif %}
 

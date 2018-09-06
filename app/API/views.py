@@ -298,6 +298,45 @@ def update_news(news_id):
         )
     
     return response
+    
+#Редактирование новости новости
+@API.route('/news/<int:news_id>/images', methods=['PUT'])
+def update_news_images(news_id):
+    
+    c_user = User.current()
+    can = User.can("update","news")
+    
+    if can:
+        try:
+            edit_news = News.query.get(news_id)
+
+            images = edit_news.images[:]
+            images[:] = [d for d in images if d.get('filename') != request.form['filename']]           
+
+            os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], request.form['filename']))
+
+            edit_news.images = images
+            db.session.commit()
+            
+            response = Response(
+                response=json.dumps({'type':'success', 'text':'Изменения сохранены!'}),
+                status=200,
+                mimetype='application/json'
+            )
+        except:
+            response = Response(
+            response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),
+            status=500,
+            mimetype='application/json'
+            )
+    else:
+        response = Response(
+            response=json.dumps({'type':'fail', 'text':'Пользователю запрещено изменение!'}),
+            status=403,
+            mimetype='application/json'
+        )
+    
+    return response
 
 #----------------------------------------------------------------------------------
 # API ПОЛЬЗОВАТЕЛЕЙ СИСТЕМЫ
