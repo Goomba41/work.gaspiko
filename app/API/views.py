@@ -241,6 +241,63 @@ def post_news():
         )
     
     return response
+    
+#Редактирование новости новости
+@API.route('/news/<int:news_id>', methods=['PUT'])
+def update_news(news_id):
+    
+    c_user = User.current()
+    can = User.can("update","news")
+    
+    if can:
+        try:
+            form_data = json.loads(request.form['data'])
+            edit_news = News.query.get(news_id)
+            
+            if request.files:
+                if (request.files.getlist("images")[0].filename!=''):
+                    if edit_news.images:
+                        images_list = edit_news.images[:] #Клонирование существующего списка
+                    else:
+                        images_list = []
+                    time_hash = uuid.uuid1().hex
+                    for image in request.files.getlist("images"):
+                        hashname = time_hash+'.'+uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
+                        image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
+                        images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
+                        edit_news.images = images_list
+                        
+            
+            edit_news.header = form_data['header']
+            edit_news.text = form_data['text']
+            
+            db.session.commit()
+            
+            
+            n_list=url_for('admin.admin_news')
+            n_new=url_for('admin.new_news')
+            
+
+            response = Response(
+                response=json.dumps({'type':'success', 'text':'Изменения сохранены!', 'list':n_list, 'new':n_new}),
+                status=200,
+                mimetype='application/json'
+            )
+        except:
+            response = Response(
+            response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),
+            status=500,
+            mimetype='application/json'
+            )
+            return response
+    else:
+        response = Response(
+            response=json.dumps({'type':'fail', 'text':'Пользователю запрещено изменение!'}),
+            status=403,
+            mimetype='application/json'
+        )
+    
+    return response
 
 #----------------------------------------------------------------------------------
 # API ПОЛЬЗОВАТЕЛЕЙ СИСТЕМЫ

@@ -142,6 +142,60 @@ $(document).ready(function(){
         return false;
     });//form send
 });
+
+//Редактирование новости
+$(document).ready(function(){
+    $("form#edit").submit(function(e) {
+        e.preventDefault(); //Отменить стандартные действия при отправке формы (релоад)
+        
+        var button_type = $("input[type=submit][clicked=true]").attr("id");
+        
+        CKEDITOR.instances.myEditor.updateElement(); //Перед сериализацией формы обновить редактор текста, чтобы обновился его текст
+        
+        var data = $(this).serializeFormJSON(); //Сериализируем форму в JSON формат
+        
+        var formData = new FormData();
+        formData.append('data', JSON.stringify(data)); //Добавляем данные в форму
+
+        $.each($("input[type='file']"), function(i, file) { //Добавляем файлы из ввода файлов
+            $.each($(this)[0].files, function(i, file) {
+                formData.append('images',file);
+            });
+        });
+        
+        $.ajax({ //Отсылаем запрос
+            type : "PUT",
+            url : $(this).attr("action"),
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : formData,
+            dataType: 'json',
+            success: function (response) {
+                    message = {"type":"success", "text":"Новость успешно отредактирована!"};
+                    localStorage.setItem("message", JSON.stringify(message));
+                    
+                    if (button_type=="with_reset") {
+                        location.reload(true);
+                    }
+                    else if (button_type=="save") {
+                        window.location = response['list'] ;
+                    }
+                    else if (button_type=="with_new") {
+                        window.location = response['new'] ;
+                    }
+            },
+            error: function(response) {
+                message = response.responseJSON;
+                $('#message').addClass('show');
+                $('#message').addClass(message['type']);
+                $('#message').html(message['text']);
+                setTimeout("$('#message').removeClass('show');", 2500);
+            }
+        });//AJAX
+        return false;
+    });//form send
+});
 //-------------------------------------------------------------------------------------------------
 // 
 //-------------------------------------------------------------------------------------------------

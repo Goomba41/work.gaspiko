@@ -6,8 +6,8 @@ from app.authentication.views import login_required
 from app.API.views import get_declension
 
 from app.models import User, Department, Role, Post, Important_news, Table_db, History, Permission, Module, News, Appeals, Executor, Request
-from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm, EditNewsForm
-# AddNewsForm,
+from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm, DelRoleForm, AddDepartmentForm, DelDepartmentForm, AddPostForm, DelPostForm, DelImportantForm, DelPermissionForm, AddPermissionForm
+# , EditNewsForm
 
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory, send_file
 from functools import wraps
@@ -1189,53 +1189,6 @@ def fast_news_edit():
         flash(u"Вам запрещено данное действие", 'error')
         return jsonify("Запрещено данное действие")
 
-#Форма изменения новости
-@administration.route('/news/edit', methods=['GET', 'POST'])
-@login_required
-def edit_news():
-    current_user = User.current()
-
-    enter = get_permissions(current_user.role.id, current_user.id, "news", "enter")
-    print ("enter "+str(enter))
-    update = get_permissions(current_user.role.id, current_user.id, "news", "update")
-    print ("update "+str(update))
-
-    if not enter or not update:
-        return forbidden(403)
-
-    all_counters = get_counters()
-    today = time.strftime("%Y-%m-%d")
-
-    edit_news = News.query.get(request.args.get('id'))
-
-    form_news_edit = EditNewsForm(header=edit_news.header, text=edit_news.text)
-
-    if form_news_edit.validate_on_submit():
-        if request.method  == 'POST':
-            
-            if request.files:
-                if (request.files.getlist("images")[0].filename!=''):
-                    if edit_news.images:
-                        images_list = edit_news.images[:] #Клонирование существующего списка
-                    else:
-                        images_list = []
-                    time_hash = uuid.uuid1().hex
-                    for image in request.files.getlist("images"):
-                        hashname = time_hash+'.'+uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
-                        image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
-                        images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
-                        edit_news.images = images_list
-
-            edit_news.header = form_news_edit.header.data
-            edit_news.text = form_news_edit.text.data
-
-            make_history("news", "редактирование", current_user.id)
-            db.session.commit()
-
-            flash(u"Новость изменена", 'success')
-            return redirect(url_for('admin.admin_news'))
-    return render_template("admin/edit_news.html", form_news_edit = form_news_edit, all_counters = all_counters, current_user=current_user, today=today, edit_news=edit_news )
-
 #Страница со списком обращений
 @administration.route('/appeals', methods=['GET', 'POST'])
 @administration.route('/appeals/<int:page>', methods=['GET', 'POST'])
@@ -1492,3 +1445,19 @@ def new_news():
     all_counters = get_counters()
 
     return render_template("admin/add_news.html", all_counters = all_counters)
+    
+#Форма изменения новости
+@administration.route('/news/edit', methods=['GET', 'POST'])
+@login_required
+def edit_news():
+    c_user = User.current()
+
+    can = User.can("enter","news") and User.can("update","news")
+    if not can:
+        return forbidden(403)
+
+    all_counters = get_counters()
+
+    edit_news = News.query.get(request.args.get('id'))
+    
+    return render_template("admin/edit_news.html", all_counters = all_counters, current_user=c_user, edit_news=edit_news )
