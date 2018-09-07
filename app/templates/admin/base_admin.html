@@ -18,14 +18,6 @@
 
         <!-- Стили -->
         
-        <!-- Bootstrap-3 -->
-<!--
-        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-3/bootstrap.css') }}" type="text/css" media="screen" >
-        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-3/bootstrap-datetimepicker.min.css') }}" type="text/css" media="screen" >
-        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-3/bootstrap-editable.css') }}" type="text/css" media="screen" >
-        <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-3/bootstrap-theme.css') }}" type="text/css" media="screen" >
--->
-        
         <!-- Bootstrap-4 -->
         <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-4/bootstrap.css') }}" type="text/css" media="screen" >
         <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/bootstrap-4/bootstrap-grid.css') }}" type="text/css" media="screen" >
@@ -46,14 +38,6 @@
 
         
         <script type="text/javascript" src="{{ url_for('static', filename='admin/js/moment-with-locales.min.js') }}"></script>
-        
-        <!-- Bootstrap-3 -->
-<!--
-        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-3/bootstrap.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-3/bootstrap-formhelpers.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-3/bootstrap-datetimepicker.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-3/bootstrap-editable.min.js') }}"></script>
--->
         
         <!-- Bootstrap-4 -->
 <!--
@@ -78,60 +62,6 @@
     <div id="page-preloader"><span class="spinner"></span></div>
     <div id="message" class=""></div>
 
-{# 
-    
-<!--
-  =======================================================================
-  BOOTSTRAP 3 УДАЛИТЬ
-  =======================================================================  
-
-        <nav class="navbar navbar-inverse" style="margin-bottom: 0px;">
-            <div class="container" style="margin-left: initial; width:100%;">
-              <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                  <span class="sr-only">Навигация</span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="{{url_for('index')}}" title="Единая Информационная Система Архива">ЕИС<span class="raise">А</span></a>
-              </div>
-              <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav">
-                    <li class=""><a href="{{url_for('admin.admin')}}"><i class="fa fa-home" aria-hidden="true"></i>Главный экран</a></li>
-
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-database" aria-hidden="true"></i>Администрирование
-                        <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{url_for('admin.admin_users')}}"><i class="fa fa-users" aria-hidden="true"></i>Пользователи <span class="badge">{{ all_counters.get('user_count') }}</span></a></li>
-                            <li><a href="{{url_for('admin.admin_roles')}}"><i class="fa fa-universal-access" aria-hidden="true"></i>Роли <span class="badge">{{ all_counters.get('role_count') }}</span></a></li>
-                            <li><a href="{{url_for('admin.admin_departments')}}"><i class="fa fa-building" aria-hidden="true"></i>Отделы <span class="badge">{{ all_counters.get('department_count') }}</span></a></li>
-                            <li><a href="{{url_for('admin.admin_posts')}}"><i class="fa fa-briefcase" aria-hidden="true"></i>Должности <span class="badge">{{ all_counters.get('post_count') }}</span></a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{{url_for('admin.admin_news')}}"><i class="fa fa-newspaper-o" aria-hidden="true"></i>Новости отдела <span class="badge">{{ all_counters.get('news_count') }}</span></a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{{url_for('admin.admin_backups')}}"><i class="fa fa-hdd-o" aria-hidden="true"></i> Резервное копирование</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-keyboard-o" aria-hidden="true"></i>Модули<span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('admin.admin') }}"><i class="fa fa-lock" aria-hidden="true"></i>Администрирование ЕИС<span class="raise">А</span></a></li>
-                            <li><a href="{{ url_for('kartoteka.kartoteka_main') }}"><i class="fa fa-envelope-open" aria-hidden="true"></i>Картотека запросов</a></li>
-                            <li><a href="{{ url_for('zal.zal_main') }}"><i class="fa fa-book" aria-hidden="true"></i>Читальный зал</a></li>
-                        </ul>
-                    </li>
-                    <li class=""><a href="{{url_for('login.logout')}}">Выйти</a></li>
-                </ul>
-              </div>
-            </div>
-        </nav>-->
- #}
- 
         <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
             <a class="navbar-brand" href="{{url_for('index')}}" title="Единая Информационная Система Архива">ЕИС<span class="raise">А</span></a>
 
@@ -228,57 +158,6 @@
                 </ul>
             </div>
         </nav>
-        
-<!--
-  =======================================================================
-  BOOTSTRAP 3 УДАЛИТЬ
-  =======================================================================  
-        <br style="clear: both;"/>
-        <nav class="navbar navbar-inverse navbar-fixed-bottom">
-            <div class="container" style="margin-left: initial; width:100%;">
-              <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                  <span class="sr-only">Навигация</span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                </button>
-                
-
-                <span class="navbar-brand">
-                    <a href="https://ru.wikipedia.org/wiki/Копилефт">COPYLEFT <span class="copyleft">&copy;</span></a> 
-                    <span style="margin: 0 1em 0 1em;">2017 -
-                    <script language="JavaScript" type="text/javascript">
-                        now = new Date
-                        theYear=now.getYear()
-                        if (theYear < 1900)
-                        theYear=theYear+1900
-                        document.write(theYear)
-                    </script>
-                    </span>
-                    <span style="margin: 0 1em 0 0;">Разработка: Бородавкин Антон</span>
-                    <a href="mailto:anton.borodawkin@yandex.ru"><i class="fa fa-envelope" aria-hidden="true"></i></a>
-                    <a href="https://vk.com/goomba41"><i class="fa fa-vk" aria-hidden="true"></i></a>
-                    <a href="https://github.com/Goomba41"><i class="fa fa-github" aria-hidden="true"></i></a>
-                </span>
-              </div>
-
-                <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
-                    {# <span class="navbar-brand">Разработка: <a href="https://vk.com/goomba41">Бородавкин Антон</a> <i class="fa fa-copyright" aria-hidden="true"></i> 2017 - 2018</span> #}
-                <ul class="nav navbar-nav navbar-right" {# style="margin-left: 500px;" #}>
-                    {# 
-                    <li class=""><a href="{{ url_for('admin.admin_appeals') }}" title="Форма для внесения пожеланий и предложений по улучшению информационной системы">
-                    {% if current_user.post.name == "Программист" %}
-                    {% if all_counters.get('appeals_count_new') %}
-                        <i class="fa fa-exclamation-circle" style="color:red; font-size:1.3em;" aria-hidden="true"></i>
-                    {% endif %}
-                    <span class="badge btn-info">{{ all_counters.get('appeals_count_checked') }}</span> / <span class="badge btn-success">{{ all_counters.get('appeals_count_done') }}</span> / <span class="badge btn-primary">{{ all_counters.get('appeals_count_all') }}</span>
-                    {% endif %} Обращения</a></li> #}
-                    <li class=""><a href=""><i class="fa fa-question-circle" aria-hidden="true"></i>Помощь</a></li>
-                </ul>
-                </div>
-            </div>
-        </nav>-->
 
     </body>
     <script type="text/javascript" src="{{ url_for('static', filename='admin/js/loader.js') }}"></script>

@@ -6,6 +6,7 @@ from app import app, db
 from app.models import News, NewsSchema, User
 from flask import request, make_response, jsonify, Response, Blueprint, url_for, json
 from datetime import datetime
+from sqlalchemy.orm.attributes import flag_modified
 import hashlib, uuid
 
 API = Blueprint('API', __name__, url_prefix='/API/v1.0')
@@ -309,20 +310,49 @@ def update_news_images(news_id):
     if can:
         try:
             edit_news = News.query.get(news_id)
+            if (request.form['action'] == 'delete'):
+                
+                # images = edit_news.images[:]
+                # images[:] = [d for d in images if d.get('filename') != request.form['filename']]
 
-            images = edit_news.images[:]
-            images[:] = [d for d in images if d.get('filename') != request.form['filename']]           
+                # os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], request.form['filename']))
 
-            os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], request.form['filename']))
+                # edit_news.images = images
+                # db.session.commit()
+                
+                response = Response(
+                    response=json.dumps({'type':'success', 'action':'delete', 'text':'Изображение удалено!'}),
+                    status=200,
+                    mimetype='application/json'
+                )
+                
+            elif (request.form['action'] == 'as_cover'):
 
-            edit_news.images = images
-            db.session.commit()
-            
-            response = Response(
-                response=json.dumps({'type':'success', 'text':'Изменения сохранены!'}),
-                status=200,
-                mimetype='application/json'
-            )
+                for image in edit_news.images:
+                    if image['filename'] == request.form['filename']:
+                        image['as_cover'] = 1
+                        image['in_gallery'] = 0
+                    else:
+                        image['as_cover'] = 0
+
+                flag_modified(edit_news, "images")
+                db.session.commit()
+                
+                response = Response(
+                    response=json.dumps({'type':'success', 'action':'as_cover', 'text':'Отмечено как обложка!'}),
+                    status=200,
+                    mimetype='application/json'
+                )
+                
+            elif (request.form['action'] == 'in_gallery'):
+                print('Галерея')
+                
+                response = Response(
+                    response=json.dumps({'type':'success', 'action':'in_gallery', 'text':'Добавлено в галерею!'}),
+                    status=200,
+                    mimetype='application/json'
+                )
+                
         except:
             response = Response(
             response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),

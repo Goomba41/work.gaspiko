@@ -202,9 +202,12 @@ $(document).ready(function(){
         console.log();
         console.log();
         
+        var action = $(this).data('action')
+        var id = $(this).attr('id')
+        
         var formData = new FormData();
-        formData.append('action', $(this).data('action'));
-        formData.append('filename', $(this).attr('id'));
+        formData.append('action', action);
+        formData.append('filename', id);
 
         $.ajax({
             type : "PUT",
@@ -214,18 +217,19 @@ $(document).ready(function(){
             processData: false,
             data : formData,
             success: function (response) {
-                    //message = {"type":"success", "text":"Новость успешно отредактирована!"};
-                    //localStorage.setItem("message", JSON.stringify(message));
+                
+                    message = response;
+                    $('#message').addClass('show');
+                    $('#message').addClass(message['type']);
+                    $('#message').html(message['text']);
+                    setTimeout("$('#message').removeClass('show');", 2500);
                     
-                    //if (button_type=="with_reset") {
-                        //location.reload(true);
-                    //}
-                    //else if (button_type=="save") {
-                        //window.location = response['list'] ;
-                    //}
-                    //else if (button_type=="with_new") {
-                        //window.location = response['new'] ;
-                    //}
+                    if (message['action']=="delete") {
+                        $("div[data-imgid='"+id+"']").slideUp('slow', function(){ $("div[data-imgid='"+id+"']").remove();});
+                    }
+                    else if () {
+                        
+                    }
             },
             error: function(response) {
                 message = response.responseJSON;

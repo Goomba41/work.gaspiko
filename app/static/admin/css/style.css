@@ -194,4 +194,7 @@ span.font-BadScript {
     color:white;
 }
 
+.image-card {
+    transition: .5s ease;
+}
 

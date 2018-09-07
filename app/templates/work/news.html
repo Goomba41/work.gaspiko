@@ -15,7 +15,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='work/img/favicon2.ico') }}" type="image/x-icon">
 
     <!-- Bootstrap -->
-    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='work/css/bootstrap.css') }}">
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='admin/css/bootstrap-4/bootstrap.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='work/fonts/font-awesome/css/font-awesome.css') }}">
 
     <!-- Слайдер
@@ -25,7 +25,7 @@
 
     <!-- Стили
     ================================================== -->
-    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='work/css/style.css') }}">
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='work/css/newspage-style.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='work/css/responsive.css') }}">
 
     <link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css'>
@@ -37,7 +37,7 @@
   </head>
   <body>
     <!-- Навигация
-    ==========================================-->
+    ==========================================-->{# 
     <nav id="tf-menu" class="navbar navbar-default navbar-fixed-top" style="padding:0;background-color: rgba(0, 0, 0, 1);">
       <div class="container">
         <!-- Брэнд и переключатель на мобильных устройствах -->
@@ -49,6 +49,7 @@
             <span class="icon-bar"></span>
           </button>
         </div>
+
 
         <!-- Контент для перключения, заголовок -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -77,9 +78,43 @@
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
-    </nav>
-    <br style="clear:both;"/>
+    </nav> #}
+{# _ 
+        <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="{{url_for('index')}}" title="КОГБУ 'ГАСПИ КО'">КОГБУ "ГАСПИ КО"</a>
 
+            <div class="collapse navbar-collapse" id="primary-nav">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    
+                    <li class="nav-item active">
+                        {% if login_as %}
+                            <a class="nav-link" href="#">Вы вошли как: <span class="active">{{ login_as.name }} ({{ login_as.role.name }})</span>
+                                {% if login_as.photo %}
+                                <img src="{{ url_for('static', filename='admin/upload/users/'+login_as.photo) }}" alt="..." class="rounded-circle nav-img">
+                                {% else %}
+                                <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
+                                {% endif %}</a> 
+                        {% else %}
+                            Вы гость
+                            <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle nav-img-white">
+                        {% endif %}
+                    </li>
+
+
+                </ul>
+
+                <ul class="navbar-nav mr-sm mt-2 mt-lg-0">
+                    
+                    <li class="nav-item active"><a class="nav-link" href="/">Главная</a></li>
+                    <li class="nav-item active"><a class="nav-link" href="/#tf-works">Новости</a></li>
+                    <li class="nav-item active"><a class="nav-link" href="{{url_for('admin.admin')}}">Войти</a></li>
+                </ul>
+                
+            </div>
+
+        </nav>#}
+
+{# 
     <!-- Мэйн
     ==========================================-->
 <!--
@@ -92,8 +127,112 @@
             </div>
         </div>
     </div>
--->
+--> #}
+
+<div class="container-fluid p-0 container-main-news"
+                        {% if news.images %}
+                            {% for image in news.images %}
+                                {% if  image.as_cover%}
+                                    style="background-image:url({{ url_for('static', filename=config['NEWS_IMAGES_FOLDER_URL']+image.filename) }}); "
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}>
+    <div class="row-fluid">
+        
+        <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="{{url_for('index')}}" title="КОГБУ 'ГАСПИ КО'">КОГБУ "ГАСПИ КО"</a>
+
+            <div class="collapse navbar-collapse" id="primary-nav">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    
+                    <li class="nav-item active">
+                        {% if login_as %}
+                            <a class="nav-link" href="#">Вы вошли как: <span class="active">{{ login_as.name }} ({{ login_as.role.name }})</span>
+                                {% if login_as.photo %}
+                                <img src="{{ url_for('static', filename='admin/upload/users/'+login_as.photo) }}" alt="..." class="rounded-circle nav-img">
+                                {% else %}
+                                <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
+                                {% endif %}</a> 
+                        {% else %}
+                            Вы гость
+                            <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle nav-img-white">
+                        {% endif %}
+                    </li>
+
+
+                </ul>
+
+                <ul class="navbar-nav mr-sm mt-2 mt-lg-0">
+                    
+                    <li class="nav-item active"><a class="nav-link" href="/">Главная</a></li>
+                    <li class="nav-item active"><a class="nav-link" href="/#tf-works">Новости</a></li>
+                    <li class="nav-item active"><a class="nav-link" href="{{url_for('admin.admin')}}">Войти</a></li>
+                </ul>
+                
+            </div>
+        </nav>
+
+        <div class="col-8 m-auto h-100 mh-100 p-3 text-col">
+            
+            <div class="row-fluid p-0 text-center">
+                <h1 class="news-header"><strong>{{ news.header }}</strong></h1>
+                <hr>
+                <p class="sign">
+                    {{ news.user.name }} {{ news.user.surname }}
+                    {% if  news.user.photo %}
+                    <img src="{{ url_for('static', filename='admin/upload/users/'+ news.user.photo) }}" alt="..." class="rounded-circle nav-img">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
+                    {% endif %}
+                     | {{ news.user.post.name }} | 
+                    {{ news.cdate|datetime('full') }}
+                    {% if session['logged_in'] %}
+                    <a class = "edit" href="{{url_for('admin.edit_news', id = news.id)}}"><i class="fa fa-pencil" style="padding-left: 15px;" aria-hidden="true"></i></a>
+                    {% endif %}
+                </p>
+                <hr>
+            </div>
+
+            <div class="row-fluid p-5 text">
+                {{ news.text|safe }}
+            </div>
+        </div>
+            
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="https://ru.wikipedia.org/wiki/Копилефт">COPYLEFT <span class="copyleft">&copy;</span></a>
+            <div class="collapse navbar-collapse" id="footer-nav">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">
+                        2017 -
+                        <script language="JavaScript" type="text/javascript">
+                            now = new Date
+                            theYear=now.getYear()
+                            if (theYear < 1900)
+                            theYear=theYear+1900
+                            document.write(theYear)
+                        </script></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Разработка: Бородавкин Антон</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="mailto:anton.borodawkin@yandex.ru"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="https://vk.com/goomba41"><i class="fa fa-vk" aria-hidden="true"></i></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="https://github.com/Goomba41"><i class="fa fa-github" aria-hidden="true"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        
+    </div>
+</div>
     
+    {# 
     <div id="tf-news" class="text-center" 
                         {% if news.images %}
                             {% for image in news.images %}
@@ -108,9 +247,9 @@
                 <p class="sign">
                     {{ news.user.name }} {{ news.user.surname }}
                     {% if  news.user.photo %}
-                    <img src="{{ url_for('static', filename='admin/upload/users/'+ news.user.photo) }}" alt="..." class="img-circle nav-img">
+                    <img src="{{ url_for('static', filename='admin/upload/users/'+ news.user.photo) }}" alt="..." class="rounded-circle nav-img">
                     {% else %}
-                    <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle nav-img-white">
+                    <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
                     {% endif %}
                      | {{ news.user.post.name }} | 
                     {{ news.cdate|datetime('full') }}
@@ -122,10 +261,42 @@
                 <div class="text">{{ news.text|safe }}</div>
             </div>
 
-    </div>
+    </div> #}
+{# _ 
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="https://ru.wikipedia.org/wiki/Копилефт">COPYLEFT <span class="copyleft">&copy;</span></a>
+        <div class="collapse navbar-collapse" id="footer-nav">
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">
+                    2017 -
+                    <script language="JavaScript" type="text/javascript">
+                        now = new Date
+                        theYear=now.getYear()
+                        if (theYear < 1900)
+                        theYear=theYear+1900
+                        document.write(theYear)
+                    </script></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Разработка: Бородавкин Антон</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="mailto:anton.borodawkin@yandex.ru"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="https://vk.com/goomba41"><i class="fa fa-vk" aria-hidden="true"></i></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="https://github.com/Goomba41"><i class="fa fa-github" aria-hidden="true"></i></a>
+                </li>
+            </ul>
+        </div>
+    </nav>#}
 
-
-    <nav id="footer">
+{# 
+<!--
+        <nav id="footer">
         <div class="container">
             <div class="pull-left fnav">
                 <p>
@@ -138,20 +309,21 @@
                         document.write(theYear)
                     </script>. 
                     Разработка <a href="https://vk.com/goomba41">Бородавкин Антон</a> 
-                    <a href="mailto:anton.borodawkin@yandex.ru"><i class="fa fa-envelope" aria-hidden="true"></i></a>
-                    <a href="https://vk.com/goomba41"><i class="fa fa-vk" aria-hidden="true"></i></a>
-                    <a href="https://github.com/Goomba41"><i class="fa fa-github" aria-hidden="true"></i></a>
+                    <a href="mailto:anton.borodawkin@yandex.ru"><i class="fa fa-fw fa-envelope" aria-hidden="true"></i></a>
+                    <a href="https://vk.com/goomba41"><i class="fa fa-fw fa-vk" aria-hidden="true"></i></a>
+                    <a href="https://github.com/Goomba41"><i class="fa fa-fw fa-github" aria-hidden="true"></i></a>
                 </p>
             </div>
         </div>
     </nav>
+--> #}
 
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='work/js/jquery.1.11.1.js') }}"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script type="text/javascript" src="{{ url_for('static', filename='work/js/bootstrap.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-4/bootstrap.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='work/js/SmoothScroll.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='work/js/jquery.isotope.js') }}"></script>
 
