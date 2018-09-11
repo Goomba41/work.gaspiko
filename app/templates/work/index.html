@@ -283,8 +283,39 @@
             <div class="space"></div>
 
             <div class="scroll">
-                {% include "work/items.html" %}
-                <a class="jscroll-next" href="{{ request.url }}/page/{{ page + 1 }}"></a>
+            {% if news_all %}
+                    {% for news in news_all %}
+                    <div class="col-sm-6 col-md-3 col-lg-3 photography app">
+                        <div class="portfolio-item pb-3">
+                            {% if news.cdate|fresh(3) %}<div class="fresh_sign"></div>{% endif %}
+                            <div class="hover-bg">
+                                <a href="{{ url_for('news', id=news.id) }}">
+                                    <div class="hover-text">
+                                        <h4>{{ news.header }}</h4>
+                                        <p>{{ news.cdate|datetime('since') }}</p>
+                                        <div class="clearfix"></div>
+                                        <i class="fa fa-plus"></i>
+                                    </div>
+                                    {% if news.images %}
+                                        {% for image in news.images %}
+                                            {% if  image.as_cover%}
+                                                <img  src="{{  image.filename|thumbnail('260x260', crop='fit', quality=100) }}" style ="max-width:none; height:100%" class="img-responsive" alt="{{ news.header }}">
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <a style ="margin-top:700px;" class="jscroll-next" href="/?page={{ page + 1 }}"></a>
+            {% else %}
+                    <div class="row">
+                    <p class="alert alert-danger" style="text-align: center; font-size: 2em;">
+                        Вы достигли конца списка
+                    </p>
+                    </div>
+            {% endif %}
             </div>
 
         </div>

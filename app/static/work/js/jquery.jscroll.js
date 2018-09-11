@@ -55,7 +55,7 @@
             // Wrap inner content, if it isn't already
             _wrapInnerContent = function() {
                 if (!$e.find('.jscroll-inner').length) {
-                    $e.contents().wrapAll('<div class="jscroll-inner" />');
+                    $e.contents().wrapAll('<div class="jscroll-inner d-flex flex-row flex-wrap" />');
                 }
             },
 
@@ -149,7 +149,7 @@
                     data = $e.data('jscroll');
 
                 data.waiting = true;
-                $inner.append('<div class="jscroll-added" />')
+                $inner.append('<div class="jscroll-added col-sm-6 col-md-3 col-lg-3 photography app" />')
                     .children('.jscroll-added').last()
                     .html('<div class="jscroll-loading" id="jscroll-loading">' + _options.loadingHtml + '</div>')
                     .promise()
