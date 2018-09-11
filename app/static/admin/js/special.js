@@ -196,22 +196,24 @@ $(document).ready(function(){
     });//form send
 });
 
+//Редактирование изображений новости
 $(document).ready(function(){
-    $("button.news-img-btn").click(function(e) {
-        
-        console.log();
-        console.log();
-        
+    $("div.card").on("click", ".news-img-btn", function(e) {
         var action = $(this).data('action')
         var id = $(this).attr('id')
+        var api_url = $("div[data-imgid='"+id+"']").data('url');
         
         var formData = new FormData();
         formData.append('action', action);
         formData.append('filename', id);
+        console.log(id);
+        if (action=='gallery_title') {
+            formData.append(action,$("input[data-imgid='"+id+"']").val())
+        };
 
         $.ajax({
             type : "PUT",
-            url : $(this).data('url'),
+            url : api_url,
             cache: false,
             contentType: false,
             processData: false,
@@ -227,8 +229,37 @@ $(document).ready(function(){
                     if (message['action']=="delete") {
                         $("div[data-imgid='"+id+"']").slideUp('slow', function(){ $("div[data-imgid='"+id+"']").remove();});
                     }
-                    else if () {
+                    else if (message['action']=="as_cover") {
+                        var prev_id = message['prev_id'];
                         
+                        $("div[data-imgid='"+prev_id+"']").find($("div.delete")).append('<button id="'+prev_id+'" title="Открепить изображение" type="button" class="float-left btn btn-sm btn-danger m-1 news-img-btn" data-action="delete"><i class="fa fa-fw p-0 fa-trash" aria-hidden="true"></i></button>');
+                        $("div[data-imgid='"+prev_id+"']").find($("button[data-action=as_cover")).removeClass('btn-success');
+                        $("div[data-imgid='"+prev_id+"']").find($("button[data-action=as_cover")).addClass('btn-default');
+                        $("div[data-imgid='"+prev_id+"']").find($("button[data-action=as_cover")).before('<button id="'+prev_id+'" title="Вставить в галерею в новости" type="button" class="btn btn-sm btn-default m-1 float-right news-img-btn" data-action="in_gallery"><i class="fa fa-fw p-0 fa-picture-o" aria-hidden="true"></i></button>');
+
+                        
+                        $("div[data-imgid='"+id+"']").find($("button[data-action=delete")).remove();
+                        $("div[data-imgid='"+id+"']").find($("button[data-action=in_gallery")).remove();
+                        $("div[data-imgid='"+id+"']").find($("div[data-action=gallery_title")).remove();
+                        $("div[data-imgid='"+id+"']").find($("button[data-action=as_cover")).removeClass('btn-default');
+                        $("div[data-imgid='"+id+"']").find($("button[data-action=as_cover")).addClass('btn-success');
+                    }
+                    else if (message['action']=="in_gallery") {
+                        
+                        var make = message['make'];
+                        var title = message['gallery_title']
+                        if (make == 'add') {
+                            $("div[data-imgid='"+id+"']").find($("div.actions")).after("<div class='row mt-3' data-action='gallery_title'><div class='input-group m-1'><input type='text' class='form-control' id='image-title-"+id+"' data-imgid='"+id+"' placeholder='Заголовок'><div class='input-group-append'><button id='"+id+"' title='Сохранить' type='button' class='btn btn-success news-img-btn' data-action='gallery_title'><i class='fa fa-fw p-0 fa-floppy-o' aria-hidden='true'></i></button></div></div></div>");
+                            $("div[data-imgid='"+id+"']").find($("button[data-action=in_gallery")).removeClass('btn-default');
+                            $("div[data-imgid='"+id+"']").find($("button[data-action=in_gallery")).addClass('btn-success');
+                            $("div[data-imgid='"+id+"']").find($("input[data-imgid='"+id+"']")).val(title);
+                            //alert(title);
+                        }
+                        else if (make == 'remove') {
+                            $("div[data-imgid='"+id+"']").find($("div[data-action='gallery_title']")).remove();
+                            $("div[data-imgid='"+id+"']").find($("button[data-action=in_gallery")).removeClass('btn-success');
+                            $("div[data-imgid='"+id+"']").find($("button[data-action=in_gallery")).addClass('btn-default');
+                        }
                     }
             },
             error: function(response) {

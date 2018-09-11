@@ -300,7 +300,7 @@ def update_news(news_id):
     
     return response
     
-#Редактирование новости новости
+#Редактирование изображений новости новости
 @API.route('/news/<int:news_id>/images', methods=['PUT'])
 def update_news_images(news_id):
     
@@ -310,15 +310,16 @@ def update_news_images(news_id):
     if can:
         try:
             edit_news = News.query.get(news_id)
+
             if (request.form['action'] == 'delete'):
                 
-                # images = edit_news.images[:]
-                # images[:] = [d for d in images if d.get('filename') != request.form['filename']]
+                images = edit_news.images[:]
+                images[:] = [d for d in images if d.get('filename') != request.form['filename']]
 
-                # os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], request.form['filename']))
+                os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], request.form['filename']))
 
-                # edit_news.images = images
-                # db.session.commit()
+                edit_news.images = images
+                db.session.commit()
                 
                 response = Response(
                     response=json.dumps({'type':'success', 'action':'delete', 'text':'Изображение удалено!'}),
@@ -332,23 +333,57 @@ def update_news_images(news_id):
                     if image['filename'] == request.form['filename']:
                         image['as_cover'] = 1
                         image['in_gallery'] = 0
-                    else:
+                    elif image['as_cover'] == 1:
+                        prev_id = image['filename']
                         image['as_cover'] = 0
 
                 flag_modified(edit_news, "images")
                 db.session.commit()
                 
                 response = Response(
-                    response=json.dumps({'type':'success', 'action':'as_cover', 'text':'Отмечено как обложка!'}),
+                    response=json.dumps({'type':'success', 'action':'as_cover', 'text':'Отмечено как обложка!', 'prev_id':prev_id}),
                     status=200,
                     mimetype='application/json'
                 )
                 
             elif (request.form['action'] == 'in_gallery'):
-                print('Галерея')
                 
+                for image in edit_news.images:
+                    if image['filename'] == request.form['filename']:
+                        if image['in_gallery'] == 1:
+                            image['as_cover'] = 0
+                            image['in_gallery'] = 0
+                            text = 'Убрано из галереи!'
+                            make = 'remove'
+                        else:
+                            image['as_cover'] = 0
+                            image['in_gallery'] = 1
+                            text = 'Добавлено в галерею!'
+                            make = 'add'
+                        if 'gallery_title' in image:
+                            title=image['gallery_title']
+                        else:
+                            title=''
+
+                flag_modified(edit_news, "images")
+                db.session.commit()
+                                
                 response = Response(
-                    response=json.dumps({'type':'success', 'action':'in_gallery', 'text':'Добавлено в галерею!'}),
+                    response=json.dumps({'type':'success', 'action':'in_gallery', 'text':text, 'make':make, 'gallery_title':title}),
+                    status=200,
+                    mimetype='application/json'
+                )
+                
+            elif (request.form['action'] == 'gallery_title'):
+                for image in edit_news.images:
+                    if image['filename'] == request.form['filename']:
+                        image.update({"gallery_title":request.form['gallery_title']})
+
+                flag_modified(edit_news, "images")
+                db.session.commit()
+                                
+                response = Response(
+                    response=json.dumps({'type':'success', 'action':'gallery_title', 'text':'Заголовок сохранен!'}),
                     status=200,
                     mimetype='application/json'
                 )
