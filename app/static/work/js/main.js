@@ -30,11 +30,14 @@ function main() {
     Show Menu on Book
     ======================================*/
     $(window).bind('scroll', function() {
-        var navHeight = $(window).height() - 100;
+        var navHeight = $(window).height() - $(window).height()*0.3;
         if ($(window).scrollTop() > navHeight) {
-            $('.navbar-default').addClass('on');
+            //$('.navbar-default').addClass('on');
+            $('.navbar-default').addClass('bg-dark');
+            
         } else {
-            $('.navbar-default').removeClass('on');
+            //$('.navbar-default').removeClass('on');
+            $('.navbar-default').removeClass('bg-dark');
         }
     });
 

@@ -86,7 +86,7 @@
             <a class="navbar-brand" href="{{url_for('index')}}" title="КОГБУ 'ГАСПИ КО'">КОГБУ "ГАСПИ КО"</a>
 
             <div class="collapse navbar-collapse" id="primary-nav">
-                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0 ">
                     
                     <li class="nav-item active">
                         {% if login_as %}
@@ -141,38 +141,42 @@
                         {% endif %}>
     <div class="row-fluid">
         
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand" href="{{url_for('index')}}" title="КОГБУ 'ГАСПИ КО'">КОГБУ "ГАСПИ КО"</a>
+    <nav id="tf-menu" class="navbar sticky-top navbar-expand-lg navbar-default bg-dark">
+        <a class="navbar-brand" href="{{ url_for('index') }}">КОГБУ "ГАСПИ КО"</a>
 
-            <div class="collapse navbar-collapse" id="primary-nav">
-                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                    
-                    <li class="nav-item active">
-                        {% if login_as %}
-                            <a class="nav-link" href="#">Вы вошли как: <span class="active">{{ login_as.name }} ({{ login_as.role.name }})</span>
-                                {% if login_as.photo %}
-                                <img src="{{ url_for('static', filename='admin/upload/users/'+login_as.photo) }}" alt="..." class="rounded-circle nav-img">
-                                {% else %}
-                                <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
-                                {% endif %}</a> 
-                        {% else %}
-                            Вы гость
-                            <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle nav-img-white">
-                        {% endif %}
-                    </li>
-
-
-                </ul>
-
-                <ul class="navbar-nav mr-sm mt-2 mt-lg-0">
-                    
-                    <li class="nav-item active"><a class="nav-link" href="/">Главная</a></li>
-                    <li class="nav-item active"><a class="nav-link" href="/#tf-works">Новости</a></li>
-                    <li class="nav-item active"><a class="nav-link" href="{{url_for('admin.admin')}}">Войти</a></li>
-                </ul>
+        <div class="collapse navbar-collapse" id="primary-nav">
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 
-            </div>
-        </nav>
+                <li class="nav-item active">
+                    <a class="">
+                    {% if login_as %}
+                        Вы вошли как: <span class="active">{{ login_as.name }} ({{ login_as.role.name }})</span>
+                            {% if login_as.photo %}
+                            <img src="{{ url_for('static', filename='admin/upload/users/'+login_as.photo) }}" alt="..." class="rounded-circle nav-img">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
+                            {% endif %}
+                    {% else %}
+                        Вы гость
+                        <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
+                    {% endif %}
+                    </a>
+                </li>
+
+            </ul>
+
+            <ul class="navbar-nav mr-sm mt-2 mt-lg-0">
+                <li class="nav-item "><a href="#tf-home" class=" nav-link">Главная</a></li>
+                <li class="nav-item "><a href="#tf-about" class=" nav-link">О нас</a></li>
+                <li class="nav-item "><a href="#tf-team" class=" nav-link">Сотрудники</a></li>
+                <li class="nav-item "><a href="#tf-services" class=" nav-link">Ресурсы</a></li>
+                <li class="nav-item "><a href="#tf-works" class=" nav-link">Новости</a></li>
+                <li class="nav-item "><a href="{{url_for('admin.admin')}}" class=" nav-link">Войти</a></li>
+            </ul>
+            
+        </div>
+
+    </nav>
 
         <div class="col-8 m-auto h-100 mh-100 p-3 text-col">
             

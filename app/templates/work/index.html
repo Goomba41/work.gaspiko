@@ -15,7 +15,10 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='work/img/favicon2.ico') }}" type="image/x-icon">
 
     <!-- Bootstrap -->
+<!--
     <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='work/css/bootstrap.css') }}">
+-->
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='admin/css/bootstrap-4/bootstrap.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='work/fonts/font-awesome/css/font-awesome.css') }}">
 
     <!-- Слайдер
@@ -34,17 +37,9 @@
   <body>
     <!-- Навигация
     ==========================================-->
+    {# 
     <nav id="tf-menu" class="navbar navbar-default navbar-fixed-top">
       <div class="container">
-        <!-- Брэнд и переключатель на мобильных устройствах -->
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-            <span class="sr-only">Переключить навигацию</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-        </div>
 
         <!-- Контент для перключения, заголовок -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -76,7 +71,47 @@
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
+    </nav>_ #}
+    
+
+    <nav id="tf-menu" class="navbar fixed-top navbar-expand-lg navbar-default">
+        <a class="navbar-brand" href="{{ url_for('index') }}">КОГБУ "ГАСПИ КО"</a>
+
+        <div class="collapse navbar-collapse" id="primary-nav">
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                
+                <li class="nav-item active">
+                    <a class="">
+                    {% if login_as %}
+                        Вы вошли как: <span class="active">{{ login_as.name }} ({{ login_as.role.name }})</span>
+                            {% if login_as.photo %}
+                            <img src="{{ url_for('static', filename='admin/upload/users/'+login_as.photo) }}" alt="..." class="rounded-circle nav-img">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
+                            {% endif %}
+                    {% else %}
+                        Вы гость
+                        <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
+                    {% endif %}
+                    </a>
+                </li>
+
+            </ul>
+
+            <ul class="navbar-nav mr-sm mt-2 mt-lg-0">
+                <li class="nav-item "><a href="#tf-home" class="page-scroll nav-link">Главная</a></li>
+                <li class="nav-item "><a href="#tf-about" class="page-scroll nav-link">О нас</a></li>
+                <li class="nav-item "><a href="#tf-team" class="page-scroll nav-link">Сотрудники</a></li>
+                <li class="nav-item "><a href="#tf-services" class="page-scroll nav-link">Ресурсы</a></li>
+                <li class="nav-item {% if fresh_news %}active{% endif %}"><a href="#tf-works" class="page-scroll nav-link {% if fresh_news %}back-pulse{% endif %}">Новости {% if fresh_news %}<i class="fa fa-exclamation" aria-hidden="true"></i>{% endif %}</a></li>
+                <li class="nav-item "><a href="{{url_for('admin.admin')}}" class=" nav-link">Войти</a></li>
+            </ul>
+            
+        </div>
+
     </nav>
+    
+    
 
     <!-- Заглавная вкладка
     ==========================================-->
@@ -107,7 +142,7 @@
                             <hr>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="text" style="font-size:1.2em;padding:0;">
+                        <div class="text" class="intro">
                             <p>Кировское областное государственное бюджетное учреждение «Государственный архив социально-политической истории Кировской области" (КОГКУ «ГАСПИ КО») создано как Областной партийный архив постановлением бюро Кировского обкома ВКП(б) от 8 октября 1938 г. С 1945 г. назывался – Партийный архив Кировского обкома ВКП(б).</p>
                             <p>На основании Указа Президента РФ и постановления Совета Министров РСФСР, распоряжением Главы администрации области (1991 г.) на базе партийного архива Кировского обкома КП РСФСР создан Областной центр документации новейшей истории. По распоряжению Администрации Кировской области (1992 г.) переименован в Центр документации новейшей истории Кировской области (ЦДНИ КО).</p>
                             <p>В связи с завершившейся интеграцией Центра в систему учреждений государственной архивной службы, а также со сложившейся его специализацией распоряжением Администрации Кировской области (2001 г.) переименован в Государственный архив социально-политической истории Кировской области (ГАСПИ КО), с 11 сентября 2006 года – Государственное областное учреждение «Государственный архив социально-политической истории Кировской области" (ГОУ "ГАСПИ КО"), а со 02 июня 2011 года - Кировское областное государственное казенное учреждение "Государственный архив социально-политической истории Кировской области" (КОГКУ "ГАСПИ КО"), с 09 января 2017 года - Кировское областное государственное бюджетное учреждение "Государственный архив социально-политической истории Кировской области" (КОГБУ "ГАСПИ КО").</p>
@@ -138,9 +173,9 @@
                         <div class="item">
                             <div class="thumbnail">
                                 {% if user.photo %}
-                                <img src="{{ url_for('static', filename='admin/upload/users/'+user.photo) }}" alt="..." class="img-circle team-img">
+                                <img src="{{ url_for('static', filename='admin/upload/users/'+user.photo) }}" alt="..." class="img-circle rounded-circle team-img">
                                 {% else %}
-                                <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle team-img">
+                                <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle rounded-circle team-img">
                                 {% endif %}
 
                                 <div class="caption">
@@ -174,60 +209,61 @@
             <div class="space"></div>
             <div class="row">
                 {% for module in modules_all %}
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 service">
                 <a href="{{ request.url_root }}{{ module.url }}" class="a-main">
-                    <div class="col-md-3 col-sm-6 service">
+                    
                         <i class="fa fa-desktop"></i>
                         <h4><strong>{{ module.name }}</strong></h4>
                         {#
                         <p>{{ module.comment }}</p>
                         <p>{{ request.url_root }}{{ module.url }}</p>
                         #}
-                    </div>
-                </a>
+                    
+                </a></div>
                 {% endfor %}
 
-                <a href="http://afweb.gaspiko.a" class="a-main">
-                <div class="col-md-3 col-sm-6 service">
-                    <i class="fa fa-desktop"></i>
-                    <h4><strong>ИПС ЭНСА</strong></h4>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 service">
+                    <a href="http://afweb.gaspiko.a" class="a-main">
+                        <i class="fa fa-desktop"></i>
+                        <h4><strong>ИПС ЭНСА</strong></h4>
+                    </a>
                 </div>
-                </a>
 
-                <a href="http://strah-fond.gaspiko.a" class="a-main">
-                <div class="col-md-3 col-sm-6 service">
-                    <i class="fa fa-desktop"></i>
-                    <h4><strong>Страховой фонд</strong></h4>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 service">
+                    <a href="http://strah-fond.gaspiko.a" class="a-main">
+                        <i class="fa fa-desktop"></i>
+                        <h4><strong>Страховой фонд</strong></h4>
+                    </a>
                 </div>
-                </a>
 
-                <a href="http://fotocatalog.gaspiko.a" class="a-main">
-                <div class="col-md-3 col-sm-6 service">
-                    <i class="fa fa-desktop"></i>
-                    <h4><strong>Фотокаталог</strong></h4>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 service">
+                    <a href="http://fotocatalog.gaspiko.a" class="a-main">
+                        <i class="fa fa-desktop"></i>
+                        <h4><strong>Фотокаталог</strong></h4>
+                    </a>
                 </div>
-                </a>
 
-                <a href="http://akt.gaspiko.a" class="a-main">
-                <div class="col-md-3 col-sm-6 service">
-                    <i class="fa fa-desktop"></i>
-                    <h4><strong>Проверка наличия</strong></h4>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 service">
+                    <a href="http://akt.gaspiko.a" class="a-main">
+                        <i class="fa fa-desktop"></i>
+                        <h4><strong>Проверка наличия</strong></h4>
+                    </a>
                 </div>
-                </a>
 
-                <a href="http://composition.a" class="a-main">
-                <div class="col-md-3 col-sm-6 service">
-                    <i class="fa fa-desktop"></i>
-                    <h4><strong>Личный состав</strong></h4>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 service">
+                    <a href="http://composition.a" class="a-main">
+                        <i class="fa fa-desktop"></i>
+                        <h4><strong>Личный состав</strong></h4>                
+                    </a>
                 </div>
-                </a>
 
-                <a href="http://gaspiko.ru" class="a-main">
-                <div class="col-md-3 col-sm-6 service">
-                    <i class="fa fa-desktop"></i>
-                    <h4><strong>Сайт архива</strong></h4>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 service">
+                    <a href="http://gaspiko.ru" class="a-main">
+                        <i class="fa fa-desktop"></i>
+                        <h4><strong>Сайт архива</strong></h4>
+                    </a>
                 </div>
-                </a>
-
+                
             </div>
         </div>
     </div>
@@ -255,6 +291,7 @@
     </div>
 
 
+<!--
     <nav id="footer">
         <div class="container">
             <div class="pull-left fnav">
@@ -275,13 +312,48 @@
             </div>
         </div>
     </nav>
+-->
+
+    <nav class="navbar fixed-bottom navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="https://ru.wikipedia.org/wiki/Копилефт">COPYLEFT <span class="copyleft">&copy;</span></a>
+        <div class="collapse navbar-collapse" id="footer-nav">
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">
+                    2017 -
+                    <script language="JavaScript" type="text/javascript">
+                        now = new Date
+                        theYear=now.getYear()
+                        if (theYear < 1900)
+                        theYear=theYear+1900
+                        document.write(theYear)
+                    </script></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Разработка: Бородавкин Антон</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="mailto:anton.borodawkin@yandex.ru"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="https://vk.com/goomba41"><i class="fa fa-vk" aria-hidden="true"></i></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="https://github.com/Goomba41"><i class="fa fa-github" aria-hidden="true"></i></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
 
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='work/js/jquery.1.11.1.js') }}"></script>
     <!-- Подключение прочих плагинов -->
+<!--
     <script type="text/javascript" src="{{ url_for('static', filename='work/js/bootstrap.js') }}"></script>
+-->
+    <script type="text/javascript" src="{{ url_for('static', filename='admin/js/bootstrap-4/bootstrap.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='work/js/SmoothScroll.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='work/js/jquery.isotope.js') }}"></script>
 

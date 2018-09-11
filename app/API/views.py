@@ -122,7 +122,6 @@ app.jinja_env.filters['fresh'] = fresh_news
 def fresh_news_counter(news_list,days):
     count = 0
     for i in news_list.json():
-        print(i['cdate'])
         if fresh_news(i['cdate'],days):
             count += 1
         else: break
