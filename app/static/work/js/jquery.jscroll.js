@@ -149,7 +149,7 @@
                     data = $e.data('jscroll');
 
                 data.waiting = true;
-                $inner.append('<div class="jscroll-added col-sm-6 col-md-3 col-lg-3 photography app" />')
+                $inner.append('<div class="jscroll-added col-sm-6 col-md-3 col-lg-3" />')
                     .children('.jscroll-added').last()
                     .html('<div class="jscroll-loading" id="jscroll-loading">' + _options.loadingHtml + '</div>')
                     .promise()

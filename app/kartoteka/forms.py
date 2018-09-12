@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import TextField, DateField, IntegerField, SelectField
 from wtforms.validators import Required, regexp, Length
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from app.models import Kind, Character, Executor, Send, Answer, Admission
+from app.models import Kind, Character, Executor, Send, Answer, Admission, User
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from app import db
 
@@ -20,7 +20,7 @@ class AddRequestForm(FlaskForm):
     kind_id = QuerySelectField(u'Вид запроса', get_label=lambda x: x.name,  query_factory=lambda: Kind.query.order_by('id'), validators = [Required(message = u'Поле не может быть пустым')])
     admission_id = QuerySelectField(u'Способ поступления', get_label=lambda x: x.name,  query_factory=lambda: Admission.query.order_by('id'), validators = [Required(message = u'Поле не может быть пустым')])
     character_id = QuerySelectField(u'Характер запроса', get_label=lambda x: x.name,  query_factory=lambda: Character.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
-    executor_id = QuerySelectField(u'Исполнитель', get_label=lambda x: x.user.surname+' '+x.user.name+' '+x.user.patronymic, query_factory=lambda: Executor.query.order_by('user_id'), validators = [Required(message = u'Поле не может быть пустым')])
+    executor_id = QuerySelectField(u'Исполнитель', get_label=lambda x: x.user.surname+' '+x.user.name+' '+x.user.patronymic, query_factory=lambda: Executor.query.order_by('surname').join(User), validators = [Required(message = u'Поле не может быть пустым')])
 
 class DelRequestForm(FlaskForm):
     del_id = TextField('id', validators = [Required()])
@@ -32,13 +32,20 @@ class EditRequestForm(FlaskForm):
         model_list = []
         for q in query:
             model_list.append((q.id, q.name))
-        return model_list
+        # print(model_list)
+        sorted_list = sorted(model_list, key=lambda tup: tup[1])
+        return sorted_list
+        # return model_list
     def get_list_executor(X):
         query = X.query.all()
         model_list = []
         for q in query:
             model_list.append((q.id, q.user.surname+' '+q.user.name))
-        return model_list
+        # print(model_list)
+        sorted_list = sorted(model_list, key=lambda tup: tup[1])
+        # print(sorted_list)
+        return sorted_list
+        # return model_list
 
     number = TextField(u'Номер запроса', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=10, message = u'Номер должен быть в диапазоне от 1 до 10 символов')])
     copies = TextField(u'Количество ксерокопий', validators = [Required(message = u'Поле не может быть пустым'), Length(min=1, max=10, message = u'Количество копий должно быть в диапазоне от 1 до 10 символов')])

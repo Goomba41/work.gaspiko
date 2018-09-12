@@ -21,14 +21,14 @@
                         <div class="row pt-3">
                                 
                                 <div class="card card-success border-success w-100">
-                                        <div class="card-header bg-success text-white"><strong>ПОЗДРАВЛЯЕМ <i class="fa fa-birthday-cake" aria-hidden="true"></i></strong></div>
+                                        <div class="card-header bg-success text-white"><strong>ПОЗДРАВЛЯЕМ <i class="fa fa-birthday-cake fa-fw mr-2" aria-hidden="true"></i></strong></div>
                                         <div class="card-body">
                                                 <div class="row">
                                                         <div class="col-9 birthday-text" >
                                                                 <span class="upper font-BadScript">
                                                                         <strong>{{ key }}</strong><br/>
                                                                         От лица всех сотрудников архива поздравляем Вас<br/>
-                                                                        <strong>С ДНЕМ РОЖДЕНИЯ </strong><i class="fa fa-birthday-cake" aria-hidden="true"></i>
+                                                                        <strong>С ДНЕМ РОЖДЕНИЯ </strong><i class="fa fa-birthday-cake fa-fw mr-2" aria-hidden="true"></i>
                                                                 </span>
                                                         </div>
                                                         <div class="col-3">
@@ -72,7 +72,7 @@
                                                     <li>Ваш отдел: <strong>{{ current_user.department.name }}</strong></li>
                                                     <li>Ваша должность: <strong>{{ current_user.post.name }}</strong></li>
                                                     <li>Ваш стаж: <strong>{{ time_worked[0][0] }} {{ time_worked[0][1] }} {{ time_worked[1][0] }} {{ time_worked[1][1] }} {{ time_worked[2][0] }} {{ time_worked[2][1] }}</strong></li>
-                                                    <li><i class="fa fa-history" aria-hidden="true"></i><a href="{{ url_for('admin.admin_history') }}">История действий пользователя</a></li>
+                                                    <li><i class="fa fa-history fa-fw mr-2" aria-hidden="true"></i><a href="{{ url_for('admin.admin_history') }}">История действий пользователя</a></li>
                                                 </ul>
                                         </div>
                                 </div>
@@ -83,7 +83,7 @@
                                                         <div class="card-header" id="permissions-card-heading">
                                                                 <h5 class="mb-0">
                                                                         <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapsePermissionsMainscreen" aria-expanded="true" aria-controls="collapsePermissionsMainscreen">
-                                                                                <strong>Ваши полномочия <i class="fa fa-caret-down" aria-hidden="true"></i></strong>
+                                                                                <strong>Ваши полномочия <i class="fa fa-caret-down fa-fw mr-2" aria-hidden="true"></i></strong>
                                                                         </button>
                                                                 </h5>
                                                         </div>
@@ -161,6 +161,34 @@
                                                 <li class="list-group-item list-group-item-danger">
                                                         Уважаемые архивисты, перед началом работы ознакомтесь, пожалуйста, со следующей важной информацией:
                                                 </li>
+                                                
+                                                    {% for news in important_news_all %}
+                                                        <li class="list-group-item">
+                                                        {% if  current_user.role.id == 1 or current_user.role.id == 2 %}
+                                                            <form action="" method="post" name="delimportant">
+                                                                {{form_delete.hidden_tag()}}
+                                                                    <button class="btn btn-transparent"  type="submit" title="Удалить запись" onclick="return confirm('Точно?');"><i class="fa fa-trash p-0"></i></button>
+                                                                    Автор: {{ news.user.surname }} {{ news.user.name }}, {{ news.user.role.name }} 
+                                                                    {{form_delete.del_id(id="del-"+news.id|string,value=news.id, style = "display:none;")}}
+                                                            </form>
+                                                            <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> <a href="#" id="text{{ news.id }}" data-name="text" data-type="textarea" data-pk="{{ news.id }}" data-url="{{ url_for('admin.fast_important_edit') }}" data-title="Введите текст новости">{{ news.text }}</a>
+
+                                                            <script>
+                                                                $('#text{{ news.id }}').editable({
+                                                                    success: function(e) {
+                                                                        console.log(e);
+                                                                        location.reload();
+                                                                    }
+                                                                });
+                                                            </script>
+ 
+                                                        {% else %}
+                                                        <i class="fa fa-exclamation-circle" style="color:red" aria-hidden="true"></i> {{ news.text }}</li>
+                                                        {% endif %}
+
+                                                    {% endfor %}
+                                                
+                                                
                                         </ul>
                                 </div>
                         </div>

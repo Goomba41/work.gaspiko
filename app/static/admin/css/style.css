@@ -55,9 +55,11 @@ span.font-BadScript {
 }
 
 /* Отступы иконок */
+/*
 .fa{
-    padding: 0 5px 0 0;
-}
+    padding-right: 0.5rem !important;
+
+}*/
 
 .btn-transparent {
     background-color: transparent;
