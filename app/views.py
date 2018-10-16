@@ -26,6 +26,10 @@ def index(page=1):
     size = request.args.get('size', 4, type=int)
     news_all = requests.get(url_for('API.get_all_news', size = size, page = page, _external=True), verify=False)
     pagination = Pagination(page=page, total = News.query.count(), per_page = size, css_framework='bootstrap3')
+    # cert = request.environ
+    # print(request.environ['CLIENT_VERIFY'])
+    # print(request.environ)
+
     
     if page==1:
         fresh_news = fresh_news_counter(news_all, 3)
