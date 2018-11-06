@@ -19,10 +19,14 @@ from app.authentication.views import authentication as authentication_module
 from app.admin.views import administration as admin_module
 from app.kartoteka.views import kartoteka as kartoteka_module
 from app.zal.views import zal as zal_module
+from app.inventory.views import inventory as inventory_module
+from app.CA.views import CA as CA_module
 
 app.register_blueprint(api_module)
 app.register_blueprint(authentication_module)
 app.register_blueprint(admin_module)
 app.register_blueprint(kartoteka_module)
 app.register_blueprint(zal_module)
+app.register_blueprint(CA_module)
+app.register_blueprint(inventory_module)
 

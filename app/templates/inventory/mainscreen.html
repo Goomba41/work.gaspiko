@@ -1,0 +1,94 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+
+<div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+    <div class="col p-0">
+        
+        <div class="row-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#" title="Панель управления таблицей">Управление</span></a>
+
+                <div class="collapse navbar-collapse" id="primary-nav">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href="{{url_for('inventory.inventory_main')}}"><i class="fa fa-list-ol" aria-hidden="true"></i>Список</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href=""><i class="fa fa-plus" aria-hidden="true"></i>
+ Создать</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href=""><i class="fa fa-users" aria-hidden="true"></i>
+ Исполнители</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href=""><i class="fa fa-line-chart" aria-hidden="true"></i>
+ Статистика</a>
+                        </li>
+                        <li class="nav-item active dropdown">
+                            <a id="main-panel-dropdown-administration" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-check-square-o" aria-hidden="true"></i>
+ Выбранное</a>
+                            
+                            <div class="dropdown-menu" aria-labelledby="main-panel-dropdown-administration">
+                                <a class="dropdown-item delete" onclick="" href="#"><i class="fa fa-trash-o" aria-hidden="true"></i>
+ Удалить</a>
+                            </div>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href=""><i class="fa fa-search" aria-hidden="true"></i>
+ Поиск</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href=""><i class="fa fa-download" aria-hidden="true"></i>
+ Скачать CSV</a>
+                        </li>
+                    </ul>
+                    
+                </div>
+
+            </nav>
+        </div>
+        
+            <div class="row p-3 m-auto align-items-center">
+                <div class="col-6">
+                </div>
+                <div class="col-6">
+                </div>
+            </div>      
+
+            <div class="row p-3 m-auto align-items-center">
+                <table class="table table-striped table-bordered table-hover table-responsive model-list text-center" >
+                    <tr>
+                        <th><input type="checkbox" name="rowtoggle" class="action-rowtoggle" title="Выделение всех записей" ></th>
+                        <th width="1%">Действия над записью</th>
+                        <th >Номер</th>
+                        <th >ФИО</th>
+                        <th width="11%">Дата запроса</th>
+                        <th >Характер запроса</th>
+                        <th >Исполнитель</th>
+                        <th >Характер ответа</th>
+                        <th >Файл справки</th>
+                    </tr>
+
+                </table>
+            </div>
+
+            
+            <div class="row p-3 m-auto align-items-center">
+                <div class="col-6">
+                </div>
+                <div class="col-6">
+                </div>
+            </div>
+            
+        </div>
+    
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

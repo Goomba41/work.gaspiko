@@ -40,6 +40,8 @@ THUMBNAIL_STORAGE_BACKEND = 'flask_thumbnails.storage_backends.FilesystemStorage
 THUMBNAIL_DEFAUL_FORMAT = 'JPEG'
 
 
+#Путь до папки с УЦ
+CA_FILES_FOLDER = os.path.join(basedir, 'app/static/CA/')
 #Путь до папки с файлами запросов
 REQUEST_FILES_FOLDER = os.path.join(basedir, 'app/static/kartoteka/upload')
 #Путь до папки с файлами бэкапов

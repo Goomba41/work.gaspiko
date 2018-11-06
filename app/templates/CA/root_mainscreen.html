@@ -1,0 +1,62 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+
+
+<div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+    <div class="col p-0">
+        
+        <div class="row-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#" title="Панель управления таблицей">Управление</span></a>
+
+                <div class="collapse navbar-collapse" id="primary-nav">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Корневые сертификаты" href="{{url_for('CA.ca_main')}}"><i class="fa fa-cog fa-fw ml-2" aria-hidden="true"></i>
+ УЦ</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Сертификаты SSL для веб-серверов" href="{{url_for('CA.ca_main')}}"><i class="fa fa-shield fa-fw ml-2" aria-hidden="true"></i>
+ Серверные SSL-сертификаты</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Пользовательские сертификаты для авторизации, подписи, шифрования и пр." href="{{url_for('CA.ca_main')}}"><i class="fa fa-id-card fa-fw ml-2" aria-hidden="true"></i>
+ Пользовательские сертификаты</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Создать запрос на создание пользовательского сертификата" href="{{url_for('CA.ca_main')}}"><i class="fa fa-plus fa-fw ml-2" aria-hidden="true"></i>
+ Запрос (CSR)</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Параметры работы УЦ" href="{{url_for('CA.ca_main')}}"><i class="fa fa-cogs fa-fw ml-2" aria-hidden="true"></i>
+ Параметры</a>
+                        </li>
+                    </ul>
+                    
+                </div>
+
+            </nav>
+        </div>
+        
+
+
+
+            <div class="row p-3 m-auto align-items-center">
+                Привет, {{ current_user.name }}! Тута корневые сертификаты
+            </div>
+
+            <div class="row p-3 m-auto align-items-center">
+                {{ cert }}
+            </div>
+
+      
+    
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}
