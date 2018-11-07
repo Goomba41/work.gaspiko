@@ -15,7 +15,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 SQLALCHEMY_BASIC_URI = 'mysql+pymysql://goomba:tester@localhost/'
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://goomba:tester@localhost/arhiv'
 SQLALCHEMY_BINDS = {
-    'kartoteka': 'mysql+pymysql://goomba:tester@localhost/kartoteka'
+    'kartoteka': 'mysql+pymysql://goomba:tester@localhost/kartoteka',
+    'inventory': 'mysql+pymysql://goomba:tester@localhost/inventory'
     }
 DB_USER="goomba"
 DB_USER_PSWD="tester"

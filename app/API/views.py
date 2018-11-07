@@ -3,7 +3,7 @@
 import json, math, requests, os
 from app import app, db
 
-from app.models import News, NewsSchema, User
+from app.models import News, NewsSchema, User, Item, ItemSchema
 from flask import request, make_response, jsonify, Response, Blueprint, url_for, json
 from datetime import datetime
 from sqlalchemy.orm.attributes import flag_modified
@@ -405,3 +405,67 @@ def update_news_images(news_id):
 #----------------------------------------------------------------------------------
 # API ПОЛЬЗОВАТЕЛЕЙ СИСТЕМЫ
 #----------------------------------------------------------------------------------
+
+
+
+#----------------------------------------------------------------------------------
+# API ИНВЕНТАРИЗАЦИИ
+#----------------------------------------------------------------------------------
+
+#Одна штучка
+@API.route('/inventar/<int:id>', methods=['GET'])
+@API.route('/inventar/id/<int:id>', methods=['GET'])
+def get_one_inventory_item(id):
+    
+    item = Item.query.filter(Item.id==id).first()
+    item_schema = ItemSchema()
+
+    response = jsonify(item_schema.dump(item).data)
+    
+    return response
+    
+#Все штучки
+@API.route('/inventar', methods=['GET'])
+def get_all_inventory_items():
+    
+    items = Item.query.all()
+    item_schema = ItemSchema()
+    
+    tmp = []
+    for item in items:
+        tmp.append(item_schema.dump(item).data)
+    items_lst = sorted(tmp, key=lambda k: k['id'],reverse=True) 
+    
+    print(request.args.get('page'))
+    print(request.args.get('size'))
+        
+    if (request.args.get('page') and request.args.get('size')):
+        response = jsonify(paginate_list(request.args.get('page'), request.args.get('size'), items_lst))
+    else:
+        response = jsonify(items_lst)
+    
+    return response
+
+#Поиск штучки по инвентарнику
+@API.route('/inventar/in/<string:number>', methods=['GET'])
+def get_one_inventory_item_by_in(number):
+    
+    item = Item.query.filter(Item.number==number).first()
+    item_schema = ItemSchema()
+
+    response = jsonify(item_schema.dump(item).data)
+    
+    return response
+
+@API.route('/inventar/check/<int:item_id>', methods=['PUT'])
+def checked_one_inventory_item(item_id):
+    
+    item = Item.query.get(item_id)
+
+    item.status = 2
+    
+    db.session.commit()
+
+    response = jsonify("Отмечено!")
+    
+    return response

@@ -20,6 +20,7 @@
                             <a class="nav-link" title="" href=""><i class="fa fa-plus" aria-hidden="true"></i>
  Создать</a>
                         </li>
+                        {# 
                         <li class="nav-item active">
                             <a class="nav-link" title="" href=""><i class="fa fa-users" aria-hidden="true"></i>
  Исполнители</a>
@@ -45,6 +46,7 @@
                             <a class="nav-link" title="" href=""><i class="fa fa-download" aria-hidden="true"></i>
  Скачать CSV</a>
                         </li>
+                        #}
                     </ul>
                     
                 </div>
@@ -54,6 +56,7 @@
         
             <div class="row p-3 m-auto align-items-center">
                 <div class="col-6">
+                {{ pagination.links }}
                 </div>
                 <div class="col-6">
                 </div>
@@ -64,21 +67,79 @@
                     <tr>
                         <th><input type="checkbox" name="rowtoggle" class="action-rowtoggle" title="Выделение всех записей" ></th>
                         <th width="1%">Действия над записью</th>
-                        <th >Номер</th>
-                        <th >ФИО</th>
-                        <th width="11%">Дата запроса</th>
-                        <th >Характер запроса</th>
-                        <th >Исполнитель</th>
-                        <th >Характер ответа</th>
-                        <th >Файл справки</th>
+                        <th >ИНВ. №</th>
+                        <th >СЕР. №</th>
+                        <th >Наименование</th>
+                        <th width="11%">Дата внесения</th>
+                        <th width="11%">Дата проверки</th>
+                        <th >Статус</th>
+                        <th >Ответственный</th>
+                        <th >Сотрудник</th>
+                        <th >Расположение</th>
+                        <th >Передвижения</th>
                     </tr>
-
+            {% for item in items %}
+                    <tr>
+                        <td><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ request.id }} title="Выберите запись"></td>
+                        <td>
+                                <div class = "col control">
+                                    <a class = "row p-1" href=""><button class="btn btn-primary" type="submit" title="Изменить запись"><i class="fa fa-pencil fa-control fa-fw p-0" aria-hidden="true"></i></button></a>
+                                    <form action="" class="row p-1" method="post" name="deluser">
+                                        <button class="btn btn-danger" type="submit" title="Удалить запись" onclick="return confirm('Точно?');"><i class="fa fa-trash fa-control fa-fw p-0"></i></button>
+                                    </form>
+                                </div>
+                        </td>
+                        <td>{{ item.number }}</td>
+                        <td>
+                                {% if item.serial is not none %}
+                                        {{ item.serial }}
+                                {% else %}
+                                &mdash;
+                                {% endif %}
+                        </td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.cdate }}</td>
+                        <td>{{ item.chdate }}</td>
+                        <td>
+                        {% if item.status == 1 %}
+                        <i class="fa fa-ban fa-control fa-fw p-0" style="color:red">
+                        {% elif item.status == 2 %}
+                        <i class="fa fa-check-circle fa-control fa-fw p-0" style="color:green">
+                        {% else %}
+                        <i class="fa fa-ban fa-control fa-fw p-0" style="color:red">
+                        {% endif %}
+                        </td>
+                        <td>
+                                {% if item.item_responsible is not none %}
+                                        {{ item.item_responsible.surname }} {{ item.item_responsible.name[:1] }}.{{ item.item_responsible.patronymic[:1] }}.
+                                {% else %}
+                                &mdash;
+                                {% endif %}
+                        </td>
+                        <td>
+                                {% if item.item_employee is not none %}
+                                        {{ item.item_employee.surname }} {{ item.item_employee.name[:1] }}.{{ item.item_employee.patronymic[:1] }}.
+                                {% else %}
+                                &mdash;
+                                {% endif %}
+                        </td>
+                        <td>Этаж: {{ item.placing.floor }}; Кабинет: {{ item.placing.room }}; Описание местоположения: {{ item.placing.description }};</td>
+                        <td>
+                                {% if item.movements is not none %}
+                                        {{ item.movements }}
+                                {% else %}
+                                &mdash;
+                                {% endif %}
+                        </td>
+                    </tr>
+            {% endfor %}
                 </table>
             </div>
 
             
             <div class="row p-3 m-auto align-items-center">
                 <div class="col-6">
+                {{ pagination.links }}
                 </div>
                 <div class="col-6">
                 </div>

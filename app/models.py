@@ -33,6 +33,9 @@ class User(db.Model):
     appeals = db.relationship('Appeals', backref = 'user',lazy = 'dynamic')
     executor = db.relationship('Executor', backref = 'user',lazy = 'dynamic')
     
+    employee = db.relationship('Item', backref = 'item_employee',lazy = 'dynamic', foreign_keys='Item.employee')
+    responsible = db.relationship('Item', backref = 'item_responsible',lazy = 'dynamic', foreign_keys='Item.responsible')
+    
     def current():
         if session.get('user_id'):
             return User.query.filter(User.id == session['user_id']).first()
@@ -278,8 +281,41 @@ class Executor(db.Model):
 
     def __repr__(self):
         return '<Executor %s>' % (self.id)
+        
+
+class Item(db.Model):
+    __tablename__ = 'items'
+    __bind_key__ = 'inventory'
+    __table_args__ = {'schema': 'inventory'}
+    id = db.Column(db.Integer, primary_key = True)
+    
+    number = db.Column(db.String(20))
+    serial = db.Column(db.String(20))
+    
+    cdate = db.Column(db.DateTime)
+    chdate = db.Column(db.DateTime)
+    
+    name = db.Column(db.String(100))
+
+    status = db.Column(db.SmallInteger)   
+        
+    placing = db.Column(db.JSON)
+    movements = db.Column(db.JSON)
+    
+    responsible = db.Column(db.Integer, db.ForeignKey("arhiv.user.id"))
+    employee = db.Column(db.Integer, db.ForeignKey("arhiv.user.id"))
+
+    def __repr__(self):
+        return 'Штучка-дрючка № %i, имя:%r ' % (self.id, self.name)
+
+        
+        
 
 #Marshmallow схемы
+class UserSchema(ma.ModelSchema):
+    class Meta:
+        model = User
+        
 class RoleSchema(ma.ModelSchema):
     class Meta:
         model = Role
@@ -293,7 +329,7 @@ class PostSchema(ma.ModelSchema):
 class UserForNewsSchema(ma.ModelSchema):
     class Meta:
         model = User
-        fields = ('id', 'email', 'name', 'surname', 'login', 'photo', 'post', 'role')
+        fields = ('id', 'email', 'name', 'surname', 'patronymic', 'login', 'photo', 'post', 'role')
     post = ma.Nested(PostSchema)
     role = ma.Nested(RoleSchema)
     
@@ -301,3 +337,10 @@ class NewsSchema(ma.ModelSchema):
     class Meta:
         model = News
     user = ma.Nested(UserForNewsSchema)
+    
+class ItemSchema(ma.ModelSchema):
+    class Meta:
+        model = Item
+        # fields = ('id', 'email', 'name', 'surname', 'login', 'photo', 'post', 'role')
+    item_employee = ma.Nested(UserForNewsSchema)
+    item_responsible = ma.Nested(UserForNewsSchema)
