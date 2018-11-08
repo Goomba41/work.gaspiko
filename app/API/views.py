@@ -435,10 +435,7 @@ def get_all_inventory_items():
     for item in items:
         tmp.append(item_schema.dump(item).data)
     items_lst = sorted(tmp, key=lambda k: k['id'],reverse=True) 
-    
-    print(request.args.get('page'))
-    print(request.args.get('size'))
-        
+            
     if (request.args.get('page') and request.args.get('size')):
         response = jsonify(paginate_list(request.args.get('page'), request.args.get('size'), items_lst))
     else:

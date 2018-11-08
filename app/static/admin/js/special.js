@@ -2,8 +2,6 @@
 // ОБРАЩЕНИЯ К API
 //-------------------------------------------------------------------------------------------------
 
-
-    
 $(document).ready(function(){
     (function ($) {
         $.fn.serializeFormJSON = function () {
@@ -273,6 +271,57 @@ $(document).ready(function(){
 
     });
 });
+
+//-------------------------------------------------------------------------------------------------
+// API ИНВЕНТАРИЗАЦИИ
+//-------------------------------------------------------------------------------------------------
+
+//Получение информации об объекте
+$(document).ready(function(){
+$("div.info").on("click", ".btn", function(e) {
+        var url = $(this).parent().data('url');
+        var type = $(this).data('type');
+        
+        $.ajax({
+            type : "GET",
+            url : url,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+
+                    placing = response['placing'];
+                    movements = response['movements'];
+                    
+                    if (type=="placing") {
+                        $("div.modal-body").html("<p>Этаж: <b>"+placing['floor']+"</b>; Кабинет: <b>"+placing['room']+"</b>;</p><p>Описание: "+placing['description']+"</p>");
+                        $("h4.modal-title").html("Информация об объекте: местоположение");
+                    }
+                    else if (type=="movements") {
+                        $("h4.modal-title").html("Информация об объекте: перемещения");
+                        if ( movements !== null ){
+                            $("div.modal-body").html("Перемещения объекта:");
+                            $(movements).each(function(index){
+                                $("div.modal-body").append("<div class='row-fluid m-2'>"+this.from + " <i class='fa fa-fw fa-long-arrow-right p-0' aria-hidden='true'></i> " + this.to+" (<a href='#' class='tooltip-test' title='"+this.date+"'>дата</a> / <a href='#' class='tooltip-test' title='"+this.description+"'>описание</a>)</div>" );
+                            });
+                        }
+                        else {
+                            $("div.modal-body").html("Объект не перемещался");
+                        }
+                    }
+            },
+            error: function(response) {
+                //message = response.responseJSON;
+                //$('#message').addClass('show');
+                //$('#message').addClass(message['type']);
+                //$('#message').html(message['text']);
+                //setTimeout("$('#message').removeClass('show');", 2500);
+            }
+        });
+
+    });
+});
+
 
 //-------------------------------------------------------------------------------------------------
 // 
