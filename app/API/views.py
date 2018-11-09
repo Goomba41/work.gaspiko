@@ -159,9 +159,9 @@ def utility_processor():
                 
         if (procent <= 66):
             color = "info"
-        elif (procent > 66 and procent <= 99):
+        elif (procent > 66 and procent <= 90):
             color = "warning"
-        elif (procent > 99):
+        elif (procent > 90):
             color = "danger"
                 
         return (len(expired_items), procent, color)
