@@ -3,6 +3,8 @@
 
 {% if session['logged_in'] %}
 
+{% set count = count_of_expired() %}
+
 <div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
     <div class="col p-0">
         
@@ -59,6 +61,9 @@
                 {{ pagination.links }}
                 </div>
                 <div class="col-6">
+                    <div class="alert alert-{{ count[2] }}" role="alert">
+                        Объектов с истекшим сроком проверки: {{ count[0] }} ({{ count[1] }} %)
+                    </div>
                 </div>
             </div>      
 
@@ -109,7 +114,7 @@
                         {% if item.status == 1 %}
                         <i class="fa fa-ban fa-control fa-fw p-0" style="color:red">
                         {% elif item.status == 2 %}
-                        <i class="fa fa-check-circle fa-control fa-fw p-0" style="color:green">
+                        <i class="fa fa-check-circle fa-control fa-fw p-0" style="color:{{ item.chdate|expiration(period='month', number=3) }}">
                         {% else %}
                         <i class="fa fa-ban fa-control fa-fw p-0" style="color:red">
                         {% endif %}
@@ -128,14 +133,6 @@
                                 &mdash;
                                 {% endif %}
                         </td>
-                        {#<td>Этаж: {{ item.placing.floor }}; Кабинет: {{ item.placing.room }}; Описание местоположения: {{ item.placing.description }};</td>
-                        <td>
-                                {% if item.movements is not none %}
-                                        {{ item.movements }}
-                                {% else %}
-                                &mdash;
-                                {% endif %}
-                        </td> #}
                     </tr>
             {% endfor %}
                 </table>
@@ -147,6 +144,9 @@
                 {{ pagination.links }}
                 </div>
                 <div class="col-6">
+                    <div class="alert alert-{{ count[2] }}" role="alert">
+                        Объектов с истекшим сроком проверки: {{ count[0] }} ({{ count[1] }} %)
+                    </div>
                 </div>
             </div>
             

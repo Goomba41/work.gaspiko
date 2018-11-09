@@ -292,7 +292,7 @@ class Item(db.Model):
     number = db.Column(db.String(20))
     serial = db.Column(db.String(20))
     
-    cdate = db.Column(db.DateTime)
+    cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
     chdate = db.Column(db.DateTime)
     
     name = db.Column(db.String(100))

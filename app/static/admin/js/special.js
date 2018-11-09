@@ -302,7 +302,7 @@ $("div.info").on("click", ".btn", function(e) {
                         if ( movements !== null ){
                             $("div.modal-body").html("Перемещения объекта:");
                             $(movements).each(function(index){
-                                $("div.modal-body").append("<div class='row-fluid m-2'>"+this.from + " <i class='fa fa-fw fa-long-arrow-right p-0' aria-hidden='true'></i> " + this.to+" (<a href='#' class='tooltip-test' title='"+this.date+"'>дата</a> / <a href='#' class='tooltip-test' title='"+this.description+"'>описание</a>)</div>" );
+                                $("div.modal-body").append("<div class='row-fluid m-2'>"+this.from + " <i class='fa fa-fw fa-long-arrow-right p-0' aria-hidden='true'></i> " + this.to+" (<a href='#' title='"+this.date+"'>дата</a> / <a href='#' title='"+this.description+"'>описание</a>)</div>" );
                             });
                         }
                         else {

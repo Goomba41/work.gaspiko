@@ -27,7 +27,7 @@ def inventory_main(page = 1, *args):
     today = time.strftime("%Y-%m-%d")
     
     page = request.args.get('page', 1, type=int)
-    size = request.args.get('size', 2, type=int)
+    size = request.args.get('size', 4, type=int)
     items_all = requests.get(url_for('API.get_all_inventory_items', size = size, page = page, _external=True), verify=False)
     pagination = Pagination(page=page, total = Item.query.count(), per_page = size, css_framework='bootstrap4')
 

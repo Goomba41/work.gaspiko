@@ -5,9 +5,11 @@ from app import app, db
 
 from app.models import News, NewsSchema, User, Item, ItemSchema
 from flask import request, make_response, jsonify, Response, Blueprint, url_for, json
-from datetime import datetime
+from dateutil.relativedelta import relativedelta
+import datetime, calendar
 from sqlalchemy.orm.attributes import flag_modified
 import hashlib, uuid
+
 
 API = Blueprint('API', __name__, url_prefix='/API/v1.0')
 
@@ -67,19 +69,25 @@ def get_declension(x, y):
             y = y[2]
     return (x,y)
     
-#Фильтр для дат для шаблонизатора 
-def format_datetime(value, format='medium'):
+#Функция форматирования строчной даты в объект даты
+def datestring_to_object(value):
     date=value.split("T")[0] 
     time=value.split("+")[0].split("T")[1]
 
-    datetime_object = datetime.strptime(date+" "+time, "%Y-%m-%d %H:%M:%S")
+    datetime_object = datetime.datetime.strptime(date+" "+time, "%Y-%m-%d %H:%M:%S")
+    return (datetime_object)
+    
+#Фильтр для дат для шаблонизатора 
+def format_datetime(value, format='medium'):
+
+    datetime_object = datestring_to_object(value)
 
     if format == 'full':
-        format=datetime.strftime(datetime_object, "%Y-%m-%d в %H:%M:%S")
+        format=datetime.datetime.strftime(datetime_object, "%Y-%m-%d в %H:%M:%S")
     elif format == 'medium':
-        format=datetime.strftime(datetime_object, "%Y-%m-%d")
+        format=datetime.datetime.strftime(datetime_object, "%Y-%m-%d")
     elif format == 'since':
-        now = datetime.now()
+        now = datetime.datetime.now()
         diff = now - datetime_object
 
         periods = (
@@ -102,12 +110,67 @@ def format_datetime(value, format='medium'):
 
 app.jinja_env.filters['datetime'] = format_datetime
 
+#Фильтр для определения истечения проверки для шаблонизатора 
+def expiration_of_date(value, period='month', number=3):
+
+    datetime_of_check = datestring_to_object(value)
+    
+    now = datetime.datetime.now()
+    without_check = now - datetime_of_check # сколько дней не проверялось
+    
+    if period == 'day':
+        should_be_checked = (datetime_of_check + relativedelta(days=+number))-datetime_of_check
+    elif period == 'week':
+        should_be_checked = (datetime_of_check + relativedelta(weeks=+number))-datetime_of_check
+    elif period == 'month':
+        should_be_checked = (datetime_of_check + relativedelta(months=+number))-datetime_of_check
+    elif period == 'year':
+        should_be_checked = (datetime_of_check + relativedelta(years=+number))-datetime_of_check
+
+    if (without_check <= should_be_checked*0.33):
+        color = "green"
+    elif (without_check > should_be_checked*0.33 and without_check <= should_be_checked*0.66):
+        color = "yellow"
+    elif (without_check > should_be_checked*0.66 and without_check <= should_be_checked*0.99):
+        color = "orange"
+    elif (without_check > should_be_checked*0.99):
+        color = "red"
+
+    return (color)
+
+app.jinja_env.filters['expiration'] = expiration_of_date
+
+#Функция для шаблонизатора для подсчета количества объектов с истекшим сроком проверки
+@app.context_processor
+def utility_processor():
+    def count_of_expired(period='month', number=3):
+        
+        items_all = requests.get(url_for('API.get_all_inventory_items', _external=True), verify=False)
+        items_all = items_all.json()
+        
+        now = datetime.datetime.now()
+        expired_items = []
+                
+        for item in items_all:
+            if expiration_of_date(item["chdate"], period = period, number = number) == "red":
+                expired_items.append(item)
+                
+        procent = round((len(expired_items)/len(items_all))*100, 1)
+                
+        if (procent <= 66):
+            color = "info"
+        elif (procent > 66 and procent <= 99):
+            color = "warning"
+        elif (procent > 99):
+            color = "danger"
+                
+        return (len(expired_items), procent, color)
+    return dict(count_of_expired=count_of_expired)
+
 #Проверка новости на свежесть
 def fresh_news(value,days):
-    date=value.split("T")[0] 
-    time=value.split("+")[0].split("T")[1]
 
-    datetime_object = datetime.strptime(date+" "+time, "%Y-%m-%d %H:%M:%S")
+    datetime_object = datestring_to_object(value)
     now = datetime.now()
     diff = now - datetime_object
     
