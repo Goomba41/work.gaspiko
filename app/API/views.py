@@ -152,7 +152,10 @@ def utility_processor():
         expired_items = []
                 
         for item in items_all:
-            if expiration_of_date(item["chdate"], period = period, number = number) == "red":
+            if item["chdate"] is not None:
+                if (expiration_of_date(item["chdate"], period = period, number = number) == "red"):
+                    expired_items.append(item)
+            else:
                 expired_items.append(item)
                 
         procent = round((len(expired_items)/len(items_all))*100, 1)
@@ -470,7 +473,6 @@ def update_news_images(news_id):
 #----------------------------------------------------------------------------------
 
 
-
 #----------------------------------------------------------------------------------
 # API ИНВЕНТАРИЗАЦИИ
 #----------------------------------------------------------------------------------
@@ -517,6 +519,142 @@ def get_one_inventory_item_by_in(number):
     
     return response
 
+#Удаление объекта
+@API.route('/inventar/<int:id>', methods=['DELETE'])
+@API.route('/inventar/id/<int:id>', methods=['DELETE'])
+def delete_one_item(id):
+    
+    can = User.can("delete","items")
+    
+    if can:
+        item = Item.query.filter(Item.id == id).first()
+        db.session.delete(item)
+        db.session.commit()
+
+        response = jsonify(id)
+    else:
+        response = Response(
+            response=json.dumps({'type':'fail', 'text':'Пользователю запрещено удаление!'}),
+            status=403,
+            mimetype='application/json'
+        )
+    
+    return response
+
+    
+#Добавление объекта
+@API.route('/inventar', methods=['POST'])
+def post_item():
+    
+    c_user = User.current()
+    can = User.can("insert","items")
+    
+    if can:       
+        try:
+            form_data = json.loads(request.form['data'])
+
+            keys = ['floor', 'room', 'description']
+            placing = {x:form_data[x] for x in keys}
+
+            for k,v in form_data.items(): 
+                if form_data[k] == '':
+                    form_data[k] = None
+
+            item = Item(
+            name = form_data['name'],
+            number = form_data['number'],
+            responsible = form_data['responsible'],
+            placing = placing,
+            employee = form_data['employee'],
+            serial = form_data['serial'],
+            status = 1)
+
+            db.session.add(item)
+            db.session.commit()
+            
+            n_list=url_for('inventory.inventory_main')
+            n_edit=url_for('inventory.edit_items', id=item.id)
+
+            response = Response(
+                response=json.dumps({'type':'success', 'text':'Добавлено!', 'list':n_list, 'edit':n_edit}),
+                status=200,
+                mimetype='application/json'
+            )
+        except:
+            response = Response(
+            response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),
+            status=500,
+            mimetype='application/json'
+            )
+            return response
+    else:
+        response = Response(
+            response=json.dumps({'type':'fail', 'text':'Пользователю запрещено добавление!'}),
+            status=403,
+            mimetype='application/json'
+        )
+    
+    return response
+
+#Редактирование объекта
+@API.route('/inventar/<int:id>', methods=['PUT'])
+def update_item(id):
+    
+    c_user = User.current()
+    can = User.can("update","items")
+    
+    if can:
+        try:
+            form_data = json.loads(request.form['data'])
+            for k,v in form_data.items(): 
+                if form_data[k] == '':
+                    form_data[k] = None
+            edit_item = Item.query.get(id)
+            
+            if ((form_data['floor'] != edit_item.placing['floor']) or (form_data['room'] != edit_item.placing['room'])):
+                print("Местоположение изменилось")
+                if edit_item.movements is None:
+                    print("Не было перемещений")
+                else:
+                    # edit_item.movements.append({"to": "4-17", "date": "2018-11-06 15:45:14", "from": "2-15", "description": ""})
+                
+# [{"to": "4-17", "date": "2018-11-06 15:45:14", "from": "2-15", "description": "Убран сервер, поставлен пользователю"}]
+            
+            edit_item.name = form_data['name']
+            edit_item.number = form_data['number']
+            edit_item.responsible = form_data['responsible']
+            edit_item.employee = form_data['employee']
+            edit_item.serial = form_data['serial']
+                        
+            db.session.commit()
+            
+            n_list=url_for('inventory.inventory_main')
+            n_new=url_for('inventory.new_items')           
+
+            response = Response(
+                response=json.dumps({'type':'success', 'text':'Изменения сохранены!', 'list':n_list, 'new':n_new}),
+                status=200,
+                mimetype='application/json'
+            )
+        except:
+            response = Response(
+            response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),
+            status=500,
+            mimetype='application/json'
+            )
+            return response
+    else:
+        response = Response(
+            response=json.dumps({'type':'fail', 'text':'Пользователю запрещено изменение!'}),
+            status=403,
+            mimetype='application/json'
+        )
+    
+    return response
+
+
+
+#Отметка объекта как проверенного
 @API.route('/inventar/check/<int:item_id>', methods=['PUT'])
 def checked_one_inventory_item(item_id):
     

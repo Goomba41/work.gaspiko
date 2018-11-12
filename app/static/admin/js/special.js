@@ -311,15 +311,153 @@ $("div.info").on("click", ".btn", function(e) {
                     }
             },
             error: function(response) {
-                //message = response.responseJSON;
-                //$('#message').addClass('show');
-                //$('#message').addClass(message['type']);
-                //$('#message').html(message['text']);
-                //setTimeout("$('#message').removeClass('show');", 2500);
             }
         });
 
     });
+});
+
+// Удаление объектов
+function delete_items(id) {
+   if (id == undefined) {
+       if(confirm("Вы уверены, что хотите УДАЛИТЬ выбранные записи?")){
+            var to_delete = [];
+            $("input:checkbox[name=rowdelete]:checked").each(function(){
+                to_delete.push($(this).val());
+                $.ajax({
+                    type : "DELETE",
+                    url : "/API/v1.0/inventar/"+$(this).val(),
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: 'json',
+                    success: function (e) {
+                        message = {"type":"success", "text":"Удалено записей: "+to_delete.length};
+                        localStorage.setItem("message", JSON.stringify(message));
+                        location.reload(true);
+                    },
+                    error: function (e) {
+                        message = e.responseJSON;
+                        $('#message').addClass('show');
+                        $('#message').addClass(message['type']);
+                        $('#message').html(message['text']);
+                        setTimeout("$('#message').removeClass('show');", 2500);
+                    }
+                });
+
+            });
+        }
+   }
+   else {
+       if (confirm("Вы уверены, что хотите УДАЛИТЬ запись?")){
+             $.ajax({
+                type : "DELETE",
+                url : "/API/v1.0/inventar/"+id,
+                contentType: 'application/json;charset=UTF-8',
+                dataType: 'json',
+                success: function (e) {
+                    message = {"type":"success", "text":"Удалена запись №"+e};
+                    localStorage.setItem("message", JSON.stringify(message));
+                    location.reload(true);
+                },
+                error: function (e) {
+                    message = e.responseJSON;
+                    $('#message').addClass('show');
+                    $('#message').addClass(message['type']);
+                    $('#message').html(message['text']);
+                    setTimeout("$('#message').removeClass('show');", 2500);
+                }
+            });
+        }
+    }
+
+}
+
+//Добавление объектов
+$(document).ready(function(){
+    $("form#add_item").submit(function(e) {
+        e.preventDefault(); //Отменить стандартные действия при отправке формы (релоад)
+        
+        var button_type = $("input[type=submit][clicked=true]").attr("id");      
+        var data = $(this).serializeFormJSON(); //Сериализируем форму в JSON формат
+        
+        var formData = new FormData();
+        formData.append('data', JSON.stringify(data)); //Добавляем данные в форму
+        
+        $.ajax({ //Отсылаем запрос
+            type : "POST",
+            url : $(this).attr("action"),
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : formData,
+            dataType: 'json',
+            success: function (response) {
+                    message = {"type":"success", "text":"Объект успешно добавлен!"};
+                    localStorage.setItem("message", JSON.stringify(message));
+                    
+                    if (button_type=="with_reset") {
+                        location.reload(true);
+                    }
+                    else if (button_type=="save") {
+                        window.location = response['list'] ;
+                    }
+                    else if (button_type=="with_edit") {
+                        window.location = response['edit'] ;
+                    }
+            },
+            error: function(response) {
+                message = response.responseJSON;
+                $('#message').addClass('show');
+                $('#message').addClass(message['type']);
+                $('#message').html(message['text']);
+                setTimeout("$('#message').removeClass('show');", 2500);
+            }
+        });//AJAX
+        return false;
+    });//form send
+});
+
+//Редактирование новости
+$(document).ready(function(){
+    $("form#edit_item").submit(function(e) {
+        e.preventDefault(); //Отменить стандартные действия при отправке формы (релоад)
+        
+        var button_type = $("input[type=submit][clicked=true]").attr("id");
+        var data = $(this).serializeFormJSON(); //Сериализируем форму в JSON формат
+        
+        var formData = new FormData();
+        formData.append('data', JSON.stringify(data)); //Добавляем данные в форму
+                
+        $.ajax({ //Отсылаем запрос
+            type : "PUT",
+            url : $(this).attr("action"),
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : formData,
+            success: function (response) {
+                    message = {"type":"success", "text":"Объект успешно отредактирован!"};
+                    localStorage.setItem("message", JSON.stringify(message));
+                    
+                    if (button_type=="with_reset") {
+                        location.reload(true);
+                    }
+                    else if (button_type=="save") {
+                        window.location = response['list'] ;
+                    }
+                    else if (button_type=="with_new") {
+                        window.location = response['new'] ;
+                    }
+            },
+            error: function(response) {
+                message = response.responseJSON;
+                $('#message').addClass('show');
+                $('#message').addClass(message['type']);
+                $('#message').html(message['text']);
+                setTimeout("$('#message').removeClass('show');", 2500);
+            }
+        });//AJAX
+        return false;
+    });//form send
 });
 
 
@@ -328,7 +466,9 @@ $("div.info").on("click", ".btn", function(e) {
 //-------------------------------------------------------------------------------------------------
    
    
-   
+function make(action) {
+    console.log(action);
+}
    
    
    

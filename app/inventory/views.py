@@ -33,6 +33,47 @@ def inventory_main(page = 1, *args):
 
     return render_template('inventory/mainscreen.html', all_counters=all_counters, today=today, items=items_all.json(), pagination=pagination)
 
+#Форма добавления нового объекта
+@inventory.route('/items/new', methods=['GET', 'POST'])
+@login_required
+def new_items():
+    
+    c_user = User.current()
+    
+    can = User.can("enter","items") and User.can("insert","items")
+    if not can:
+        return forbidden(403)
+
+    all_counters = get_counters()
+    
+    query = User.query.all()
+    model_list = []
+    for q in query:
+        model_list.append((q.id, q.surname + " " + q.name[:1] + ". " + q.patronymic[:1]+"."))
+
+    return render_template("inventory/add_item.html", all_counters = all_counters, model_list=model_list)
+    
+#Форма редактирования объекта
+@inventory.route('/items/edit', methods=['GET', 'POST'])
+@login_required
+def edit_items():
+    
+    c_user = User.current()
+    
+    can = User.can("enter","items") and User.can("update","items")
+    if not can:
+        return forbidden(403)
+
+    all_counters = get_counters()
+    
+    edit_items = Item.query.get(request.args.get('id'))
+    
+    query = User.query.all()
+    model_list = []
+    for q in query:
+        model_list.append((q.id, q.surname + " " + q.name[:1] + ". " + q.patronymic[:1]+"."))
+
+    return render_template("inventory/edit_item.html", all_counters = all_counters, model_list=model_list, edit_items=edit_items)
 
     
 

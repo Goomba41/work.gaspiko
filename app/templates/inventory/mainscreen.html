@@ -19,8 +19,17 @@
                             <a class="nav-link" title="" href="{{url_for('inventory.inventory_main')}}"><i class="fa fa-list-ol" aria-hidden="true"></i> Список</a>
                         </li>
                         <li class="nav-item active">
-                            <a class="nav-link" title="" href=""><i class="fa fa-plus" aria-hidden="true"></i>
+                            <a class="nav-link" title="" href="{{url_for('inventory.new_items')}}"><i class="fa fa-plus" aria-hidden="true"></i>
  Создать</a>
+                        </li>
+                        <li class="nav-item active dropdown">
+                            <a id="main-panel-dropdown-administration" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-check-square-o" aria-hidden="true"></i>
+ Выбранное</a>
+                            
+                            <div class="dropdown-menu" aria-labelledby="main-panel-dropdown-administration">
+                                <a class="dropdown-item delete" onclick="delete_items()" href="#"><i class="fa fa-trash-o" aria-hidden="true"></i>
+ Удалить</a>
+                            </div>
                         </li>
                         {# 
                         <li class="nav-item active">
@@ -30,15 +39,6 @@
                         <li class="nav-item active">
                             <a class="nav-link" title="" href=""><i class="fa fa-line-chart" aria-hidden="true"></i>
  Статистика</a>
-                        </li>
-                        <li class="nav-item active dropdown">
-                            <a id="main-panel-dropdown-administration" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-check-square-o" aria-hidden="true"></i>
- Выбранное</a>
-                            
-                            <div class="dropdown-menu" aria-labelledby="main-panel-dropdown-administration">
-                                <a class="dropdown-item delete" onclick="" href="#"><i class="fa fa-trash-o" aria-hidden="true"></i>
- Удалить</a>
-                            </div>
                         </li>
                         <li class="nav-item active">
                             <a class="nav-link" title="" href=""><i class="fa fa-search" aria-hidden="true"></i>
@@ -88,12 +88,12 @@
                     </tr>
             {% for item in items %}
                     <tr>
-                        <td><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ request.id }} title="Выберите запись"></td>
+                        <td><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ item.id }} title="Выберите запись"></td>
                         <td>    
                                 <div class="row">
                                         <div class = "col p-0 control">
-                                                <a class = "edit" href="{# {{url_for('admin.edit_news', id = news.id)}} #}"><button class="btn btn-primary mb-1" type="submit" title="Изменить запись"><i class="fa fa-fw fa-pencil fa-control p-0" aria-hidden="true"></i></button></a>
-                                                <button class="btn btn-danger mb-1" type="button" title="Удалить запись" onclick="delete_news({# {{ news.id }} #})"><i class="fa fa-fw fa-trash fa-control p-0"></i></button>
+                                                 <a class = "edit" href=" {{url_for('inventory.edit_items', id = item.id)}} "><button class="btn btn-primary mb-1" type="submit" title="Изменить запись"><i class="fa fa-fw fa-pencil fa-control p-0" aria-hidden="true"></i></button></a>
+                                                 <button class="btn btn-danger mb-1" type="button" title="Удалить запись" onclick="delete_items({{ item.id }})"><i class="fa fa-fw fa-trash fa-control p-0"></i></button> 
                                         </div>
                                         <div class = "col p-0 info" data-url="{{ url_for('API.get_one_inventory_item', id=item.id ) }}">
                                                 <button class="btn btn-info mb-1" data-type="placing" type="submit" title="Местоположение объекта" data-toggle="modal" data-target="#info"><i class="fa fa-fw fa-compass fa-control p-0" aria-hidden="true"></i></button>
@@ -112,7 +112,13 @@
                         </td>
                         <td>{{ item.name }}</td>
                         <td>{{ item.cdate|datetime('medium') }}</td>
-                        <td>{{ item.chdate|datetime('since') }}</td>
+                        <td>
+                            {% if item.chdate %}
+                                <span title="{{ item.chdate|datetime('full') }}">{{ item.chdate|datetime('since') }}</span>
+                            {% else %}
+                                Не проверялся
+                            {% endif %}
+                        </td>
                         <td>
                         {% if item.status == 1 %}
                         <i class="fa fa-ban fa-control fa-fw p-0" style="color:red">

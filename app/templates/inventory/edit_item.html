@@ -1,0 +1,131 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+
+<div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+    <div class="col p-0">
+        
+        <div class="row-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#" title="Панель управления таблицей">Управление</span></a>
+
+                <div class="collapse navbar-collapse" id="primary-nav">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href="{{url_for('inventory.inventory_main')}}"><i class="fa fa-list-ol" aria-hidden="true"></i> Список</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href="{{url_for('inventory.new_items')}}"><i class="fa fa-plus" aria-hidden="true"></i>
+ Создать</a>
+                        </li>
+                    </ul>
+                    
+                </div>
+
+            </nav>
+        </div>
+        
+        <form action="{{ url_for('API.update_item', id=edit_items.id)}}" id="edit_item" class="form-row p-3 m-auto">
+            
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="header-addon">Наименование</span>
+                    </div>
+                    <input value="{{ edit_items.name }}" maxlength="100" name="name" type="text" class="form-control" placeholder="Введите наименование объекта (не более 100 символов)" aria-label="header" aria-describedby="header-addon" required autofocus>
+                </div>
+                
+            </div>
+            
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="header-addon">ИНВ. №</span>
+                    </div>
+                    <input value="{{ edit_items.number }}" maxlength="20" name="number" type="text" class="form-control" placeholder="Введите инвентарный номер объекта (не более 20 символов)" aria-label="header" aria-describedby="header-addon" required>
+                </div>
+                
+            </div>
+            
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="header-addon">СЕР. №</span>
+                    </div>
+                    <input value="{% if edit_items.serial is not none %}{{ edit_items.serial }}{% endif %}" maxlength="20" name="serial" type="text" class="form-control" placeholder="Введите серийный номер объекта (не более 20 символов)" aria-label="header" aria-describedby="header-addon">
+                </div>
+                
+            </div>
+            
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Расположение объекта</span>
+                    </div>
+                    <input value="{{ edit_items.placing.floor }}" type="text" name="floor" aria-label="Этаж" class="form-control" maxlength="2" placeholder="Этаж (не более 2 символов)" required>
+                    <input value="{{ edit_items.placing.room }}" type="text" name="room" aria-label="Кабинет" class="form-control" maxlength="3" placeholder="Кабинет (не более 3 символов)" required>
+                    <input value="{{ edit_items.placing.description }}" type="text" name="description" aria-label="Описание" class="form-control" maxlength="255" placeholder="Описание (не более 255 символов)" required>
+                </div>
+            
+            </div>
+
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="responsible">Ответственное лицо</label>
+                    </div>
+                    <select name="responsible" class="custom-select" id="responsible" required>
+                        {% for sth in model_list %}
+                            {% if sth[0] == edit_items.responsible %}
+                                <option selected value="{{ sth[0] }}">{{ sth[1] }}</option>
+                            {% else %}
+                                <option value="{{ sth[0] }}">{{ sth[1] }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            
+            </div>
+            
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="employee">Пользователь</label>
+                    </div>
+                    <select name="employee" class="custom-select" id="employee">
+                        <option></option>
+                        {% for sth in model_list %}
+                            {% if sth[0] == edit_items.employee %}
+                                <option selected value="{{ sth[0] }}">{{ sth[1] }}</option>
+                            {% else %}
+                                <option value="{{ sth[0] }}">{{ sth[1] }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            
+            </div>
+
+
+            <div class="row-fluid p-3">
+                <input type="submit" value="Сохранить" class="btn btn-lg btn-success" id="save">
+                <input type="submit" value="Сохранить и добавить новую" class="btn btn-lg btn-primary" id="with_new">
+                <input type="submit" value="Сохранить и продолжить" class="btn btn-lg btn-warning" id="with_reset">
+                <a href="{{url_for('inventory.inventory_main')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+            </div>
+        </form>
+    
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}
