@@ -148,26 +148,30 @@ def utility_processor():
         items_all = requests.get(url_for('API.get_all_inventory_items', _external=True), verify=False)
         items_all = items_all.json()
         
-        now = datetime.datetime.now()
-        expired_items = []
-                
-        for item in items_all:
-            if item["chdate"] is not None:
-                if (expiration_of_date(item["chdate"], period = period, number = number) == "red"):
+        if items_all:
+            now = datetime.datetime.now()
+            expired_items = []
+                    
+            for item in items_all:
+                if item["chdate"] is not None:
+                    if (expiration_of_date(item["chdate"], period = period, number = number) == "red"):
+                        expired_items.append(item)
+                else:
                     expired_items.append(item)
-            else:
-                expired_items.append(item)
-                
-        procent = round((len(expired_items)/len(items_all))*100, 1)
-                
-        if (procent <= 66):
-            color = "info"
-        elif (procent > 66 and procent <= 90):
-            color = "warning"
-        elif (procent > 90):
-            color = "danger"
-                
-        return (len(expired_items), procent, color)
+                    
+            procent = round((len(expired_items)/len(items_all))*100, 1)
+                    
+            if (procent <= 66):
+                color = "info"
+            elif (procent > 66 and procent <= 90):
+                color = "warning"
+            elif (procent > 90):
+                color = "danger"
+                    
+            return (len(expired_items), procent, color)
+        else:
+            return (0, 0, "info")
+            
     return dict(count_of_expired=count_of_expired)
 
 #Проверка новости на свежесть
@@ -559,27 +563,37 @@ def post_item():
             for k,v in form_data.items(): 
                 if form_data[k] == '':
                     form_data[k] = None
-
-            item = Item(
-            name = form_data['name'],
-            number = form_data['number'],
-            responsible = form_data['responsible'],
-            placing = placing,
-            employee = form_data['employee'],
-            serial = form_data['serial'],
-            status = 1)
-
-            db.session.add(item)
-            db.session.commit()
+                    
+            number_ch = Item.query.filter(Item.number == form_data['number']).first()
+            serial_ch = Item.query.filter(Item.serial == form_data['serial']).first()
             
-            n_list=url_for('inventory.inventory_main')
-            n_edit=url_for('inventory.edit_items', id=item.id)
+            if ((number_ch is not None) or (serial_ch is not None) and (serial_ch.serial is not None)):
+                response = Response(
+                    response=json.dumps({'type':'fail', 'text':'Объект с таким инвентарным/серийным номером уже есть в системе!'}),
+                    status=403,
+                    mimetype='application/json'
+                )
+            else:
+                item = Item(
+                name = form_data['name'],
+                number = form_data['number'],
+                responsible = form_data['responsible'],
+                placing = placing,
+                employee = form_data['employee'],
+                serial = form_data['serial'],
+                status = 1)
 
-            response = Response(
-                response=json.dumps({'type':'success', 'text':'Добавлено!', 'list':n_list, 'edit':n_edit}),
-                status=200,
-                mimetype='application/json'
-            )
+                db.session.add(item)
+                db.session.commit()
+                
+                n_list=url_for('inventory.inventory_main')
+                n_edit=url_for('inventory.edit_items', id=item.id)
+
+                response = Response(
+                    response=json.dumps({'type':'success', 'text':'Добавлено!', 'list':n_list, 'edit':n_edit}),
+                    status=200,
+                    mimetype='application/json'
+                )
         except:
             response = Response(
             response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),
@@ -611,31 +625,47 @@ def update_item(id):
                     form_data[k] = None
             edit_item = Item.query.get(id)
             
-            if ((form_data['floor'] != edit_item.placing['floor']) or (form_data['room'] != edit_item.placing['room'])):
-                print("Местоположение изменилось")
-                if edit_item.movements is None:
-                    print("Не было перемещений")
-                else:
-                    # edit_item.movements.append({"to": "4-17", "date": "2018-11-06 15:45:14", "from": "2-15", "description": ""})
-                
-# [{"to": "4-17", "date": "2018-11-06 15:45:14", "from": "2-15", "description": "Убран сервер, поставлен пользователю"}]
-            
-            edit_item.name = form_data['name']
-            edit_item.number = form_data['number']
-            edit_item.responsible = form_data['responsible']
-            edit_item.employee = form_data['employee']
-            edit_item.serial = form_data['serial']
+            number_ch = Item.query.filter(Item.number == form_data['number']).first()
+            serial_ch = Item.query.filter(Item.serial == form_data['serial']).first()
                         
-            db.session.commit()
-            
-            n_list=url_for('inventory.inventory_main')
-            n_new=url_for('inventory.new_items')           
+            if ((((number_ch is not None) and ((number_ch.id != edit_item.id))) or ((serial_ch is not None) and (serial_ch.id != edit_item.id))) and (serial_ch.serial is not None)):
+                response = Response(
+                    response=json.dumps({'type':'fail', 'text':'Объект с таким инвентарным/серийным номером уже есть в системе!'}),
+                    status=403,
+                    mimetype='application/json'
+                )
+            else:
+                if ((form_data['floor'] != edit_item.placing['floor']) or (form_data['room'] != edit_item.placing['room'])):
+                    move = {"to": form_data['floor']+"-"+form_data['room'], "date": datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"), "from": edit_item.placing['floor']+"-"+edit_item.placing['room']}
+                    
+                    if edit_item.movements is None:
+                        edit_item.movements = [move]
+                    else:
+                        edit_item.movements.append(move)
+                        flag_modified(edit_item, "movements")
+                    edit_item.placing['floor'] = form_data['floor']
+                    edit_item.placing['room'] = form_data['room']
+                    
+                
+                edit_item.name = form_data['name']
+                edit_item.number = form_data['number']
+                edit_item.responsible = form_data['responsible']
+                edit_item.employee = form_data['employee']
+                edit_item.serial = form_data['serial']
+                edit_item.placing['description'] = form_data['description']
+                            
+                
+                flag_modified(edit_item, "placing")
+                db.session.commit()
+                
+                n_list=url_for('inventory.inventory_main')
+                n_new=url_for('inventory.new_items')           
 
-            response = Response(
-                response=json.dumps({'type':'success', 'text':'Изменения сохранены!', 'list':n_list, 'new':n_new}),
-                status=200,
-                mimetype='application/json'
-            )
+                response = Response(
+                    response=json.dumps({'type':'success', 'text':'Изменения сохранены!', 'list':n_list, 'new':n_new}),
+                    status=200,
+                    mimetype='application/json'
+                )
         except:
             response = Response(
             response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),
@@ -661,6 +691,7 @@ def checked_one_inventory_item(item_id):
     item = Item.query.get(item_id)
 
     item.status = 2
+    item.chdate = datetime.datetime.now()
     
     db.session.commit()
 

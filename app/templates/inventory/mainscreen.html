@@ -86,64 +86,69 @@
                         {# <th >Расположение</th>
                         <th >Передвижения</th> #}
                     </tr>
-            {% for item in items %}
-                    <tr>
-                        <td><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ item.id }} title="Выберите запись"></td>
-                        <td>    
-                                <div class="row">
-                                        <div class = "col p-0 control">
-                                                 <a class = "edit" href=" {{url_for('inventory.edit_items', id = item.id)}} "><button class="btn btn-primary mb-1" type="submit" title="Изменить запись"><i class="fa fa-fw fa-pencil fa-control p-0" aria-hidden="true"></i></button></a>
-                                                 <button class="btn btn-danger mb-1" type="button" title="Удалить запись" onclick="delete_items({{ item.id }})"><i class="fa fa-fw fa-trash fa-control p-0"></i></button> 
-                                        </div>
-                                        <div class = "col p-0 info" data-url="{{ url_for('API.get_one_inventory_item', id=item.id ) }}">
-                                                <button class="btn btn-info mb-1" data-type="placing" type="submit" title="Местоположение объекта" data-toggle="modal" data-target="#info"><i class="fa fa-fw fa-compass fa-control p-0" aria-hidden="true"></i></button>
-                                                <button class="btn btn-info mb-1" data-type="movements" type="submit" title="Перемещения объекта" data-toggle="modal" data-target="#info"><i class="fa fa-fw fa-arrows fa-control p-0" aria-hidden="true"></i></button>
-                                        </div>
-                                </div>
-                                                                
-                        </td>
-                        <td>{{ item.number }}</td>
-                        <td>
-                                {% if item.serial is not none %}
-                                        {{ item.serial }}
-                                {% else %}
-                                &mdash;
-                                {% endif %}
-                        </td>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.cdate|datetime('medium') }}</td>
-                        <td>
-                            {% if item.chdate %}
-                                <span title="{{ item.chdate|datetime('full') }}">{{ item.chdate|datetime('since') }}</span>
-                            {% else %}
-                                Не проверялся
-                            {% endif %}
-                        </td>
-                        <td>
-                        {% if item.status == 1 %}
-                        <i class="fa fa-ban fa-control fa-fw p-0" style="color:red">
-                        {% elif item.status == 2 %}
-                        <i class="fa fa-check-circle fa-control fa-fw p-0" style="color:{{ item.chdate|expiration(period='month', number=3) }}">
-                        {% else %}
-                        <i class="fa fa-ban fa-control fa-fw p-0" style="color:red">
-                        {% endif %}
-                        </td>
-                        <td>
-                                {% if item.item_responsible is not none %}
-                                        {{ item.item_responsible.surname }} {{ item.item_responsible.name[:1] }}.{{ item.item_responsible.patronymic[:1] }}.
-                                {% else %}
-                                &mdash;
-                                {% endif %}
-                        </td>
-                        <td>
-                                {% if item.item_employee is not none %}
-                                        {{ item.item_employee.surname }} {{ item.item_employee.name[:1] }}.{{ item.item_employee.patronymic[:1] }}.
-                                {% else %}
-                                &mdash;
-                                {% endif %}
-                        </td>
-                    </tr>
-            {% endfor %}
+                    {% if items %}
+                        {% for item in items %}
+                                <tr>
+                                    <td><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ item.id }} title="Выберите запись"></td>
+                                    <td>    
+                                            <div class="row">
+                                                    <div class = "col p-0 control">
+                                                             <a class = "edit" href=" {{url_for('inventory.edit_items', id = item.id)}} "><button class="btn btn-primary mb-1" type="submit" title="Изменить запись"><i class="fa fa-fw fa-pencil fa-control p-0" aria-hidden="true"></i></button></a>
+                                                             <button class="btn btn-danger mb-1" type="button" title="Удалить запись" onclick="delete_items({{ item.id }})"><i class="fa fa-fw fa-trash fa-control p-0"></i></button> 
+                                                    </div>
+                                                    <div class = "col p-0 info" data-url="{{ url_for('API.get_one_inventory_item', id=item.id ) }}">
+                                                            <button class="btn btn-info mb-1" data-type="placing" type="submit" title="Местоположение объекта" data-toggle="modal" data-target="#info"><i class="fa fa-fw fa-compass fa-control p-0" aria-hidden="true"></i></button>
+                                                            <button class="btn btn-info mb-1" data-type="movements" type="submit" title="Перемещения объекта" data-toggle="modal" data-target="#info"><i class="fa fa-fw fa-arrows fa-control p-0" aria-hidden="true"></i></button>
+                                                    </div>
+                                            </div>
+                                                                            
+                                    </td>
+                                    <td>{{ item.number }}</td>
+                                    <td>
+                                            {% if item.serial is not none %}
+                                                    {{ item.serial }}
+                                            {% else %}
+                                            &mdash;
+                                            {% endif %}
+                                    </td>
+                                    <td>{{ item.name }}</td>
+                                    <td>{{ item.cdate|datetime('medium') }}</td>
+                                    <td>
+                                        {% if item.chdate %}
+                                            <span title="{{ item.chdate|datetime('full') }}">{{ item.chdate|datetime('since') }}</span>
+                                        {% else %}
+                                            Не проверялся
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                    {% if item.status == 1 %}
+                                    <i class="fa fa-ban fa-control fa-fw p-0" style="color:red">
+                                    {% elif item.status == 2 %}
+                                    <i class="fa fa-check-circle fa-control fa-fw p-0" style="color:{{ item.chdate|expiration(period='month', number=3) }}">
+                                    {% else %}
+                                    <i class="fa fa-ban fa-control fa-fw p-0" style="color:red">
+                                    {% endif %}
+                                    </td>
+                                    <td>
+                                            {% if item.item_responsible is not none %}
+                                                    {{ item.item_responsible.surname }} {{ item.item_responsible.name[:1] }}.{{ item.item_responsible.patronymic[:1] }}.
+                                            {% else %}
+                                            &mdash;
+                                            {% endif %}
+                                    </td>
+                                    <td>
+                                            {% if item.item_employee is not none %}
+                                                    {{ item.item_employee.surname }} {{ item.item_employee.name[:1] }}.{{ item.item_employee.patronymic[:1] }}.
+                                            {% else %}
+                                            &mdash;
+                                            {% endif %}
+                                    </td>
+                                </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="11">Нет данных</td></tr>
+                    {% endif %}
+
                 </table>
             </div>
 
