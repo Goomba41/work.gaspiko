@@ -7,7 +7,7 @@ from app.admin.views import get_counters, get_permissions, forbidden, make_histo
 
 from app.models import User
 
-import M2Crypto as m2
+# import M2Crypto as m2
 from OpenSSL import crypto
 # from certgen import (
     # createKeyPair,
