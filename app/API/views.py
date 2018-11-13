@@ -178,7 +178,7 @@ def utility_processor():
 def fresh_news(value,days):
 
     datetime_object = datestring_to_object(value)
-    now = datetime.now()
+    now = datetime.datetime.now()
     diff = now - datetime_object
     
     if diff.days<=int(days):
