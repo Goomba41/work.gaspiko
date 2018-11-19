@@ -8,7 +8,8 @@ from flask import request, make_response, jsonify, Response, Blueprint, url_for,
 from dateutil.relativedelta import relativedelta
 import datetime, calendar
 from sqlalchemy.orm.attributes import flag_modified
-import hashlib, uuid
+import hashlib, uuid, qrcode, base64
+from io import BytesIO
 
 
 API = Blueprint('API', __name__, url_prefix='/API/v1.0')
@@ -520,6 +521,37 @@ def get_one_inventory_item_by_in(number):
     item_schema = ItemSchema()
 
     response = jsonify(item_schema.dump(item).data)
+    
+    return response
+    
+#Генерация QR для объекта
+@API.route('/inventar/qr/<int:id>', methods=['GET'])
+def qr_inventory_item(id):
+    
+    item = Item.query.filter(Item.id==id).first()
+    item_schema = ItemSchema()
+    
+    data_string = "NUMBER:"+str(item.number)+"\nNAME:"+str(item.name)+"\nDESCRIPTION:"+str(item.placing['description'])+"\nFLOOR:"+str(item.placing['floor'])+"\nROOM:"+str(item.placing['room'])
+    print(data_string)
+    
+    qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=4,
+    )
+    qr.add_data(data_string)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    buffered = BytesIO()
+    img.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue()).decode()
+    
+    print("QR generated!")
+
+    response = jsonify(img_str)
     
     return response
 

@@ -317,6 +317,29 @@ $("div.info").on("click", ".btn", function(e) {
     });
 });
 
+//Получение QR-кода
+$(document).ready(function(){
+$("div.qr").on("click", ".btn", function(e) {
+        var url = $(this).parent().data('url');
+        var type = $(this).data('type');
+        
+        $.ajax({
+            type : "GET",
+            url : url,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                $("h4.modal-title").html("QR-код объекта");
+                $('.modal-body').html('<div class="card card-img-container"><img class="rounded mx-auto d-block img-fluid qr" alt="QR-код объекта" title="QR-код объекта" src="data:image/png;base64,' + response + '" /><div class="card-img-overlay link-copy-overlay" onclick="$("img.qr").print();"><i class="fa fa-print fa-3x fa-fw p-0" aria-hidden="true"></i></div></div>');
+            },
+            error: function(response) {
+            }
+        });
+
+    });
+});
+
 // Удаление объектов
 function delete_items(id) {
    if (id == undefined) {
@@ -416,7 +439,7 @@ $(document).ready(function(){
     });//form send
 });
 
-//Редактирование новости
+//Редактирование объекта
 $(document).ready(function(){
     $("form#edit_item").submit(function(e) {
         e.preventDefault(); //Отменить стандартные действия при отправке формы (релоад)
@@ -464,18 +487,7 @@ $(document).ready(function(){
 //-------------------------------------------------------------------------------------------------
 // 
 //-------------------------------------------------------------------------------------------------
-   
-   
-function make(action) {
-    console.log(action);
-}
-   
-   
-   
-   
-   
-   
-   
+
    
    function password_reset(user_id) {
         var password = prompt("Пожалуйста, введите новый пароль:");

@@ -92,13 +92,16 @@
                                     <td><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ item.id }} title="Выберите запись"></td>
                                     <td>    
                                             <div class="row">
-                                                    <div class = "col p-0 control">
+                                                    <div class = "col p-1 control">
                                                              <a class = "edit" href=" {{url_for('inventory.edit_items', id = item.id)}} "><button class="btn btn-primary mb-1" type="submit" title="Изменить запись"><i class="fa fa-fw fa-pencil fa-control p-0" aria-hidden="true"></i></button></a>
                                                              <button class="btn btn-danger mb-1" type="button" title="Удалить запись" onclick="delete_items({{ item.id }})"><i class="fa fa-fw fa-trash fa-control p-0"></i></button> 
                                                     </div>
-                                                    <div class = "col p-0 info" data-url="{{ url_for('API.get_one_inventory_item', id=item.id ) }}">
+                                                    <div class = "col p-1 info" data-url="{{ url_for('API.get_one_inventory_item', id=item.id ) }}">
                                                             <button class="btn btn-info mb-1" data-type="placing" type="submit" title="Местоположение объекта" data-toggle="modal" data-target="#info"><i class="fa fa-fw fa-compass fa-control p-0" aria-hidden="true"></i></button>
                                                             <button class="btn btn-info mb-1" data-type="movements" type="submit" title="Перемещения объекта" data-toggle="modal" data-target="#info"><i class="fa fa-fw fa-arrows fa-control p-0" aria-hidden="true"></i></button>
+                                                    </div>
+                                                    <div class = "col p-1 qr" data-url="{{ url_for('API.qr_inventory_item', id=item.id ) }}">
+                                                            <button class="btn btn-warning mb-1" data-type="qr" type="submit" title="Сгенерировать QR-код для объекта" data-toggle="modal" data-target="#info"><i class="fa fa-fw fa-qrcode fa-control p-0" aria-hidden="true"></i></button>
                                                     </div>
                                             </div>
                                                                             
@@ -151,7 +154,52 @@
 
                 </table>
             </div>
+            
+<table border="1" cellpadding="3" id="printTable">
+	<tbody><tr>
+		<th>First Name</th>
+		<th>Last Name</th>		
+		<th>Points</th>
+	</tr>
+	<tr>
+		<td>Jill</td>
+		<td>Smith</td>		
+		<td>50</td>
+	</tr>
+	<tr>
+		<td>Eve</td>
+		<td>Jackson</td>		
+		<td>94</td>
+	</tr>
+	<tr>
+		<td>John</td>
+		<td>Doe</td>		
+		<td>80</td>
+	</tr>
+	<tr>
+		<td>Adam</td>
+		<td>Johnson</td>		
+		<td>67</td>
+	</tr>
+</tbody></table>
+<br />
+<br />
+<table border="1" cellpadding="3" id="notPrintTable">
+	<tbody><tr>
+		<th>First Name</th>
+		<th>Last Name</th>		
+		<th>Points</th>
+	</tr>
+	<tr>
+		<td>test</td>
+		<td>test</td>		
+		<td>000</td>
+	</tr>
+</tbody></table>
+<br />
+<br />
 
+<button>Print me</button>
             
             <div class="row p-3 m-auto align-items-center">
                 <div class="col-6">
@@ -191,6 +239,20 @@
     
     </div>
 </div>
+
+<script>
+function printData()
+{
+   var divToPrint=document.getElementById("printTable");
+   newWin= window.open("");
+   newWin.document.write(divToPrint.outerHTML);
+   newWin.print();
+   newWin.close();
+}
+$('button').on('click',function(){
+printData();
+})
+</script>
 
 {% endif %}
 
