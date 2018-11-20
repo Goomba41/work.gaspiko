@@ -184,9 +184,24 @@ span.font-BadScript {
     transition: .5s ease;
 }
 
+.printable-overlay {
+    background-color: black;
+    opacity: 0;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    transition: .5s ease;
+}
+
+.card-img-container:hover .printable-overlay {
+  opacity: 0.75;
+}
+
 .card-img-container:hover .link-copy-overlay {
   opacity: 0.75;
 }
+
 .card-img-container {
   position: relative;
   width: 100%;
@@ -196,7 +211,10 @@ span.font-BadScript {
     color:white;
 }
 
+.printable-overlay > i {
+    color:white;
+}
+
 .image-card {
     transition: .5s ease;
 }
-

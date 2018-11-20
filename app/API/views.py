@@ -532,7 +532,6 @@ def qr_inventory_item(id):
     item_schema = ItemSchema()
     
     data_string = "NUMBER:"+str(item.number)+"\nNAME:"+str(item.name)+"\nDESCRIPTION:"+str(item.placing['description'])+"\nFLOOR:"+str(item.placing['floor'])+"\nROOM:"+str(item.placing['room'])
-    print(data_string)
     
     qr = qrcode.QRCode(
     version=1,
@@ -548,10 +547,8 @@ def qr_inventory_item(id):
     buffered = BytesIO()
     img.save(buffered, format="JPEG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
-    
-    print("QR generated!")
 
-    response = jsonify(img_str)
+    response = jsonify(img_str, item.number)
     
     return response
 

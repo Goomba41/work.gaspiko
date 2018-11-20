@@ -2,6 +2,10 @@
 // ОБРАЩЕНИЯ К API
 //-------------------------------------------------------------------------------------------------
 
+//-------------------------------------------------------------------------------------------------
+// СЛУЖЕБНЫЕ ФУНКЦИИ
+//-------------------------------------------------------------------------------------------------
+
 $(document).ready(function(){
     (function ($) {
         $.fn.serializeFormJSON = function () {
@@ -26,6 +30,38 @@ $(document).ready(function(){
     $("form input[type=submit]").click(function() {
         $("input[type=submit]", $(this).parents("form")).removeAttr("clicked");
         $(this).attr("clicked", "true");
+    });
+});
+
+$(document).ready(function(){
+    $("div.modal-body").on("click", "div.printable-overlay", function(e) {
+        var printable=$("div.printable");
+
+        //newWin= window.open("");
+
+        //newWin.document.write('<html><head><title>Печать QR-кода</title><link rel="stylesheet" type="text/css" href="/static/admin/css/bootstrap-4/bootstrap.css"><link rel="stylesheet" type="text/css" href="/static/admin/css/style.css" media="print"></script></head><body>');
+        //newWin.document.write(printable[0].outerHTML);
+        //newWin.document.write('</body></html>');
+        
+        //newWin.print();
+        //newWin.close();
+        
+        //var win = window.open('','printwindow');
+        //win.document.write('<html><head><title>Print it!</title><link rel="stylesheet" type="text/css" href="http://192.168.0.95:8000/static/admin/css/style.css"></head><body>');
+        //win.document.write(printable[0].outerHTML);
+        //win.document.write('</body></html>');
+        //win.print();
+        //win.close();
+        
+        //var printContents = $("div.printable")[0].outerHTML;
+        //var originalContents = document.body.innerHTML;
+
+        //document.body.innerHTML = printContents;
+
+        window.print();
+        window.close();
+
+        //document.body.innerHTML = originalContents;
     });
 });
 
@@ -331,7 +367,7 @@ $("div.qr").on("click", ".btn", function(e) {
             processData: false,
             success: function (response) {
                 $("h4.modal-title").html("QR-код объекта");
-                $('.modal-body').html('<div class="card card-img-container"><img class="rounded mx-auto d-block img-fluid qr" alt="QR-код объекта" title="QR-код объекта" src="data:image/png;base64,' + response + '" /><div class="card-img-overlay link-copy-overlay" onclick="$("img.qr").print();"><i class="fa fa-print fa-3x fa-fw p-0" aria-hidden="true"></i></div></div>');
+                $('.modal-body').html('<div class="card card-img-container printable"><img class="rounded mx-auto d-block img-fluid qr" alt="QR-код объекта" title="QR-код объекта" src="data:image/png;base64,' + response[0] + '" /><div class="card-img-overlay printable-overlay"><i class="fa fa-print fa-3x fa-fw p-0" aria-hidden="true"></i></div><div class="card-body"><table class="w-100 text-center"><tbody><tr><td><h3>ИНВ. №</h3></td><td><h3>'+response[1]+'</h3></td></tr></tbody></table></p></div></div>');
             },
             error: function(response) {
             }
