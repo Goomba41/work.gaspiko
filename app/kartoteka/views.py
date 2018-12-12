@@ -13,7 +13,7 @@ from flask import request, make_response, redirect, url_for, render_template, re
 from flask_paginate import Pagination
 from functools import wraps
 from sqlalchemy.sql.functions import func
-from sqlalchemy import desc
+from sqlalchemy import desc, extract
 from config import basedir, SQLALCHEMY_DATABASE_URI, REQUEST_FILES_FOLDER
 import time, os, hashlib, json, datetime, csv
 
@@ -28,7 +28,6 @@ def kartoteka_main(page = 1, *args):
     current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
-    print ("enter "+str(enter))
     if not enter:
         return forbidden(403)
 
@@ -49,7 +48,7 @@ def kartoteka_main(page = 1, *args):
         args.append(Kind.name==request.args.get('kind'))
     if (request.args.get('character')):
         args.append(Character.name==request.args.get('character'))
-        print(request.args.get('character'))
+        # print(request.args.get('character'))
     if (request.args.get('answer')):
         args.append(Answer.name==request.args.get('answer'))
     if (request.args.get('date_registration')):
@@ -63,12 +62,12 @@ def kartoteka_main(page = 1, *args):
     if (request.args.get('admission')):
         args.append(Admission.name==request.args.get('admission'))
         #args.append(Character.name==request.args.get('character'))
-        print(request.args.get('admission'))
+        # print(request.args.get('admission'))
 
 # Для того, чтобы выводил пустых исполнителей, убрать join исполнителей и пользователей, переписать поиск под id исполнителя
     #request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Executor).join(User).join(Kind).join(Character).join(Answer).join(Admission)
     request_all = Request.query.filter(*args).order_by(Request.date_registration.desc()).join(Kind).join(Character).join(Answer).join(Send).join(Admission)
-    print (request_all.first())
+    # print (request_all.first())
 
     pages_total = request_all.count()
     request_all = request_all.paginate(page, 20, False)
@@ -79,7 +78,7 @@ def kartoteka_main(page = 1, *args):
     form_delete = DelRequestForm()
 
     delete = get_permissions(current_user.role.id, current_user.id, "requests", "delete")
-    print ("delete "+str(delete))
+    # print ("delete "+str(delete))
 
     if form_delete.validate_on_submit() and delete:
         request_id = form_delete.del_id.data
@@ -103,7 +102,7 @@ def kartoteka_executors():
     current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "executors", "enter")
-    print ("enter "+str(enter))
+    # print ("enter "+str(enter))
     if not enter:
         return forbidden(403)
 
@@ -114,7 +113,7 @@ def kartoteka_executors():
     form_delete = DelExecutorForm()
 
     delete = get_permissions(current_user.role.id, current_user.id, "executors", "delete")
-    print ("delete "+str(delete))
+    # print ("delete "+str(delete))
 
     if form_delete.validate_on_submit() and delete:
         executor_id = form_delete.del_id.data
@@ -146,7 +145,7 @@ def add_executor():
     current_user = User.current()
 
     insert = get_permissions(current_user.role.id, current_user.id, "executors", "insert")
-    print ("insert "+str(insert))
+    # print ("insert "+str(insert))
 
     if insert:
         request_data = request.form
@@ -176,7 +175,7 @@ def kartoteka_statistics(page = 1, *args):
     current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
-    print ("enter "+str(enter))
+    # print ("enter "+str(enter))
     if not enter:
         return forbidden(403)
 
@@ -204,7 +203,7 @@ def kartoteka_statistics(page = 1, *args):
     result = ""
 
     if data:
-        print (data)
+        # print (data)
         if data.get('begin') and data.get('end') and data.get('date_type'):
 
             begin_d = datetime.datetime.strptime(data.get('begin').rsplit("T", 1)[0], '%Y-%m-%d')
@@ -262,11 +261,11 @@ def kartoteka_statistics(page = 1, *args):
                 #group_args.append(Request.id)
             #--------------------------------------------
 
-            print(Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args))
+            # print(Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args))
             result = Request.query.with_entities(*entities_args).filter(*filter_args).group_by(*group_args).count()
             result = get_declension(result, [u"запрос", u"запроса", u"запросов"])
             result = {"queries":[{"col":str(result[0]),"string":result[1]}]}
-            print (result)
+            # print (result)
 
         response = app.response_class(
             response=json.dumps(result),
@@ -284,9 +283,9 @@ def new_request_kartoteka():
     current_user = User.current()
 
     enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
-    print ("enter "+str(enter))
+    # print ("enter "+str(enter))
     insert = get_permissions(current_user.role.id, current_user.id, "requests", "insert")
-    print ("insert "+str(insert))
+    # print ("insert "+str(insert))
 
     if not enter or not insert:
         return forbidden(403)
@@ -296,33 +295,41 @@ def new_request_kartoteka():
     form_request_add = AddRequestForm()
     all_counters = get_counters()
     request_count = Request.query.count()
-
+        
     if form_request_add.validate_on_submit():
         if request.method  == 'POST':
-            print(form_request_add.data)
-            print(request.form.get("liter"))
+            
+            request_this_year=Request.query.filter(extract('year', Request.date_registration)==time.strptime(today,"%Y-%m-%d")[0]).with_entities(Request.number)
+            request_this_year_list = []
+            for i in request_this_year:
+                request_this_year_list.append(i[0])
+            
+            formed_number = form_request_add.number.data+" "+request.form.get("liter")
+            
+            if formed_number in request_this_year_list:
+                flash(Markup(u"Запрос с номером <b>"+form_request_add.number.data+" "+request.form.get("liter")+"</b> уже был в этом году"), 'error')
+            else:
+                request_query = Request(
+                    number = formed_number,
+                    name = form_request_add.name.data,
+                    surname = form_request_add.surname.data,
+                    patronymic = form_request_add.patronymic.data,
+                    date_registration = form_request_add.date_registration.data,
+                    kind_id = form_request_add.kind_id.data.id,
+                    admission_id = form_request_add.admission_id.data.id,
+                    character_id = form_request_add.character_id.data.id,
+                    executor_id = form_request_add.executor_id.data.id,
+                    answer_id = 5,
+                    send_id = 6
+                )
 
-            request_query = Request(
-                number = form_request_add.number.data+" "+request.form.get("liter"),
-                name = form_request_add.name.data,
-                surname = form_request_add.surname.data,
-                patronymic = form_request_add.patronymic.data,
-                date_registration = form_request_add.date_registration.data,
-                kind_id = form_request_add.kind_id.data.id,
-                admission_id = form_request_add.admission_id.data.id,
-                character_id = form_request_add.character_id.data.id,
-                executor_id = form_request_add.executor_id.data.id,
-                answer_id = 5,
-                send_id = 6
-            )
+                db.session.add(request_query)
+                db.session.flush()
+                db.session.commit()
+                make_history("requests", "вставку", current_user.id)
 
-            db.session.add(request_query)
-            db.session.flush()
-            db.session.commit()
-            make_history("requests", "вставку", current_user.id)
-
-            flash(Markup(u"Запрос с номером <a href='"+url_for('kartoteka.edit_request', id=request_query.id)+"'>"+form_request_add.number.data+" "+request.form.get("liter")+"</a> добавлен"), 'success')
-            return redirect(url_for('kartoteka.kartoteka_main'))
+                flash(Markup(u"Запрос с номером <a href='"+url_for('kartoteka.edit_request', id=request_query.id)+"'>"+form_request_add.number.data+" "+request.form.get("liter")+"</a> добавлен"), 'success')
+                return redirect(url_for('kartoteka.kartoteka_main'))
     return render_template("kartoteka/add_request.html", form_request_add = form_request_add, all_counters = all_counters, current_user=current_user, today=today, request_count=request_count)
 
 @kartoteka.route('/request/edit', methods=['GET', 'POST'])
@@ -382,37 +389,48 @@ def edit_request():
 
     if form_request_edit.validate_on_submit():
         if request.method  == 'POST':
-            print("POST")
-            filename = request.files['filename']
-            if filename:
-                if edit_request.filename is not None:
-                    filename.save(os.path.join(REQUEST_FILES_FOLDER, edit_request.filename))
-                else:
-                    name = today + '_' + str(edit_request.number) + '_' + str(edit_request.id) + '.' + filename.filename.rsplit('.', 1)[1]
-                    filename.save(os.path.join(REQUEST_FILES_FOLDER, name))
-                    edit_request.filename = name
+            
+            request_this_year=Request.query.filter((extract('year', Request.date_registration)==time.strptime(today,"%Y-%m-%d")[0]) & (Request.id != edit_request.id)).with_entities(Request.number)
+            request_this_year_list = []
+            for i in request_this_year:
+                request_this_year_list.append(i[0])
+                
+            num = form_request_edit.number.data + " " + request.form.get('liter')          
+            
+            if num in request_this_year_list:
+                flash(Markup(u"Запрос с номером <b>"+num+"</b> уже был в этом году"), 'error')
+            else:
+                
+                filename = request.files['filename']
+                if filename:
+                    if edit_request.filename is not None:
+                        filename.save(os.path.join(REQUEST_FILES_FOLDER, edit_request.filename))
+                    else:
+                        name = today + '_' + str(edit_request.number) + '_' + str(edit_request.id) + '.' + filename.filename.rsplit('.', 1)[1]
+                        filename.save(os.path.join(REQUEST_FILES_FOLDER, name))
+                        edit_request.filename = name
 
-            num = form_request_edit.number.data + " " + request.form.get('liter')
+                
 
-            edit_request.number=num
-            edit_request.copies=int(form_request_edit.copies.data)
-            edit_request.name=form_request_edit.name.data
-            edit_request.surname=form_request_edit.surname.data
-            edit_request.patronymic=form_request_edit.patronymic.data
-            edit_request.date_registration=form_request_edit.date_registration.data
-            edit_request.date_done=form_request_edit.date_done.data
-            edit_request.date_send=form_request_edit.date_send.data
-            edit_request.kind_id=form_request_edit.kind_id.data
-            edit_request.admission_id=form_request_edit.admission_id.data
-            edit_request.character_id=form_request_edit.character_id.data
-            edit_request.executor_id=form_request_edit.executor_id.data
-            edit_request.send_id=form_request_edit.send_id.data
-            edit_request.answer_id=form_request_edit.answer_id.data
+                edit_request.number=num
+                edit_request.copies=int(form_request_edit.copies.data)
+                edit_request.name=form_request_edit.name.data
+                edit_request.surname=form_request_edit.surname.data
+                edit_request.patronymic=form_request_edit.patronymic.data
+                edit_request.date_registration=form_request_edit.date_registration.data
+                edit_request.date_done=form_request_edit.date_done.data
+                edit_request.date_send=form_request_edit.date_send.data
+                edit_request.kind_id=form_request_edit.kind_id.data
+                edit_request.admission_id=form_request_edit.admission_id.data
+                edit_request.character_id=form_request_edit.character_id.data
+                edit_request.executor_id=form_request_edit.executor_id.data
+                edit_request.send_id=form_request_edit.send_id.data
+                edit_request.answer_id=form_request_edit.answer_id.data
 
-            make_history("requests", "редактирование", current_user.id)
-            db.session.commit()
+                make_history("requests", "редактирование", current_user.id)
+                db.session.commit()
 
-            flash(u"Запрос изменен", 'success')
+                flash(u"Запрос изменен", 'success')
             return redirect(url_for('kartoteka.edit_request', id=edit_request.id))
     return render_template("kartoteka/edit_request.html", form_request_edit=form_request_edit, all_counters = all_counters, current_user=current_user, today=today,request_count=request_count, edit_request=edit_request, liter=liter, vipnet=vipnet)
 
@@ -490,7 +508,6 @@ def search_request():
 def card_request():
     current_user = User.current()
     info_request = Request.query.filter(Request.id==request.args.get('id')).join(Kind).join(Character).join(Answer).join(Send).join(Admission).first()
-    print (info_request.admission.name)
     template = "<head><title>Карточка №{{request.args.get('id')}}</title><style> span {text-decoration: underline;} tr {padding:10px;} td {padding:10px;} .trim {text-decoration: none;}</style></head><table style='border: 2px solid black; padding:20px'><tr><th colspan='4'><h1>Карточка №{{request.args.get('id')}}</h1></th></tr><tr><th colspan='4'>Запрос № <span>{{info_request.number}}</span> от <span>{{info_request.date_registration}}</span></th></tr><tr><td>Поступил от: </td><td ><span>{{info_request.surname}} {{info_request.name}}<br>{{info_request.patronymic}}</span></td><td>Способ поступления:</td><td><span>{{info_request.admission.name}}</span></td></tr><tr><td>Исполнен: </td><td><span>{{info_request.date_done}}</span></td><td>Отправлен: </td><td><span>{{info_request.date_send}} ({{info_request.send.name}})</span></td></tr><tr><td>Вид: </td><td><span>{{info_request.kind.name}}</span></td><td>Характер: </td><td><span>{{info_request.character.name}}</span></td></tr><tr><td>Ответ: </td><td><span>{{info_request.answer.name}}</span></td><td>Ксерокопий: </td><td><span>{{info_request.copies}}</span></td></tr><tr></tr><tr><td></td><td></td><td>Исполнитель:</td><td>{{info_request.executor.user.surname}} <span id='1' class='trim'>{{info_request.executor.user.name}}</span> <span id='2' class='trim'>{{info_request.executor.user.patronymic}}</span></td></tr></table><script type='text/javascript'>var text = document.getElementById('1').innerHTML; document.getElementById('1').innerHTML=text.substr(0, text.length-(text.length-1))+'.';var text = document.getElementById('2').innerHTML; document.getElementById('2').innerHTML=text.substr(0, text.length-(text.length-1))+'.'</script>"
 
     return render_template_string(template, info_request=info_request)

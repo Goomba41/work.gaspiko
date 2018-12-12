@@ -537,7 +537,7 @@ def qr_inventory_item(id):
     version=1,
     error_correction=qrcode.constants.ERROR_CORRECT_L,
     box_size=10,
-    border=4,
+    border=0,
     )
     qr.add_data(data_string)
     qr.make(fit=True)

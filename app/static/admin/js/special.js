@@ -34,34 +34,22 @@ $(document).ready(function(){
 });
 
 $(document).ready(function(){
-    $("div.modal-body").on("click", "div.printable-overlay", function(e) {
-        var printable=$("div.printable");
+    $("div.modal-footer").on("click", ".print", function(e) {
+        var printable=$("div.modal-body").clone();
+        printable.addClass("w-25");
+        printable.find(".qr-container").removeClass("col");
+        printable.find(".qr-container").addClass("mr-1 mb-1");
+        printable.find(".qr-container").addClass("col-3");
 
-        //newWin= window.open("");
+        newWin= window.open('', 'new div', 'height=400,width=600');
 
-        //newWin.document.write('<html><head><title>Печать QR-кода</title><link rel="stylesheet" type="text/css" href="/static/admin/css/bootstrap-4/bootstrap.css"><link rel="stylesheet" type="text/css" href="/static/admin/css/style.css" media="print"></script></head><body>');
-        //newWin.document.write(printable[0].outerHTML);
-        //newWin.document.write('</body></html>');
+        newWin.document.write('<html><head><title>Печать QR-кода</title><link rel="stylesheet" type="text/css" href="/static/admin/css/bootstrap-4/bootstrap.css"><link rel="stylesheet" type="text/css" href="/static/admin/css/style.css" media="print"></script></head><body><div class="row m-auto">');
+        newWin.document.write(printable[0].innerHTML);
+        newWin.document.write('</div></body></html>');
         
-        //newWin.print();
-        //newWin.close();
-        
-        //var win = window.open('','printwindow');
-        //win.document.write('<html><head><title>Print it!</title><link rel="stylesheet" type="text/css" href="http://192.168.0.95:8000/static/admin/css/style.css"></head><body>');
-        //win.document.write(printable[0].outerHTML);
-        //win.document.write('</body></html>');
-        //win.print();
-        //win.close();
-        
-        //var printContents = $("div.printable")[0].outerHTML;
-        //var originalContents = document.body.innerHTML;
+        setTimeout(function(){newWin.print(); newWin.close(); },1000);
 
-        //document.body.innerHTML = printContents;
-
-        window.print();
-        window.close();
-
-        //document.body.innerHTML = originalContents;
+        return true;
     });
 });
 
@@ -345,6 +333,7 @@ $("div.info").on("click", ".btn", function(e) {
                             $("div.modal-body").html("Объект не перемещался");
                         }
                     }
+                    $('.print').remove();
             },
             error: function(response) {
             }
@@ -367,7 +356,10 @@ $("div.qr").on("click", ".btn", function(e) {
             processData: false,
             success: function (response) {
                 $("h4.modal-title").html("QR-код объекта");
-                $('.modal-body').html('<div class="card card-img-container printable"><img class="rounded mx-auto d-block img-fluid qr" alt="QR-код объекта" title="QR-код объекта" src="data:image/png;base64,' + response[0] + '" /><div class="card-img-overlay printable-overlay"><i class="fa fa-print fa-3x fa-fw p-0" aria-hidden="true"></i></div><div class="card-body"><table class="w-100 text-center"><tbody><tr><td><h3>ИНВ. №</h3></td><td><h3>'+response[1]+'</h3></td></tr></tbody></table></p></div></div>');
+                $('.modal-body').html('<div class="col p-2 qr-container" style="border: 2px solid"><div class="row-fluid p-0"><img class="rounded d-block img-fluid qr w-100 m-0" alt="QR-код объекта" title="QR-код объекта" src="data:image/png;base64,' + response[0] + '" /></div><div class="row p-0 w-100 m-auto"><div class="col-5 p-0 pt-3"><h5>ИНВ. №</h5></div><div class="col-7 p-0 pt-3"><h5>'+response[1]+'</h5></div></div>');
+                if (!$('.print').length) {
+                        $('.modal-footer').append('<button type="button" class="btn btn-info print"><i class="fa fa-fw fa-print fa-control p-0" aria-hidden="true"></i></button>');
+                }
             },
             error: function(response) {
             }
