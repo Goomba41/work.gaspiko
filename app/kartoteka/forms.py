@@ -2,7 +2,7 @@
 
 from flask_wtf import FlaskForm
 from wtforms import TextField, DateField, IntegerField, SelectField
-from wtforms.validators import Required, regexp, Length
+from wtforms.validators import Required, regexp, Length, Optional
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from app.models import Kind, Character, Executor, Send, Answer, Admission, User
 from flask_wtf.file import FileField, FileAllowed, FileRequired
@@ -59,6 +59,6 @@ class EditRequestForm(FlaskForm):
     executor_id = SelectField(u'Исполнитель', coerce=int, choices=get_list_executor(Executor()))
     send_id = SelectField(u'Способ отправки', coerce=int, choices=get_list(Send()))
     answer_id = SelectField(u'Характер ответа', coerce=int, choices=get_list(Answer()))
-    date_done = DateField(u'Дата исполнения', id="date_done")
-    date_send = DateField(u'Дата отправки', id="date_send")
+    date_done = DateField(u'Дата исполнения', id="date_done", validators=[Optional()])
+    date_send = DateField(u'Дата отправки', id="date_send", validators=[Optional()])
     filename = FileField(u'Выберите файл справки', render_kw={'lang': "ru"}, validators = [FileAllowed(['odt', 'doc', 'docx', 'pdf'], u'Только документы в формате *.odt, *.doc, *.docx, *.pdf!')])

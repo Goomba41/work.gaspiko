@@ -75,7 +75,7 @@
             <div class="col-6">
             {{ form_request_add.csrf_token }}
             {{ render_field(form_request_add.number, size=50, class ="form-control", placeholder ="Максимум 10 символов", autocomplete = True) }}
-            {{ render_field(form_request_add.date_registration, class ="form-control") }}
+            {{ render_field(form_request_add.date_registration, class ="form-control", readonly=readonly) }}
             {{ render_field(form_request_add.surname, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             {{ render_field(form_request_add.name, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             {{ render_field(form_request_add.patronymic, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}

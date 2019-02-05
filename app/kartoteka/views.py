@@ -386,7 +386,6 @@ def edit_request():
     filename = edit_request.filename
     )
 
-
     if form_request_edit.validate_on_submit():
         if request.method  == 'POST':
             
@@ -426,7 +425,7 @@ def edit_request():
                 edit_request.executor_id=form_request_edit.executor_id.data
                 edit_request.send_id=form_request_edit.send_id.data
                 edit_request.answer_id=form_request_edit.answer_id.data
-
+                
                 make_history("requests", "редактирование", current_user.id)
                 db.session.commit()
 

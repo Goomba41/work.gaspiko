@@ -145,6 +145,7 @@
 -->#}
     {% if field.errors %}
         {% for error in field.errors %}
+        {{error}}
             {% if ((field.type == "TextField") or  (field.type == "PasswordField")) %}
                 <script>$( "#{{field.name}}" ).addClass('error_shadowed');</script>
             {% elif field.type == "DateField" %}

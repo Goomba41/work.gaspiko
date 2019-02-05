@@ -79,9 +79,9 @@
             {{ render_field(form_request_edit.name, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             {{ render_field(form_request_edit.patronymic, size=50, class ="form-control", placeholder ="Максимум 15 символов", autocomplete = True) }}
             {{ render_field(form_request_edit.copies, size=50, class ="form-control", placeholder ="Максимум 10 символов", autocomplete = True) }}
-            {{ render_field(form_request_edit.date_registration, class ="form-control", placeholder ="В формате ГГГГ-ММ-ДД") }}
-            {{ render_field(form_request_edit.date_done, class ="form-control", placeholder ="В формате ГГГГ-ММ-ДД") }}
-            {{ render_field(form_request_edit.date_send, class ="form-control", placeholder ="В формате ГГГГ-ММ-ДД") }}
+            {{ render_field(form_request_edit.date_registration, class ="form-control", placeholder ="В формате ГГГГ-ММ-ДД", readonly=readonly) }}
+            {{ render_field(form_request_edit.date_done, class ="form-control", placeholder ="В формате ГГГГ-ММ-ДД", readonly=readonly) }}
+            {{ render_field(form_request_edit.date_send, class ="form-control", placeholder ="В формате ГГГГ-ММ-ДД", readonly=readonly) }}
             </div>
             <div class="col-6">
             {{ render_field(form_request_edit.kind_id, class ="form-control") }}
