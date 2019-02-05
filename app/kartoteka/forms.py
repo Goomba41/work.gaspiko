@@ -59,6 +59,6 @@ class EditRequestForm(FlaskForm):
     executor_id = SelectField(u'Исполнитель', coerce=int, choices=get_list_executor(Executor()))
     send_id = SelectField(u'Способ отправки', coerce=int, choices=get_list(Send()))
     answer_id = SelectField(u'Характер ответа', coerce=int, choices=get_list(Answer()))
-    date_done = DateField(u'Дата исполнения', id="date_done", validators = [Required(message = u'Поле не может быть пустым')])
-    date_send= DateField(u'Дата отправки', id="date_send", validators = [Required(message = u'Поле не может быть пустым')])
+    date_done = DateField(u'Дата исполнения', id="date_done")
+    date_send = DateField(u'Дата отправки', id="date_send")
     filename = FileField(u'Выберите файл справки', render_kw={'lang': "ru"}, validators = [FileAllowed(['odt', 'doc', 'docx', 'pdf'], u'Только документы в формате *.odt, *.doc, *.docx, *.pdf!')])

@@ -45,9 +45,20 @@ $(document).ready(function(){
 
         newWin.document.write('<html><head><title>Печать QR-кода</title><link rel="stylesheet" type="text/css" href="/static/admin/css/bootstrap-4/bootstrap.css"><link rel="stylesheet" type="text/css" href="/static/admin/css/style.css" media="print"></script></head><body><div class="row m-auto">');
         newWin.document.write(printable[0].innerHTML);
+        newWin.document.write(printable[0].innerHTML);
+        newWin.document.write(printable[0].innerHTML);
+        newWin.document.write(printable[0].innerHTML);
+        newWin.document.write(printable[0].innerHTML);
+        newWin.document.write(printable[0].innerHTML);
         newWin.document.write('</div></body></html>');
-        
-        setTimeout(function(){newWin.print(); newWin.close(); },1000);
+
+        setTimeout(function(){
+            //newWin.print(); newWin.close(); 
+            newWin.document.close();
+            newWin.focus();
+            newWin.print();
+            newWin.close(); 
+        },1000);
 
         return true;
     });
@@ -336,6 +347,11 @@ $("div.info").on("click", ".btn", function(e) {
                     $('.print').remove();
             },
             error: function(response) {
+                message = response.responseJSON;
+                $('#message').addClass('show');
+                $('#message').addClass(message['type']);
+                $('#message').html(message['text']);
+                setTimeout("$('#message').removeClass('show');", 2500);
             }
         });
 
