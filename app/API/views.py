@@ -548,7 +548,7 @@ def qr_inventory_item(id):
     img.save(buffered, format="JPEG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
 
-    response = jsonify(img_str, item.number)
+    response = jsonify(img_str, item.number, item.name)
     
     return response
 

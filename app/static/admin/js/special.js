@@ -33,36 +33,6 @@ $(document).ready(function(){
     });
 });
 
-$(document).ready(function(){
-    $("div.modal-footer").on("click", ".print", function(e) {
-        var printable=$("div.modal-body").clone();
-        printable.addClass("w-25");
-        printable.find(".qr-container").removeClass("col");
-        printable.find(".qr-container").addClass("mr-1 mb-1");
-        printable.find(".qr-container").addClass("col-3");
-
-        newWin= window.open('', 'new div', 'height=400,width=600');
-
-        newWin.document.write('<html><head><title>Печать QR-кода</title><link rel="stylesheet" type="text/css" href="/static/admin/css/bootstrap-4/bootstrap.css"><link rel="stylesheet" type="text/css" href="/static/admin/css/style.css" media="print"></script></head><body><div class="row m-auto">');
-        newWin.document.write(printable[0].innerHTML);
-        newWin.document.write(printable[0].innerHTML);
-        newWin.document.write(printable[0].innerHTML);
-        newWin.document.write(printable[0].innerHTML);
-        newWin.document.write(printable[0].innerHTML);
-        newWin.document.write(printable[0].innerHTML);
-        newWin.document.write('</div></body></html>');
-
-        setTimeout(function(){
-            //newWin.print(); newWin.close(); 
-            newWin.document.close();
-            newWin.focus();
-            newWin.print();
-            newWin.close(); 
-        },1000);
-
-        return true;
-    });
-});
 
 //-------------------------------------------------------------------------------------------------
 // НОВОСТИ
@@ -337,7 +307,7 @@ $("div.info").on("click", ".btn", function(e) {
                         if ( movements !== null ){
                             $("div.modal-body").html("Перемещения объекта:");
                             $(movements).each(function(index){
-                                $("div.modal-body").append("<div class='row-fluid m-2'>"+this.from + " <i class='fa fa-fw fa-long-arrow-right p-0' aria-hidden='true'></i> " + this.to+" (<a href='#' title='"+this.date+"'>дата</a>)</div>" );
+                                $("div.modal-body").append("<div class='row-fluid m-2'>"+this.from + " <i class='fa fa-fw fa-long-arrow-right p-0' aria-hidden='true'></i> " + this.to+" (<a href='#' title='"+this.date+"'>"+this.date+"</a>)</div>" );
                             });
                         }
                         else {
@@ -362,6 +332,7 @@ $("div.info").on("click", ".btn", function(e) {
 $(document).ready(function(){
 $("div.qr").on("click", ".btn", function(e) {
         var url = $(this).parent().data('url');
+        var id = $(this).parent().data('id');
         var type = $(this).data('type');
         
         $.ajax({
@@ -372,9 +343,9 @@ $("div.qr").on("click", ".btn", function(e) {
             processData: false,
             success: function (response) {
                 $("h4.modal-title").html("QR-код объекта");
-                $('.modal-body').html('<div class="col p-2 qr-container" style="border: 2px solid"><div class="row-fluid p-0"><img class="rounded d-block img-fluid qr w-100 m-0" alt="QR-код объекта" title="QR-код объекта" src="data:image/png;base64,' + response[0] + '" /></div><div class="row p-0 w-100 m-auto"><div class="col-5 p-0 pt-3"><h5>ИНВ. №</h5></div><div class="col-7 p-0 pt-3"><h5>'+response[1]+'</h5></div></div>');
+                $('.modal-body').html('<div class="col p-2 qr-container" style="border: 2px solid"><div class="row-fluid p-0"><img class="rounded d-block img-fluid qr w-100 m-0" alt="QR-код объекта" title="QR-код объекта" src="data:image/png;base64,' + response[0] + '" /></div><div class="row p-0 w-100 m-auto"><div class="col-5 p-0 pt-3"><h5>ИНВ. №</h5></div><div class="col-7 p-0 pt-3"><h5>'+response[1]+'</h5></div><div class="col-7 p-0 pt-3"><h5>'+response[2]+'</h5></div></div>');
                 if (!$('.print').length) {
-                        $('.modal-footer').append('<button type="button" class="btn btn-info print"><i class="fa fa-fw fa-print fa-control p-0" aria-hidden="true"></i></button>');
+                        $('.modal-footer').append('<button type="button" onclick="print_items_qr('+id+')" class="btn btn-info print"><i class="fa fa-fw fa-print fa-control p-0" aria-hidden="true"></i></button>');
                 }
             },
             error: function(response) {
@@ -384,13 +355,65 @@ $("div.qr").on("click", ".btn", function(e) {
     });
 });
 
+// Печать qr объектов
+function print_items_qr(id) {
+
+    newWin= window.open('', 'new div', 'height=400,width=600');
+
+    newWin.document.write('<html><head><title>Печать QR-кода</title><link rel="stylesheet" type="text/css" href="/static/admin/css/bootstrap-4/bootstrap.css"><link rel="stylesheet" type="text/css" href="/static/admin/css/style.css" media="print"></script></head><body><div class="row m-auto">');
+    
+    if (id == undefined) {
+            var to_print = [];
+            $("input:checkbox[name=actionRow]:checked").each(function(){
+                /*to_print.push($(this).val());*/
+                $.ajax({
+                    type : "GET",
+                    url : '/API/v1.0/inventar/qr/'+$(this).val(),
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        newWin.document.write('<div class="col-3 mr-1 mb-1 w-25 p-2 qr-container" style="border: 2px solid"><div class="row-fluid p-0"><img class="d-block img-fluid qr w-100 m-0" alt="QR-код объекта" title="QR-код объекта" src="data:image/png;base64,' + response[0] + '" /></div><div class="row p-0 w-100 m-auto"><div class="col-5 p-0 pt-3"><h5>ИНВ. №</h5></div><div class="col-7 p-0 pt-3"><h5>'+response[1]+'</h5></div><div class="col-7 p-0 pt-3"><h5>'+response[2]+'</h5></div></div></div>');
+                    },
+                    error: function(response) {
+                    }
+                });
+
+            }); 
+    }
+   else {
+       
+        var printable=$("div.modal-body").clone();
+        printable.addClass("w-25");
+        printable.find(".qr-container").removeClass("col");
+        printable.find(".qr-container").addClass("mr-1 mb-1");
+        printable.find(".qr-container").addClass("col-3");
+       
+        newWin.document.write(printable[0].innerHTML);
+    }
+    
+    newWin.document.write('</div></body></html>');
+    
+    setTimeout(function(){
+    //newWin.print(); newWin.close(); 
+    newWin.document.close();
+    newWin.focus();
+    newWin.print();
+    newWin.close(); 
+    },1000);
+
+    return true;
+}
+
 // Удаление объектов
 function delete_items(id) {
-   if (id == undefined) {
-       if(confirm("Вы уверены, что хотите УДАЛИТЬ выбранные записи?")){
+    
+    if (id == undefined) {
+        if(confirm("Вы уверены, что хотите УДАЛИТЬ выбранные записи?")){
             var to_delete = [];
-            $("input:checkbox[name=rowdelete]:checked").each(function(){
+            $("input:checkbox[name=actionRow]:checked").each(function(){
                 to_delete.push($(this).val());
+                console.log(to_delete);
                 $.ajax({
                     type : "DELETE",
                     url : "/API/v1.0/inventar/"+$(this).val(),
@@ -412,10 +435,10 @@ function delete_items(id) {
 
             });
         }
-   }
-   else {
-       if (confirm("Вы уверены, что хотите УДАЛИТЬ запись?")){
-             $.ajax({
+    }
+    else {
+        if (confirm("Вы уверены, что хотите УДАЛИТЬ запись?")){
+            $.ajax({
                 type : "DELETE",
                 url : "/API/v1.0/inventar/"+id,
                 contentType: 'application/json;charset=UTF-8',
@@ -449,7 +472,7 @@ $(document).ready(function(){
         var formData = new FormData();
         formData.append('data', JSON.stringify(data)); //Добавляем данные в форму
         
-        $.ajax({ //Отсылаем запрос
+        $.ajax({ //Отсыл`аем запрос
             type : "POST",
             url : $(this).attr("action"),
             cache: false,

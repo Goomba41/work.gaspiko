@@ -28,7 +28,7 @@
                             
                             <div class="dropdown-menu" aria-labelledby="main-panel-dropdown-administration">
                                 <a class="dropdown-item delete" onclick="delete_items()" href="#"><i class="fa fa-trash-o fa-fw fa-control p-0" aria-hidden="true"></i> Удалить</a>
-                                <a class="dropdown-item delete" onclick="" href="#"><i class="fa fa-print fa-fw fa-control p-0" aria-hidden="true"></i> Печать QR-кодов</a>
+                                <a class="dropdown-item delete" onclick="print_items_qr()" href="#"><i class="fa fa-print fa-fw fa-control p-0" aria-hidden="true"></i> Печать QR-кодов</a>
                             </div>
                         </li>
                         {# 
@@ -89,7 +89,7 @@
                     {% if items %}
                         {% for item in items %}
                                 <tr>
-                                    <td><input type="checkbox" name="rowdelete" class="action-checkbox" value={{ item.id }} title="Выберите запись"></td>
+                                    <td><input type="checkbox" name="actionRow" class="action-checkbox" value={{ item.id }} title="Выберите запись"></td>
                                     <td>    
                                             <div class="row">
                                                     <div class = "col p-1 control">
@@ -100,7 +100,7 @@
                                                             <button class="btn btn-info mb-1" data-type="placing" type="submit" title="Местоположение объекта" data-toggle="modal" data-target="#info"><i class="fa fa-fw fa-compass fa-control p-0" aria-hidden="true"></i></button>
                                                             <button class="btn btn-info mb-1" data-type="movements" type="submit" title="Перемещения объекта" data-toggle="modal" data-target="#info"><i class="fa fa-fw fa-arrows fa-control p-0" aria-hidden="true"></i></button>
                                                     </div>
-                                                    <div class = "col p-1 qr" data-url="{{ url_for('API.qr_inventory_item', id=item.id ) }}">
+                                                    <div class = "col p-1 qr" data-url="{{ url_for('API.qr_inventory_item', id=item.id ) }}" data-id="{{ item.id }}">
                                                             <button class="btn btn-warning mb-1" data-type="qr" type="submit" title="Сгенерировать QR-код для объекта" data-toggle="modal" data-target="#info"><i class="fa fa-fw fa-qrcode fa-control p-0" aria-hidden="true"></i></button>
                                                     </div>
                                             </div>
