@@ -26,12 +26,24 @@ $(document).ready(function(){
             return o;
         };
     })(jQuery);
+    
+    (function ($) {
+        $.fn.clean = function (obj) {
+            for (var propName in obj) { 
+                if (obj[propName] === null || obj[propName] === undefined || obj[propName] == '') {
+                    delete obj[propName];
+                }
+            }
+            return obj;
+        };
+    })(jQuery);
 
     $("form input[type=submit]").click(function() {
         $("input[type=submit]", $(this).parents("form")).removeAttr("clicked");
         $(this).attr("clicked", "true");
     });
 });
+
 
 
 //-------------------------------------------------------------------------------------------------
@@ -472,7 +484,7 @@ $(document).ready(function(){
         var formData = new FormData();
         formData.append('data', JSON.stringify(data)); //Добавляем данные в форму
         
-        $.ajax({ //Отсыл`аем запрос
+        $.ajax({ //Отсылаем запрос
             type : "POST",
             url : $(this).attr("action"),
             cache: false,
@@ -550,6 +562,41 @@ $(document).ready(function(){
     });//form send
 });
 
+//Поиск объектов
+$(document).ready(function(){
+    $("form#search_item").submit(function(e) {
+        e.preventDefault(); //Отменить стандартные действия при отправке формы (релоад)
+             
+        var data = $(this).serialize(); //Сериализируем форму в JSON формат
+        var cldata = data.replace(/[^&]+=\.?(?:&|$)/g,'');
+        window.location = $(this).attr("action") + '?' + cldata;
+        
+        /*
+        $.ajax({ //Отсылаем запрос
+            type : "GET",
+            url : $(this).attr("action"),
+            contentType: "application/json",
+            data : cldata,
+            dataType: 'json',
+            success: function (response) {
+                message = response;
+                $('#message').addClass('show');
+                $('#message').addClass('success');
+                $('#message').html(message);
+                setTimeout("$('#message').removeClass('show');", 2500);
+            },
+            error: function(response) {
+                message = response.responseJSON;
+                $('#message').addClass('show');
+                $('#message').addClass(message['type']);
+                $('#message').html(message['text']);
+                setTimeout("$('#message').removeClass('show');", 2500);
+            }
+        });//AJAX
+        return false;*/
+
+    });//form send
+});
 
 //-------------------------------------------------------------------------------------------------
 // 

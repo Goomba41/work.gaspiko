@@ -218,3 +218,29 @@ span.font-BadScript {
 .image-card {
     transition: .5s ease;
 }
+
+.input-group > .gj-datepicker > input {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: -1px;
+}
+
+.input-group > .gj-datepicker:not(:first-child) > input,
+.input-group > .gj-datepicker:not(:last-child) > input
+ {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: -1px;
+}
+
+.input-group > .gj-datepicker:not(:first-child) > span > button,
+.input-group > .gj-datepicker:not(:last-child) > span > button
+{
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.input-group > .gj-datepicker:last-child > span > button
+{
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}

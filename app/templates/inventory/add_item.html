@@ -16,6 +16,10 @@
                         <li class="nav-item active">
                             <a class="nav-link" title="" href="{{url_for('inventory.inventory_main')}}"><i class="fa fa-list-ol" aria-hidden="true"></i> Список</a>
                         </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href="{{url_for('inventory.search_items')}}"><i class="fa fa-search" aria-hidden="true"></i>
+ Поиск</a>
+                        </li>
                         {# 
                         <li class="nav-item active">
                             <a class="nav-link" title="" href=""><i class="fa fa-users" aria-hidden="true"></i>
@@ -96,7 +100,7 @@
                         <label class="input-group-text" for="responsible">Ответственное лицо</label>
                     </div>
                     <select name="responsible" class="custom-select" id="responsible" required>
-                        {% for sth in model_list %}
+                        {% for sth in name_list %}
                             <option value="{{ sth[0] }}">{{ sth[1] }}</option>
                         {% endfor %}
                     </select>
@@ -112,7 +116,7 @@
                     </div>
                     <select name="employee" class="custom-select" id="employee">
                         <option></option>
-                        {% for sth in model_list %}
+                        {% for sth in name_list %}
                             <option value="{{ sth[0] }}">{{ sth[1] }}</option>
                         {% endfor %}
                     </select>

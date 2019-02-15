@@ -18,9 +18,9 @@ inventory = Blueprint('inventory', __name__, url_prefix='/inventory')
 @login_required
 def inventory_main(page = 1, *args):
     current_user = User.current()
-
-    enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
-    if not enter:
+    
+    can = User.can("enter","items")
+    if not can:
         return forbidden(403)
 
     all_counters = get_counters()
@@ -28,7 +28,9 @@ def inventory_main(page = 1, *args):
     
     page = request.args.get('page', 1, type=int)
     size = request.args.get('size', 4, type=int)
-    items_all = requests.get(url_for('API.get_all_inventory_items', size = size, page = page, _external=True), verify=False)
+    print(request.args.to_dict())
+    # items_all = requests.get(url_for('API.get_all_inventory_items', size = size, page = page, _external=True), verify=False)
+    items_all = requests.get(url_for('API.get_all_inventory_items', size = size, page = page, search=request.args, _external=True), verify=False)
     pagination = Pagination(page=page, total = Item.query.count(), per_page = size, css_framework='bootstrap4')
 
     return render_template('inventory/mainscreen.html', all_counters=all_counters, today=today, items=items_all.json(), pagination=pagination)
@@ -46,12 +48,9 @@ def new_items():
 
     all_counters = get_counters()
     
-    query = User.query.all()
-    model_list = []
-    for q in query:
-        model_list.append((q.id, q.surname + " " + q.name[:1] + ". " + q.patronymic[:1]+"."))
+    name_list = User.get_pylist()
 
-    return render_template("inventory/add_item.html", all_counters = all_counters, model_list=model_list)
+    return render_template("inventory/add_item.html", all_counters = all_counters, name_list=name_list)
     
 #Форма редактирования объекта
 @inventory.route('/items/edit', methods=['GET', 'POST'])
@@ -68,13 +67,26 @@ def edit_items():
     
     edit_items = Item.query.get(request.args.get('id'))
     
-    query = User.query.all()
-    model_list = []
-    for q in query:
-        model_list.append((q.id, q.surname + " " + q.name[:1] + ". " + q.patronymic[:1]+"."))
+    name_list = User.get_pylist()
 
-    return render_template("inventory/edit_item.html", all_counters = all_counters, model_list=model_list, edit_items=edit_items)
+    return render_template("inventory/edit_item.html", all_counters = all_counters, name_list=name_list, edit_items=edit_items)
 
+#Форма поиска объекта
+@inventory.route('/items/search', methods=['GET', 'POST'])
+@login_required
+def search_items():
+    
+    c_user = User.current()
+    
+    can = User.can("enter","items")
+    if not can:
+        return forbidden(403)
+
+    all_counters = get_counters()
+    
+    name_list = User.get_pylist()
+
+    return render_template("inventory/search.html", all_counters = all_counters, name_list=name_list)
     
 
 

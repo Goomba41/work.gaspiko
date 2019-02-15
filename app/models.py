@@ -69,6 +69,26 @@ class User(db.Model):
             temp = temp or boolval
     
         return temp
+        
+    def get_pylist(order="initial_last", fullness="shortened"):
+        
+        all_users = User.query.all()
+        name_string = ''
+        rslt_lst = []
+        
+        for user in all_users:
+            if fullness == "shortened":
+                name_string = user.name[:1] + "." + user.patronymic[:1]+"."
+            elif fullness == "full":
+                name_string = user.name + " " + user.patronymic
+            if order == "initial_last":
+                name_string = user.surname + " " + name_string
+            elif order == "initial_first":
+                name_string = name_string + " " + user.surname
+            
+            rslt_lst.append((user.id, name_string))
+        
+        return rslt_lst
 
 
     def __repr__(self):

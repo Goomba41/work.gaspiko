@@ -10,7 +10,7 @@ import datetime, calendar
 from sqlalchemy.orm.attributes import flag_modified
 import hashlib, uuid, qrcode, base64
 from io import BytesIO
-
+from sqlalchemy_filters import apply_filters
 
 API = Blueprint('API', __name__, url_prefix='/API/v1.0')
 
@@ -498,6 +498,48 @@ def get_one_inventory_item(id):
 @API.route('/inventar', methods=['GET'])
 def get_all_inventory_items():
     
+    
+     # try:
+        # search_params = request.args.to_dict()
+        # print(search_params)
+        
+        # search_args={}
+        # for k,v in search_params.items(): 
+            # if search_params[k] != '':
+                # search_args[k] = search_params[k]
+
+        # query = Item.query
+        
+        # filter_spec = [{'field': 'name', 'op': '==', 'value': '123'}]
+
+        # items = apply_filters(query, filter_spec).order_by(Item.id.desc()).all()
+        # item_schema = ItemSchema()
+        
+        # tmp = []
+        # for item in items:
+            # tmp.append(item_schema.dump(item).data)
+        # items_lst = sorted(tmp, key=lambda k: k['id'],reverse=True) 
+                
+        # if (request.args.get('page') and request.args.get('size')):
+            # data = paginate_list(request.args.get('page'), request.args.get('size'), items_lst)
+        # else:
+            # data = items_lst
+
+        # response = Response(
+            # response=json.dumps(len(data)),
+            # status=200,
+            # mimetype='application/json'
+        # )
+    # except:
+        # response = Response(
+        # response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),
+        # status=500,
+        # mimetype='application/json'
+        # )
+        
+    # return response
+    
+    
     items = Item.query.all()
     item_schema = ItemSchema()
     
@@ -506,6 +548,7 @@ def get_all_inventory_items():
         tmp.append(item_schema.dump(item).data)
     items_lst = sorted(tmp, key=lambda k: k['id'],reverse=True) 
             
+    print(request.args)
     if (request.args.get('page') and request.args.get('size')):
         response = jsonify(paginate_list(request.args.get('page'), request.args.get('size'), items_lst))
     else:
@@ -710,8 +753,6 @@ def update_item(id):
         )
     
     return response
-
-
 
 #Отметка объекта как проверенного
 @API.route('/inventar/check/<int:item_id>', methods=['PUT'])

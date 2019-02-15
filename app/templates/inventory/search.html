@@ -1,0 +1,229 @@
+{% extends "admin/base_admin.html" %}
+{% block content %}
+
+{% if session['logged_in'] %}
+
+{% set count = count_of_expired() %}
+
+<div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+    <div class="col p-0">
+        
+        <div class="row-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#" title="Панель управления таблицей">Управление</span></a>
+
+                <div class="collapse navbar-collapse" id="primary-nav">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href="{{url_for('inventory.inventory_main')}}"><i class="fa fa-list-ol" aria-hidden="true"></i> Список</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href="{{url_for('inventory.new_items')}}"><i class="fa fa-plus" aria-hidden="true"></i>
+ Создать</a>
+                        </li>
+                        <li class="nav-item active dropdown">
+                            <a id="main-panel-dropdown-administration" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-check-square-o" aria-hidden="true"></i>
+ Выбранное</a>
+                            
+                            <div class="dropdown-menu" aria-labelledby="main-panel-dropdown-administration">
+                                <a class="dropdown-item delete" onclick="delete_items()" href="#"><i class="fa fa-trash-o fa-fw fa-control p-0" aria-hidden="true"></i> Удалить</a>
+                                <a class="dropdown-item delete" onclick="print_items_qr()" href="#"><i class="fa fa-print fa-fw fa-control p-0" aria-hidden="true"></i> Печать QR-кодов</a>
+                            </div>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" title="" href="{{url_for('inventory.search_items')}}"><i class="fa fa-search" aria-hidden="true"></i>
+ Поиск</a>
+                        </li>
+                    </ul>
+                    
+                </div>
+
+            </nav>
+        </div>
+        
+        <form action="{{ url_for('inventory.inventory_main')}}" id="search_item" class="form-row p-3 m-auto">
+            
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="header-addon">Наименование</span>
+                    </div>
+                    <input maxlength="100" name="name" type="text" class="form-control" placeholder="Введите наименование объекта (не более 100 символов)" aria-label="header" aria-describedby="header-addon" autofocus>
+                </div>
+                
+            </div>
+            
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="header-addon">ИНВ. №</span>
+                    </div>
+                    <input pattern="^[ 0-9]+$" maxlength="20" name="number" type="text" class="form-control" placeholder="Введите инвентарный номер объекта (не более 20 символов)" aria-label="header" aria-describedby="header-addon">
+                </div>
+                
+            </div>
+            
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="header-addon">СЕР. №</span>
+                    </div>
+                    <input maxlength="20" name="serial" type="text" class="form-control" placeholder="Введите серийный номер объекта (не более 20 символов)" aria-label="header" aria-describedby="header-addon">
+                </div>
+                
+            </div>
+            
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Расположение объекта</span>
+                    </div>
+                    <input type="text" name="floor" aria-label="Этаж" class="form-control" maxlength="2" placeholder="Этаж (не более 2 символов)">
+                    <input type="text" name="room" aria-label="Кабинет" class="form-control" maxlength="3" placeholder="Кабинет (не более 3 символов)">
+                </div>
+            
+            </div>
+
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="responsible">Ответственное лицо</label>
+                    </div>
+                    <select name="responsible" class="custom-select" id="responsible">
+                        <option></option>
+                        {% for sth in name_list %}
+                            <option value="{{ sth[0] }}">{{ sth[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            
+            </div>
+            
+            <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="employee">Пользователь</label>
+                    </div>
+                    <select name="employee" class="custom-select" id="employee">
+                        <option></option>
+                        {% for sth in name_list %}
+                            <option value="{{ sth[0] }}">{{ sth[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            
+            </div>
+            
+            <div class="col-12">
+                            
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Статус</span>
+                    </div>
+                    <select name="status" class="custom-select" id="responsible">
+                        <option></option>
+                        <option value="0">Не проверен</option>
+                        <option value="1">Проверен</option>
+                    </select>
+                </div>
+            
+            </div>
+            
+            <div class="col-12">
+                            
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Даты</span>
+                    </div>
+                    <select name="date_type" class="custom-select" id="date_type" style="width: 33%;">
+                        <option></option>
+                        <option value="cdate">Дата внесения</option>
+                        <option value="chdate">Дата последней проверки</option>
+                        <option value="mvdate">Дата перемещения</option>
+                    </select>
+                    <input readonly id="start_date" type="text" name="start_date" aria-label="Начальная дата проверки" class="form-control" placeholder="Начальная дата (Точная дата)">
+                    <input readonly id="end_date" type="text" name="end_date" aria-label="Конечная дата проверки" class="form-control" placeholder="Конечная дата">
+                </div>
+            
+            </div>
+
+            <div class="row-fluid p-3">
+                <input type="submit" value="Найти" class="btn btn-lg btn-success" id="find">
+                <a href="{{url_for('inventory.inventory_main')}}"><button type="button" class="btn btn-lg btn-danger">Отмена</button></a>
+            </div>
+        </form>
+ 
+            
+               
+            
+        </div>
+    
+    </div>
+</div>
+
+<script>
+    var today;
+    today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+    $('#start_date').datepicker({
+        locale: 'ru-ru',
+        format: 'yyyy-mm-dd',
+        uiLibrary: 'bootstrap4',
+        iconsLibrary: 'fontawesome',
+        maxDate: today,
+        weekStartDay: 1,
+        width: 496,
+    });
+    $('#end_date').datepicker({
+        locale: 'ru-ru',
+        format: 'yyyy-mm-dd',
+        uiLibrary: 'bootstrap4',
+        iconsLibrary: 'fontawesome',
+        maxDate: today,
+        weekStartDay: 1,
+        width: 496,
+        minDate: function () {
+            return $('#start_date').val();
+        }
+    });
+</script>
+
+<!--
+            <script type="text/javascript">
+                function search_request() {
+                    {#var send_data = {}
+                    $( "input#search" ).each(function() {
+                        if ($( this ).val()){ send_data[$( this ).attr('name')]=$( this ).val();alert($( this ).val();) }
+                    });
+                    console.log(send_data)
+                     $.ajax({
+                        type : "POST",
+                        url : "{{ url_for('kartoteka.kartoteka_main') }}",
+                        contentType: 'application/json;charset=UTF-8',
+                        data : JSON.stringify(send_data),
+                        dataType: 'json',
+                    });
+                    $.post( "{{ url_for('kartoteka.print_post') }}", send_data )#}
+                    
+                    var send_data = '?'
+                    $( "input#search" ).each(function() {
+                        if ($( this ).val()){ send_data=send_data+$( this ).attr('name')+'='+$( this ).val()+'&'; }
+                    });
+                    $( "select#search" ).each(function() {
+                        if ($( this ).val()){ send_data=send_data+$( this ).attr('name')+'='+$('option:selected', this).val()+'&'; }
+                    });
+                    //~ alert($('option:selected', this).text())
+                    window.location = "{{ url_for('kartoteka.kartoteka_main') }}" + send_data;
+                }
+            </script>
+-->
+
+{% endif %}
+
+{% endblock %}
