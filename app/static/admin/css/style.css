@@ -244,3 +244,12 @@ span.font-BadScript {
     border-top-right-radius: 0.25rem;
     border-bottom-right-radius: 0.25rem;
 }
+
+.dropdown-item.disabled {
+    pointer-events: none;
+}
+
+#end_date:disabled ~ span,
+#end_date.disabled ~ span {
+    pointer-events: none;
+}

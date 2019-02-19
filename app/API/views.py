@@ -156,7 +156,14 @@ def utility_processor():
             for item in items_all:
                 if item["chdate"] is not None:
                     if (expiration_of_date(item["chdate"], period = period, number = number) == "red"):
+                        unchecked = Item.query.get(item['id'])
+                        unchecked.status = 0
+                        db.session.commit()
                         expired_items.append(item)
+                    else:
+                        checked = Item.query.get(item['id'])
+                        checked.status = 1
+                        db.session.commit()
                 else:
                     expired_items.append(item)
                     
@@ -498,59 +505,43 @@ def get_one_inventory_item(id):
 @API.route('/inventar', methods=['GET'])
 def get_all_inventory_items():
     
+    search_params = request.args.to_dict()
+    if 'page' in search_params:
+        page = search_params.pop('page')
+    if 'size' in search_params:
+        size = search_params.pop('size')
     
-     # try:
-        # search_params = request.args.to_dict()
-        # print(search_params)
-        
-        # search_args={}
-        # for k,v in search_params.items(): 
-            # if search_params[k] != '':
-                # search_args[k] = search_params[k]
-
-        # query = Item.query
-        
-        # filter_spec = [{'field': 'name', 'op': '==', 'value': '123'}]
-
-        # items = apply_filters(query, filter_spec).order_by(Item.id.desc()).all()
-        # item_schema = ItemSchema()
-        
-        # tmp = []
-        # for item in items:
-            # tmp.append(item_schema.dump(item).data)
-        # items_lst = sorted(tmp, key=lambda k: k['id'],reverse=True) 
-                
-        # if (request.args.get('page') and request.args.get('size')):
-            # data = paginate_list(request.args.get('page'), request.args.get('size'), items_lst)
-        # else:
-            # data = items_lst
-
-        # response = Response(
-            # response=json.dumps(len(data)),
-            # status=200,
-            # mimetype='application/json'
-        # )
-    # except:
-        # response = Response(
-        # response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),
-        # status=500,
-        # mimetype='application/json'
-        # )
-        
-    # return response
+    query = Item.query
+    filter_spec = []
+    filter_json = []
+    excl_param = ['start_date', 'end_date', 'date_type', 'room', 'floor'] 
     
-    
-    items = Item.query.all()
+    if search_params:
+        for param, value in search_params.items():
+            if param not in excl_param:
+                filter_spec.append({'field': param, 'op': '==', 'value': value})
+            if search_params.get('date_type'):
+                if param == 'start_date' and not search_params.get('end_date'):
+                    filter_spec.append({'and': [{'field': search_params.get('date_type'), 'op': '>=', 'value': value+" 00:00:00"}, {'field': search_params.get('date_type'), 'op': '<', 'value': value+" 23:59:59"}]})
+                elif param == 'start_date' and search_params.get('end_date'):
+                    filter_spec.append({'and': [{'field': search_params.get('date_type'), 'op': '>=', 'value': value+" 00:00:00"}, {'field': search_params.get('date_type'), 'op': '<', 'value': search_params.get('end_date')+" 23:59:59"}]})
+            if (param == 'room') or (param == 'floor'):
+                filter_json.append(Item.placing[param] == value)
+
+    if filter_json:
+        items = apply_filters(query, filter_spec).order_by(Item.id.desc()).filter(*filter_json).all()
+    else:
+        items = apply_filters(query, filter_spec).order_by(Item.id.desc()).all()
     item_schema = ItemSchema()
     
     tmp = []
     for item in items:
         tmp.append(item_schema.dump(item).data)
-    items_lst = sorted(tmp, key=lambda k: k['id'],reverse=True) 
+    items_lst = sorted(tmp, key=lambda k: k['id'],reverse=True)
             
-    print(request.args)
-    if (request.args.get('page') and request.args.get('size')):
-        response = jsonify(paginate_list(request.args.get('page'), request.args.get('size'), items_lst))
+    if (('page' in locals()) and ('size' in locals())):
+        total = len(items_lst)
+        response = jsonify(paginate_list(page, size, items_lst), total)
     else:
         response = jsonify(items_lst)
     
@@ -709,6 +700,7 @@ def update_item(id):
             else:
                 if ((form_data['floor'] != edit_item.placing['floor']) or (form_data['room'] != edit_item.placing['room'])):
                     move = {"to": form_data['floor']+"-"+form_data['room'], "date": datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"), "from": edit_item.placing['floor']+"-"+edit_item.placing['room']}
+                    edit_item.status = 0
                     
                     if edit_item.movements is None:
                         edit_item.movements = [move]

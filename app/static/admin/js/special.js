@@ -570,32 +570,15 @@ $(document).ready(function(){
         var data = $(this).serialize(); //Сериализируем форму в JSON формат
         var cldata = data.replace(/[^&]+=\.?(?:&|$)/g,'');
         window.location = $(this).attr("action") + '?' + cldata;
-        
-        /*
-        $.ajax({ //Отсылаем запрос
-            type : "GET",
-            url : $(this).attr("action"),
-            contentType: "application/json",
-            data : cldata,
-            dataType: 'json',
-            success: function (response) {
-                message = response;
-                $('#message').addClass('show');
-                $('#message').addClass('success');
-                $('#message').html(message);
-                setTimeout("$('#message').removeClass('show');", 2500);
-            },
-            error: function(response) {
-                message = response.responseJSON;
-                $('#message').addClass('show');
-                $('#message').addClass(message['type']);
-                $('#message').html(message['text']);
-                setTimeout("$('#message').removeClass('show');", 2500);
-            }
-        });//AJAX
-        return false;*/
 
     });//form send
+
+    $('input#end_date ~ span > button').prop('disabled', true);
+    $('input#end_date').prop('disabled', true);
+    $('input#start_date').change (function() {
+        $('input#end_date').prop('disabled', false);
+        $('input#end_date ~ span > button').prop('disabled', false);
+    });
 });
 
 //-------------------------------------------------------------------------------------------------

@@ -25,15 +25,19 @@ def inventory_main(page = 1, *args):
 
     all_counters = get_counters()
     today = time.strftime("%Y-%m-%d")
-    
-    page = request.args.get('page', 1, type=int)
-    size = request.args.get('size', 4, type=int)
-    print(request.args.to_dict())
-    # items_all = requests.get(url_for('API.get_all_inventory_items', size = size, page = page, _external=True), verify=False)
-    items_all = requests.get(url_for('API.get_all_inventory_items', size = size, page = page, search=request.args, _external=True), verify=False)
-    pagination = Pagination(page=page, total = Item.query.count(), per_page = size, css_framework='bootstrap4')
 
-    return render_template('inventory/mainscreen.html', all_counters=all_counters, today=today, items=items_all.json(), pagination=pagination)
+    args = request.args.to_dict()
+    args['page'] = request.args.get('page', 1, type=int)
+    args['size'] = request.args.get('size', 4, type=int)
+
+    # items_all = requests.get(url_for('API.get_all_inventory_items', size = size, page = page, _external=True), verify=False)
+    # print(url_for('API.get_all_inventory_items', **args, _external=True))
+    items_all = requests.get(url_for('API.get_all_inventory_items', **args, _external=True), verify=False).json()
+    # print(len(items_all[0]))
+    pagination = Pagination(page=args['page'], total = items_all[1], per_page = args['size'], css_framework='bootstrap4')
+    # pagination = Pagination(page=args['page'], total = Item.query.count(), per_page = args['size'], css_framework='bootstrap4')
+
+    return render_template('inventory/mainscreen.html', all_counters=all_counters, today=today, items=items_all[0], pagination=pagination)
 
 #Форма добавления нового объекта
 @inventory.route('/items/new', methods=['GET', 'POST'])

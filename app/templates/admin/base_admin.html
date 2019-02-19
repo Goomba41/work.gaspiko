@@ -109,9 +109,9 @@
                         
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="main-panel-dropdown-modules">
                             <a class="dropdown-item" href="{{ url_for('admin.admin') }}"><i class="fa fa-lock fa-fw mr-2" aria-hidden="true"></i>Администрирование ЕИС<span class="raise">А</span></a>
-                            <a class="dropdown-item" href="{{ url_for('CA.ca_main') }}"><i class="fa fa-key fa-fw mr-2" aria-hidden="true"></i>Удостоверяющий центр</a>
+                            <a class="dropdown-item disabled" href="{{ url_for('CA.ca_main') }}"><i class="fa fa-key fa-fw mr-2" aria-hidden="true"></i>Удостоверяющий центр</a>
                             <a class="dropdown-item" href="{{ url_for('kartoteka.kartoteka_main') }}"><i class="fa fa-envelope-open fa-fw mr-2" aria-hidden="true"></i>Картотека запросов</a>
-                            <a class="dropdown-item" href="{{ url_for('zal.zal_main') }}"><i class="fa fa-book fa-fw mr-2" aria-hidden="true"></i>Читальный зал</a>
+                            <a class="dropdown-item disabled" href="{{ url_for('zal.zal_main') }}"><i class="fa fa-book fa-fw mr-2" aria-hidden="true"></i>Читальный зал</a>
                             <a class="dropdown-item" href="{{ url_for('inventory.inventory_main') }}"><i class="fa fa-qrcode fa-fw mr-2" aria-hidden="true"></i>Инвентаризация</a>
                         </div>
                     </li>

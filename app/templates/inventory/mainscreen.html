@@ -3,7 +3,7 @@
 
 {% if session['logged_in'] %}
 
-{% set count = count_of_expired() %}
+{% set count = count_of_expired(period='month', number=3) %}
 
 <div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
     <div class="col p-0">
@@ -116,9 +116,9 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                    {% if item.status == 1 %}
+                                    {% if item.status == 0 %}
                                     <i class="fa fa-ban fa-control fa-fw p-0" style="color:red">
-                                    {% elif item.status == 2 %}
+                                    {% elif item.status == 1 %}
                                     <i class="fa fa-check-circle fa-control fa-fw p-0" style="color:{{ item.chdate|expiration(period='month', number=3) }}">
                                     {% else %}
                                     <i class="fa fa-ban fa-control fa-fw p-0" style="color:red">

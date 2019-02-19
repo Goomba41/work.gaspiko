@@ -129,8 +129,8 @@
                     </div>
                     <select name="status" class="custom-select" id="responsible">
                         <option></option>
-                        <option value="0">Не проверен</option>
-                        <option value="1">Проверен</option>
+                        <option value="0">QR-код не считан</option>
+                        <option value="1">QR-код считан</option>
                     </select>
                 </div>
             
@@ -143,10 +143,8 @@
                         <span class="input-group-text">Даты</span>
                     </div>
                     <select name="date_type" class="custom-select" id="date_type" style="width: 33%;">
-                        <option></option>
-                        <option value="cdate">Дата внесения</option>
-                        <option value="chdate">Дата последней проверки</option>
-                        <option value="mvdate">Дата перемещения</option>
+                        <option value="cdate" >внесения</option>
+                        <option value="chdate" selected>последней проверки</option>
                     </select>
                     <input readonly id="start_date" type="text" name="start_date" aria-label="Начальная дата проверки" class="form-control" placeholder="Начальная дата (Точная дата)">
                     <input readonly id="end_date" type="text" name="end_date" aria-label="Конечная дата проверки" class="form-control" placeholder="Конечная дата">
