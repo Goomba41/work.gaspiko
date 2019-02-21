@@ -372,14 +372,13 @@ function print_items_qr(id) {
 
     newWin= window.open('', 'new div', 'height=400,width=600');
 
-    newWin.document.write('<html><head><title>Печать QR-кода</title><link rel="stylesheet" type="text/css" href="/static/admin/css/bootstrap-4/bootstrap.css"><link rel="stylesheet" type="text/css" href="/static/admin/css/style.css" media="print"></script></head><body><div class="row m-auto">');
+    newWin.document.write('<html><head><title>Печать QR-кода</title><link rel="stylesheet" type="text/css" href="/static/admin/css/bootstrap-4/bootstrap.css"><link rel="stylesheet" type="text/css" href="/static/admin/css/style.css" media="print"></head><body><div class="row m-auto">');
     
     if (id == undefined) {
-            var to_print = [];
             $("input:checkbox[name=actionRow]:checked").each(function(){
-                /*to_print.push($(this).val());*/
                 $.ajax({
                     type : "GET",
+                    async: false,
                     url : '/API/v1.0/inventar/qr/'+$(this).val(),
                     cache: false,
                     contentType: false,
@@ -407,7 +406,7 @@ function print_items_qr(id) {
     newWin.document.write('</div></body></html>');
     
     setTimeout(function(){
-    //newWin.print(); newWin.close(); 
+    newWin.print(); newWin.close(); 
     newWin.document.close();
     newWin.focus();
     newWin.print();

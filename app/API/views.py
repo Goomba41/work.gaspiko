@@ -565,7 +565,7 @@ def qr_inventory_item(id):
     item = Item.query.filter(Item.id==id).first()
     item_schema = ItemSchema()
     
-    data_string = "NUMBER:"+str(item.number)+"\nNAME:"+str(item.name)+"\nDESCRIPTION:"+str(item.placing['description'])+"\nFLOOR:"+str(item.placing['floor'])+"\nROOM:"+str(item.placing['room'])
+    data_string = json.dumps({"number": str(item.number), "serial": str(item.serial), "name": str(item.name), "placing": json.dumps(item.placing), "item_responsible": str(item.item_responsible.id)})
     
     qr = qrcode.QRCode(
     version=1,
@@ -701,6 +701,7 @@ def update_item(id):
                 if ((form_data['floor'] != edit_item.placing['floor']) or (form_data['room'] != edit_item.placing['room'])):
                     move = {"to": form_data['floor']+"-"+form_data['room'], "date": datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"), "from": edit_item.placing['floor']+"-"+edit_item.placing['room']}
                     edit_item.status = 0
+                    edit_item.chdate = None
                     
                     if edit_item.movements is None:
                         edit_item.movements = [move]
@@ -752,7 +753,7 @@ def checked_one_inventory_item(item_id):
     
     item = Item.query.get(item_id)
 
-    item.status = 2
+    item.status = 1
     item.chdate = datetime.datetime.now()
     
     db.session.commit()
