@@ -49,15 +49,20 @@
         </div>
         
             <div class="row p-3 m-auto align-items-center">
-                <div class="col-6">
+                <div class="col-4">
                 {{ pagination.links }}
                 </div>
-                <div class="col-6">
+                <div class="col-5">
                     <div class="alert alert-{{ count[2] }}" role="alert">
                         Объектов с истекшим сроком проверки: {{ count[0] }} ({{ count[1] }} %)
                         {% if count[1] > 80 %}
                             <br><b style="text-transform:uppercase">Необходима инвентаризация!</b>
                         {% endif %}
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="alert alert-{{ count[2] }}" role="alert">
+                        Объектов в списке: {{ pagination.total }}
                     </div>
                 </div>
             </div>      
@@ -148,15 +153,20 @@
             </div>
             
             <div class="row p-3 m-auto align-items-center">
-                <div class="col-6">
+                <div class="col-4">
                 {{ pagination.links }}
                 </div>
-                <div class="col-6">
+                <div class="col-5">
                     <div class="alert alert-{{ count[2] }}" role="alert">
                         Объектов с истекшим сроком проверки: {{ count[0] }} ({{ count[1] }} %)
                         {% if count[1] > 80 %}
                             <br><b style="text-transform:uppercase">Необходима инвентаризация!</b>
                         {% endif %}
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="alert alert-{{ count[2] }}" role="alert">
+                        Объектов в списке: {{ count[0] }}
                     </div>
                 </div>
             </div>

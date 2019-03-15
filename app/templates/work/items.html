@@ -1,7 +1,7 @@
 {% if news_all %}
         {# {% for news in news_all|sort(attribute="cdate", reverse=True) %} #}
         {% for news in news_all %}
-
+        <div class="col-sm-6 col-md-3 col-lg-3">
             <div class="portfolio-item pb-3">
                 {% if news.cdate|fresh(3) %}<div class="fresh_sign"></div>{% endif %}
                 <div class="hover-bg">
@@ -22,13 +22,16 @@
                     </a>
                 </div>
             </div>
+        </div>
 
         {% endfor %}
         <a style ="margin-top:700px;" class="jscroll-next" href="/?page={{ page + 1 }}"></a>
 {% else %}
-        <div class="portfolio-item pb-3 h-100">
-                <p class="alert alert-danger h-100 d-flex align-items-center" style="text-align: center; font-size: 2em;">
-                    Больше новостей нет!
-                </p>
+        <div class="col-sm-12 col-md-12 col-lg-12">
+                <div class="portfolio-item pb-3 h-100">
+                        <p class="alert alert-danger h-100 d-flex align-items-center" style="justify-content: center; font-size: 2em;">
+                            Больше новостей нет! ¯\_(ツ)_/¯
+                        </p>
+                </div>
         </div>
 {% endif %}

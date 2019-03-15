@@ -514,7 +514,7 @@ def get_all_inventory_items():
     query = Item.query
     filter_spec = []
     filter_json = []
-    excl_param = ['start_date', 'end_date', 'date_type', 'room', 'floor'] 
+    excl_param = ['start_date', 'end_date', 'date_type', 'room', 'floor', 'name'] 
     
     if search_params:
         for param, value in search_params.items():
@@ -527,6 +527,8 @@ def get_all_inventory_items():
                     filter_spec.append({'and': [{'field': search_params.get('date_type'), 'op': '>=', 'value': value+" 00:00:00"}, {'field': search_params.get('date_type'), 'op': '<', 'value': search_params.get('end_date')+" 23:59:59"}]})
             if (param == 'room') or (param == 'floor'):
                 filter_json.append(Item.placing[param] == value)
+            if param == 'name':
+                filter_spec.append({'field': param, 'op': 'ilike', 'value': "%%"+value+"%%%"})
 
     if filter_json:
         items = apply_filters(query, filter_spec).order_by(Item.id.desc()).filter(*filter_json).all()
@@ -644,7 +646,7 @@ def post_item():
                 placing = placing,
                 employee = form_data['employee'],
                 serial = form_data['serial'],
-                status = 1)
+                status = 0)
 
                 db.session.add(item)
                 db.session.commit()
