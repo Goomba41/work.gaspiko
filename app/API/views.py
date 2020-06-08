@@ -495,6 +495,7 @@ def update_news_images(news_id):
 def get_one_inventory_item(id):
     
     item = Item.query.filter(Item.id==id).first()
+    print(item)
     item_schema = ItemSchema()
 
     response = jsonify(item_schema.dump(item).data)

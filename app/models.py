@@ -2,6 +2,11 @@
 from app import db, ma
 import time
 from flask import session
+#import sqlalchemy as sa
+#from sqlalchemy_utils import EncryptedType
+#from sqlalchemy_utils.types.encrypted.encrypted_type import AesEngine
+
+secret_key = "1234test1234"
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -47,7 +52,6 @@ class User(db.Model):
         
         table_id = Table_db.query.filter(Table_db.url == url).first().id
         perms = Permission.query.filter(((Permission.role_id==user_info.role_id)|(Permission.user_id==user_info.id))&(Permission.table_id == table_id)).all()
-
 
         bool_lst = []
         temp = False
@@ -316,6 +320,7 @@ class Item(db.Model):
     chdate = db.Column(db.DateTime)
     
     name = db.Column(db.String(100))
+    # name = db.Column(EncryptedType(sa.String, secret_key, AesEngine,'pkcs5'))
 
     status = db.Column(db.SmallInteger)   
         
