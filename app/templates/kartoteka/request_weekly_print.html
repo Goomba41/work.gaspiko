@@ -26,7 +26,21 @@
                         <td style="text-align: left; padding-left: 1rem">
                             {% for request in requests %}
                                 {% if (executor[0]==request.executor_id) and (day.strftime("%Y-%m-%d")==request.date_registration.strftime("%Y-%m-%d")) %}
-                                    {{ request.number }} | {{request.character.name}}</br>
+                                    {% if request.answer_id == 3 %}
+                                        &#9746;
+                                    {% elif request.answer_id == 4 %}
+                                        &#9745;
+                                    {% else %}
+                                        &#9744;
+                                    {% endif %}
+                                    {% if request.answer_id != 5 %}
+                                    <strike>
+                                        {{ request.number }} | {{request.character.name}}
+                                    </strike>
+                                    {% else %}
+                                        {{ request.number }} | {{request.character.name}}
+                                    {% endif %}
+                                    </br>
                                 {% endif %}
                             {% endfor %}
                         </td>
