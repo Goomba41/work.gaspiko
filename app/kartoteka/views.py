@@ -15,7 +15,9 @@ from functools import wraps
 from sqlalchemy.sql.functions import func
 from sqlalchemy import desc, extract
 from config import basedir, SQLALCHEMY_DATABASE_URI, REQUEST_FILES_FOLDER
-import time, os, hashlib, json, datetime, csv
+import time, os, hashlib, json, datetime, csv, locale
+
+locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
 
 kartoteka = Blueprint('kartoteka', __name__, url_prefix='/kartoteka')
 
@@ -512,3 +514,22 @@ def card_request():
     template = "<head><title>Карточка №{{request.args.get('id')}}</title><style> span {text-decoration: underline;} tr {padding:10px;} td {padding:10px;} .trim {text-decoration: none;}</style></head><table style='border: 2px solid black; padding:20px'><tr><th colspan='4'><h1>Карточка №{{request.args.get('id')}}</h1></th></tr><tr><th colspan='4'>Запрос № <span>{{info_request.number}}</span> от <span>{{info_request.date_registration}}</span></th></tr><tr><td>Поступил от: </td><td ><span>{{info_request.surname}} {{info_request.name}}<br>{{info_request.patronymic}}</span></td><td>Способ поступления:</td><td><span>{{info_request.admission.name}}</span></td></tr><tr><td>Исполнен: </td><td><span>{{info_request.date_done}}</span></td><td>Отправлен: </td><td><span>{{info_request.date_send}} ({{info_request.send.name}})</span></td></tr><tr><td>Вид: </td><td><span>{{info_request.kind.name}}</span></td><td>Характер: </td><td><span>{{info_request.character.name}}</span></td></tr><tr><td>Ответ: </td><td><span>{{info_request.answer.name}}</span></td><td>Ксерокопий: </td><td><span>{{info_request.copies}}</span></td></tr><tr></tr><tr><td></td><td></td><td>Исполнитель:</td><td>{{info_request.executor.user.surname}} <span id='1' class='trim'>{{info_request.executor.user.name}}</span> <span id='2' class='trim'>{{info_request.executor.user.patronymic}}</span></td></tr></table><script type='text/javascript'>var text = document.getElementById('1').innerHTML; document.getElementById('1').innerHTML=text.substr(0, text.length-(text.length-1))+'.';var text = document.getElementById('2').innerHTML; document.getElementById('2').innerHTML=text.substr(0, text.length-(text.length-1))+'.'</script>"
 
     return render_template_string(template, info_request=info_request)
+
+@kartoteka.route('/request/weekly/print', methods=['GET', 'POST'])
+@login_required
+def request_weekly_print(page = 1, *args):
+
+    current_user = User.current()
+
+    enter = get_permissions(current_user.role.id, current_user.id, "requests", "enter")
+    if not enter:
+        return forbidden(403)
+    
+    today = datetime.datetime.today().date()
+    dates = [today + datetime.timedelta(days=i) for i in range(-7 - today.weekday(), 0 - today.weekday() - 2)]
+
+    weekly_requests = Request.query.filter(Request.date_registration>=dates[0].strftime("%Y-%m-%d")).join(Kind).join(Character).join(Answer).join(Send).join(Admission).all()
+    executors_this_week = Request.query.with_entities(Request.executor_id, User.surname, User.name, User.patronymic).filter(Request.date_registration>=dates[0].strftime("%Y-%m-%d")).group_by(Request.executor_id).join(Executor).join(User).order_by(User.surname).all()
+
+    return render_template("kartoteka/request_weekly_print.html", current_user=current_user, weekdays=dates, requests=weekly_requests, executors=executors_this_week)
+

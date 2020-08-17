@@ -86,11 +86,11 @@
         </div>
         
             <div class="row p-3 m-auto align-items-center">
-                <div class="col-6">
+                <div class="col-4">
                 {{ pagination.links }}
                 </div>
                 <div class="col-6">
-                    <div class="alert alert-info" role="alert">
+                    <div class="alert alert-info m-0" role="alert">
                         Всего записей в списке: {{ pages_total }} | Из них не исполненных: 
                         {% if request_in_work_count==0 %}
                             {{ request_in_work_count }}
@@ -98,6 +98,9 @@
                             <a href="{{ url_for('kartoteka.kartoteka_main', answer='В процессе исполнения') }}">{{ request_in_work_count }}</a>
                         {% endif %}
                     </div>
+                </div>
+                <div class="col-2">
+                    <a class = "pl-3" href="{{url_for('kartoteka.request_weekly_print')}}"><button class="btn btn-info" type="submit" title="Итоги недели">Итоги недели</button></a>
                 </div>
             </div>
         
@@ -215,11 +218,11 @@
             {% endwith %}
             
             <div class="row p-3 m-auto align-items-center">
-                <div class="col-6">
-                {{ pagination.links }}
+                <div class="col-4">
+                    {{ pagination.links }}
                 </div>
                 <div class="col-6">
-                    <div class="alert alert-info" role="alert">
+                    <div class="alert alert-info m-0" role="alert">
                         Всего записей в списке: {{ pages_total }} | Из них не исполненных: 
                         {% if request_in_work_count==0 %}
                             {{ request_in_work_count }}
@@ -227,6 +230,9 @@
                             <a href="{{ url_for('kartoteka.kartoteka_main', answer='В процессе исполнения') }}">{{ request_in_work_count }}</a>
                         {% endif %}
                     </div>
+                </div>
+                <div class="col-2">
+                    <a class = "pl-3" href="{{url_for('kartoteka.request_weekly_print')}}"><button class="btn btn-info" type="submit" title="Итоги недели">Итоги недели</button></a>
                 </div>
             </div>
             

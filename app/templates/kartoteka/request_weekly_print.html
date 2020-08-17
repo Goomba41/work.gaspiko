@@ -1,0 +1,37 @@
+{% if session['logged_in'] %}
+<style>
+    th {
+        border: 1px solid black;
+    }
+    td {
+        border: 1px solid black;
+    }
+</style>
+        <h2>Итоги недели по исполнителям:</h2>
+        <table cellspacing="0" cellpadding="5" style="
+    width: 100%;
+    text-align: center;
+    vertical-align: middle;
+    height: 100%;">
+            <tr>
+                <th>#</th>
+                {% for day in weekdays %}
+                    <th>{{ day.strftime("%Y-%m-%d") }} ({{day.strftime("%a")}})</th>    
+                {% endfor %}
+            </tr>
+            {% for executor in executors %}
+                <tr>
+                    <td>{{ executor[1] }} {{ executor[2][:1] }}.{{ executor[3][:1] }}.</td>
+                    {% for day in weekdays %}
+                        <td style="text-align: left; padding-left: 1rem">
+                            {% for request in requests %}
+                                {% if (executor[0]==request.executor_id) and (day.strftime("%Y-%m-%d")==request.date_registration.strftime("%Y-%m-%d")) %}
+                                    {{ request.number }} | {{request.character.name}}</br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+{% endif %}

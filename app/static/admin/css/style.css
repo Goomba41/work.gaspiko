@@ -253,3 +253,7 @@ span.font-BadScript {
 #end_date.disabled ~ span {
     pointer-events: none;
 }
+
+.pagination {
+    margin:0;
+}
