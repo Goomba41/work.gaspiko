@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 from app import db, ma
+from marshmallow_sqlalchemy import ModelSchema
 import time
 from flask import session
 #import sqlalchemy as sa
@@ -337,33 +338,33 @@ class Item(db.Model):
         
 
 #Marshmallow схемы
-class UserSchema(ma.ModelSchema):
+class UserSchema(ModelSchema):
     class Meta:
         model = User
         
-class RoleSchema(ma.ModelSchema):
+class RoleSchema(ModelSchema):
     class Meta:
         model = Role
         fields = ('id', 'name')
         
-class PostSchema(ma.ModelSchema):
+class PostSchema(ModelSchema):
     class Meta:
         model = Post
         fields = ('id', 'name')
         
-class UserForNewsSchema(ma.ModelSchema):
+class UserForNewsSchema(ModelSchema):
     class Meta:
         model = User
         fields = ('id', 'email', 'name', 'surname', 'patronymic', 'login', 'photo', 'post', 'role')
     post = ma.Nested(PostSchema)
     role = ma.Nested(RoleSchema)
     
-class NewsSchema(ma.ModelSchema):
+class NewsSchema(ModelSchema):
     class Meta:
         model = News
     user = ma.Nested(UserForNewsSchema)
     
-class ItemSchema(ma.ModelSchema):
+class ItemSchema(ModelSchema):
     class Meta:
         model = Item
         # fields = ('id', 'email', 'name', 'surname', 'login', 'photo', 'post', 'role')

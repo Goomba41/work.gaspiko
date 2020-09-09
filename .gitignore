@@ -1,6 +1,9 @@
 # SITE SPECIFIC
-app/static/kartoteka/upload/*
+app/static/kartoteka/
 app/static/admin/upload/*
+app/static/work/uploads
+app/static/work/img/*
+app/static/backups/
 
 
 # Byte-compiled / optimized / DLL files

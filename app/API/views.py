@@ -1,4 +1,4 @@
-﻿#! venv/bin/python
+﻿#! env/bin/python3.8
 
 import json, math, requests, os
 from app import app, db
@@ -199,6 +199,7 @@ app.jinja_env.filters['fresh'] = fresh_news
 #Подсчет свежих новостей
 def fresh_news_counter(news_list,days):
     count = 0
+    print(news_list)
     for i in news_list.json():
         if fresh_news(i['cdate'],days):
             count += 1
@@ -219,7 +220,7 @@ def get_all_news():
     
     tmp = []
     for n in news:
-        tmp.append(news_schema.dump(n).data)
+        tmp.append(news_schema.dump(n))
     news_lst = sorted(tmp, key=lambda k: k['cdate'],reverse=True) 
         
     if (request.args.get('page') and request.args.get('size')):

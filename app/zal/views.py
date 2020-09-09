@@ -1,4 +1,4 @@
-﻿#! venv/bin/python
+﻿#! env/bin/python3.8
 
 from app import app, db
 
