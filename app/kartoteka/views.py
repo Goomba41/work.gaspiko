@@ -529,7 +529,7 @@ def request_weekly_print(page = 1, *args):
     dates = [today + datetime.timedelta(days=i) for i in range(-7 - today.weekday(), 0 - today.weekday() - 2)]
 
     weekly_requests = Request.query.filter(Request.date_registration>=dates[0].strftime("%Y-%m-%d")).join(Kind).join(Character).join(Answer).join(Send).join(Admission).all()
-    executors_this_week = Request.query.with_entities(Request.executor_id, User.surname, User.name, User.patronymic).filter(Request.date_registration>=dates[0].strftime("%Y-%m-%d")).group_by(Request.executor_id).join(Executor).join(User).order_by(User.surname).all()
+    executors_this_week = Request.query.with_entities(Request.executor_id, User.surname, User.name, User.patronymic).filter(Request.date_registration>=dates[0].strftime("%Y-%m-%d")).group_by(Request.executor_id).join(Executor, Request.executor).join(User, Executor.user).order_by(User.surname).all()
 
     return render_template("kartoteka/request_weekly_print.html", current_user=current_user, weekdays=dates, requests=weekly_requests, executors=executors_this_week)
 
