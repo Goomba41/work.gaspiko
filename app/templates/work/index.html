@@ -48,7 +48,7 @@
                 {% if login_as %}
                     Вы вошли как: <span class="active">{{ login_as.name }}, {{ login_as.role.name }}</span>
                         {% if login_as.photo %}
-                        <img src="{{ url_for('static', filename='admin/upload/users/'+login_as.photo) }}" alt="..." class="img-circle nav-img">
+                        <img src="{{ config['CDN_AVATARS_FOLDER']+login_as.photo }}" alt="..." class="img-circle nav-img">
                         {% else %}
                         <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle nav-img-white">
                         {% endif %}
@@ -83,7 +83,7 @@
                     {% if login_as %}
                         Вы вошли как: <span class="active">{{ login_as.name }} ({{ login_as.role.name }})</span>
                             {% if login_as.photo %}
-                            <img src="{{ url_for('static', filename='admin/upload/users/'+login_as.photo) }}" alt="..." class="rounded-circle nav-img">
+                            <img src="{{ config['CDN_AVATARS_FOLDER']+login_as.photo }}" alt="..." class="rounded-circle nav-img">
                             {% else %}
                             <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
                             {% endif %}
@@ -171,7 +171,7 @@
                         <div class="item">
                             <div class="thumbnail">
                                 {% if user.photo %}
-                                <img src="{{ url_for('static', filename='admin/upload/users/'+user.photo) }}" alt="..." class="img-circle rounded-circle team-img">
+                                <img src="{{ config['CDN_AVATARS_FOLDER'] + user.photo }}" alt="..." class="img-circle rounded-circle team-img">
                                 {% else %}
                                 <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle rounded-circle team-img">
                                 {% endif %}
@@ -296,7 +296,7 @@
                                     {% if news.images %}
                                         {% for image in news.images %}
                                             {% if  image.as_cover%}
-                                                <img  src="{{  image.filename|thumbnail('260x260', crop='fit', quality=100) }}" style ="max-width:none; height:100%" class="img-responsive" alt="{{ news.header }}">
+                                                <img  src="{{  config['CDN_NEWS_IMAGES_FOLDER'] + image.filename }}" style ="max-width:none; height:100%" class="img-responsive" alt="{{ news.header }}">
                                             {% endif %}
                                         {% endfor %}
                                     {% endif %}

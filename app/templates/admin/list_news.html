@@ -69,7 +69,7 @@
                             {% if news.images %}
                                 {% for image in news.images %}
                                     {% if image.as_cover %}
-                                        <img class="user-avatar-mainscreen" src="{{  image.filename|thumbnail('160x160', crop='fit', quality=100) }}" alt="" />
+                                        <img class="user-avatar-mainscreen" src="{{ config['CDN_NEWS_IMAGES_FOLDER'] + image.filename }}" alt="" />
                                     {% endif %}
                                 {% endfor %}
                             {% endif %}

@@ -62,7 +62,7 @@
                     {% if login_as %}
                         Вы вошли как: <span class="active">{{ login_as.name }}, {{ login_as.role.name }}</span>
                             {% if login_as.photo %}
-                            <img src="{{ url_for('static', filename='admin/upload/users/'+login_as.photo) }}" alt="..." class="img-circle nav-img">
+                            <img src="{{ config['CDN_AVATARS_FOLDER'] + login_as.photo }}" alt="..." class="img-circle nav-img">
                             {% else %}
                             <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="img-circle nav-img-white">
                             {% endif %}
@@ -92,7 +92,7 @@
                         {% if login_as %}
                             <a class="nav-link" href="#">Вы вошли как: <span class="active">{{ login_as.name }} ({{ login_as.role.name }})</span>
                                 {% if login_as.photo %}
-                                <img src="{{ url_for('static', filename='admin/upload/users/'+login_as.photo) }}" alt="..." class="rounded-circle nav-img">
+                                <img src="{{ config['CDN_AVATARS_FOLDER'] + login_as.photo }}" alt="..." class="rounded-circle nav-img">
                                 {% else %}
                                 <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
                                 {% endif %}</a> 
@@ -135,7 +135,7 @@
                         {% if news.images %}
                             {% for image in news.images %}
                                 {% if  image.as_cover%}
-                                    style="background-image:url({{ url_for('static', filename=config['NEWS_IMAGES_FOLDER_URL']+image.filename) }}); "
+                                    style="background-image:url({{ config['CDN_NEWS_IMAGES_FOLDER'] + image.filename }}); "
                                 {% endif %}
                             {% endfor %}
                         {% endif %}>
@@ -152,7 +152,7 @@
                     {% if login_as %}
                         Вы вошли как: <span class="active">{{ login_as.name }} ({{ login_as.role.name }})</span>
                             {% if login_as.photo %}
-                            <img src="{{ url_for('static', filename='admin/upload/users/'+login_as.photo) }}" alt="..." class="rounded-circle nav-img">
+                            <img src="{{ config['CDN_AVATARS_FOLDER'] + login_as.photo }}" alt="..." class="rounded-circle nav-img">
                             {% else %}
                             <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
                             {% endif %}
@@ -186,7 +186,7 @@
                 <p class="sign">
                     {{ news.user.name }} {{ news.user.surname }}
                     {% if  news.user.photo %}
-                    <img src="{{ url_for('static', filename='admin/upload/users/'+ news.user.photo) }}" alt="..." class="rounded-circle nav-img">
+                    <img src="{{ config['CDN_AVATARS_FOLDER'] + news.user.photo }}" alt="..." class="rounded-circle nav-img">
                     {% else %}
                     <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
                     {% endif %}
@@ -299,7 +299,7 @@
                 <p class="sign">
                     {{ news.user.name }} {{ news.user.surname }}
                     {% if  news.user.photo %}
-                    <img src="{{ url_for('static', filename='admin/upload/users/'+ news.user.photo) }}" alt="..." class="rounded-circle nav-img">
+                    <img src="{{ config['CDN_AVATARS_FOLDER'] + news.user.photo }}" alt="..." class="rounded-circle nav-img">
                     {% else %}
                     <img src="{{ url_for('static', filename='admin/img/anonymous.png') }}" alt="..." class="rounded-circle nav-img-white">
                     {% endif %}

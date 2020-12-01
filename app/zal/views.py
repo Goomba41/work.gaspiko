@@ -13,7 +13,7 @@ from flask_paginate import Pagination
 from functools import wraps
 from sqlalchemy.sql.functions import func
 from sqlalchemy import desc
-from config import basedir, SQLALCHEMY_DATABASE_URI, REQUEST_FILES_FOLDER
+from config import basedir, SQLALCHEMY_DATABASE_URI
 import time, os, hashlib, json, datetime, csv
 
 zal = Blueprint('zal', __name__, url_prefix='/zal')

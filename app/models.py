@@ -316,6 +316,8 @@ class Item(db.Model):
     
     number = db.Column(db.String(20))
     serial = db.Column(db.String(20))
+
+    quantity = db.Column(db.Integer)
     
     cdate = db.Column(db.DateTime, default=time.strftime("%Y-%m-%d %H:%M:%S"))
     chdate = db.Column(db.DateTime)

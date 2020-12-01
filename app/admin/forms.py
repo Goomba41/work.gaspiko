@@ -80,7 +80,7 @@ class DelPermissionForm(FlaskForm):
 class AddPermissionForm(FlaskForm):
     user_id = QuerySelectField(u'Пользователь', get_label=lambda x: x.surname+' '+x.name+' '+x.patronymic, query_factory=lambda: User.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
     table_id = QuerySelectField(u'Таблица', get_label=lambda x: x.module_parent.name+' / '+x.name,  query_factory=lambda: Table_db.query.order_by('name'), validators = [Required(message = u'Поле не может быть пустым')])
-    enter = BooleanField(u'Доступ')
-    insert = BooleanField(u'Вставка')
-    update = BooleanField(u'Изменение')
-    delete = BooleanField(u'Удаление')
+    enter = BooleanField(u'Доступ', render_kw={'value': 1})
+    insert = BooleanField(u'Вставка', render_kw={'value': 1})
+    update = BooleanField(u'Изменение', render_kw={'value': 1})
+    delete = BooleanField(u'Удаление', render_kw={'value': 1})

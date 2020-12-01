@@ -18,7 +18,7 @@ from OpenSSL import crypto
 # from email.mime.base import MIMEBase
 # from pyspkac import SPKAC
 from flask import request, make_response, redirect, url_for, render_template, render_template_string, session, flash, g, jsonify, Response, Blueprint, send_from_directory, Markup
-from config import CA_FILES_FOLDER
+#from config import CA_FILES_FOLDER
 import os, smtplib, datetime, hashlib, sys, getpass, time
 
 CA = Blueprint('CA', __name__, url_prefix='/CA')
@@ -60,21 +60,21 @@ def ca_root_main():
 
     all_counters = get_counters()
     
-    rootCA_struct_exist = os.path.exists(CA_FILES_FOLDER)
-    rootCAkey_exist = os.path.isfile(os.path.join(CA_FILES_FOLDER, 'private/rootCA.key'))
-    rootCAcert_exist = os.path.isfile(os.path.join(CA_FILES_FOLDER, 'public/rootCA.cert'))
+    #rootCA_struct_exist = os.path.exists(CA_FILES_FOLDER)
+    #rootCAkey_exist = os.path.isfile(os.path.join(CA_FILES_FOLDER, 'private/rootCA.key'))
+    #rootCAcert_exist = os.path.isfile(os.path.join(CA_FILES_FOLDER, 'public/rootCA.cert'))
     
-    if not rootCA_struct_exist :
-        print("Структура директорий не существует")
-        os.mkdir(CA_FILES_FOLDER)
-        for d in ['conf','certs','public','private','incoming']:
-                os.mkdir(CA_FILES_FOLDER+'/'+d)
-        os.chmod(CA_FILES_FOLDER+"/private", 0o700)
-        with open(CA_FILES_FOLDER+'/conf/serial','w') as fd:
-            fd.write("01")
-        print("Стуктура создана")
-    elif not rootCAkey_exist or not rootCAcert_exist:
-        print("Ключевая пара не существует, либо отсутствует один из ключей")
+    #if not rootCA_struct_exist :
+    #    print("Структура директорий не существует")
+    #    os.mkdir(CA_FILES_FOLDER)
+    #    for d in ['conf','certs','public','private','incoming']:
+    #            os.mkdir(CA_FILES_FOLDER+'/'+d)
+    #    os.chmod(CA_FILES_FOLDER+"/private", 0o700)
+    #    with open(CA_FILES_FOLDER+'/conf/serial','w') as fd:
+    #        fd.write("01")
+    #    print("Стуктура создана")
+    #elif not rootCAkey_exist or not rootCAcert_exist:
+    #    print("Ключевая пара не существует, либо отсутствует один из ключей")
 
     # elif not os.path.isfile(os.path.join(CA_FILES_FOLDER, 'private/rootCA.key')) or not os.path.isfile(os.path.join(CA_FILES_FOLDER, 'public/rootCA.crt')):
         # print("Ytn rk.xf")

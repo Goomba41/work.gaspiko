@@ -125,7 +125,7 @@
 --> #}
 
 
-            <table class="table table-striped table-bordered table-hover table-responsive model-list text-center" style="font-size:0.7em;">
+            <table class="table table-striped table-bordered table-hover table-responsive model-list text-center mt-3 mb-3" style="font-size:0.7em;">
                 <tr>
                     <th width="1%" ><input type="checkbox" name="rowtoggle" class="action-rowtoggle" title="Выделение всех записей" ></th>
                     <th width="1%">Упр-ие</th>
@@ -166,7 +166,7 @@
                             {% if user.photo is none  %}
                                 <img class="user-avatar-mainscreen" src ="{{ url_for('static', filename='admin/img/anonymous.png') }}"  />
                             {% else %}
-                                <img class="user-avatar-mainscreen" src ="{{ url_for('static', filename='admin/upload/users/'+user.photo) }}"  />
+                                <img class="user-avatar-mainscreen" src ="{{ config['CDN_AVATARS_FOLDER'] + user.photo }}"  />
                             {% endif %}
                             </div>
                         </td>

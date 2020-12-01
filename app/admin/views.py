@@ -10,7 +10,7 @@ from app.admin.forms import DelUserForm, AddUserForm, EditUserForm, AddRoleForm,
 
 from flask import request, make_response, redirect, url_for, render_template, session, flash, g, jsonify, Response, Blueprint, send_from_directory, send_file
 from functools import wraps
-from config import basedir, PER_PAGE, SQLALCHEMY_BASIC_URI, AVATARS_FOLDER, REQUEST_FILES_FOLDER, BACKUPS_FOLDER, DB_USER, DB_USER_PSWD
+from config import basedir, PER_PAGE, SQLALCHEMY_BASIC_URI, BACKUPS_FOLDER, DB_USER, DB_USER_PSWD
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
@@ -381,7 +381,8 @@ def admin_users(page = 1, *args):
         user = User.query.filter(User.id == user_id).first()
         make_history("users", "удаление", current_user.id)
         if user.photo:
-            os.remove(os.path.join(app.config['AVATARS_FOLDER'], user.photo))
+            #os.remove(os.path.join(app.config['AVATARS_FOLDER'], user.photo))
+            deletePhoto = requests.delete(app.config['CDN_AVATARS_FOLDER']+user.photo)
         db.session.delete(user)
         db.session.commit()
         flash(u"Пользователь удален", 'success')
@@ -432,7 +433,11 @@ def get_post_javascript_data_id_delete():
                 users = User.query.filter(User.id.in_(ids)).all()
                 for user in users:
                     db.session.delete(user)
-                    os.remove(os.path.join(app.config['AVATARS_FOLDER'], user.photo))
+                    #os.remove(os.path.join(app.config['AVATARS_FOLDER'], user.photo))
+                    try:
+                        deletePhoto = requests.delete(app.config['CDN_AVATARS_FOLDER']+user.photo)
+                    except requests.ConnectionError:
+                        flash(u"Аватар «%s» не был удален (CDN-сервер не доступен, удалите файл вручную после восстановления связи с сервером)" % (requestToDelete.filename), 'warning')
                 make_history("users", "удаление", current_user.id)
             if table[0] == 'roles':
                 roles = Role.query.filter(Role.id.in_(ids)).all()
@@ -465,7 +470,11 @@ def get_post_javascript_data_id_delete():
                 for request_d in requests:
                     db.session.delete(request_d)
                     if request_d.filename:
-                        os.remove(os.path.join(REQUEST_FILES_FOLDER, request_d.filename))
+                        #os.remove(os.path.join(REQUEST_FILES_FOLDER, request_d.filename))
+                        try:
+                            deleteFile = requests.delete(app.config['CDN_REQUEST_RESPONSE_FOLDER']+requestToDelete.filename)
+                        except requests.ConnectionError:
+                            flash(u"Файл «%s» не был удален (CDN-сервер не доступен, удалите файл вручную после восстановления связи с сервером)" % (requestToDelete.filename), 'warning')
                 make_history("requests", "удаление", current_user.id)
             db.session.commit()
             flash(u"Записи удалены", 'success')
@@ -544,19 +553,23 @@ def new_user():
     if form_user_add.validate_on_submit():
         if request.method  == 'POST':
 
-            print (form_user_add.role_id.data)
-            photo = request.files['photo']
-            if photo:
-                hashname = uuid.uuid4().hex + '.' + photo.filename.rsplit('.', 1)[1]
-                photo.save(os.path.join(app.config['AVATARS_FOLDER'], hashname))
-            else:
-                hashname = None
-
             check = User.query.filter((User.login==form_user_add.login.data)|(User.email==form_user_add.email.data)|(User.phone==form_user_add.phone.data)).first()
 
             if check:
                 flash(u"Уже существует пользователь с таким логином, почтой или телефоном", 'error')
             else:
+                photo = request.files['photo']
+                hashname = None
+                #if photo:
+                    #hashname = uuid.uuid4().hex + '.' + photo.filename.rsplit('.', 1)[1]
+                    #photo.save(os.path.join(app.config['AVATARS_FOLDER'], hashname))
+
+                if photo:
+                    sendFile = {"uploads": (photo.filename, photo.stream, photo.mimetype)}
+                    postPhoto = requests.post(app.config['CDN_AVATARS_FOLDER'], files=sendFile)
+                    if postPhoto.status_code == 200:                  
+                        hashname = postPhoto.json()['uploadedFiles'][0]['name']
+
                 user = User(
                 login = form_user_add.login.data,
                 password = hashlib.md5(form_user_add.password.data.encode('utf-8')).hexdigest(),
@@ -652,14 +665,21 @@ def edit_user():
             else:
                 photo = request.files['photo']
                 if photo:
+                    sendFile = {"uploads": (photo.filename, photo.stream, photo.mimetype)}
                     if edit_user.photo is not None:
-                        new_filename = edit_user.photo.rsplit('.')[0]+'.'+photo.mimetype.rsplit('/')[1]
-                        photo.save(os.path.join(app.config['AVATARS_FOLDER'], new_filename))
-                        edit_user.photo = new_filename
+                        #new_filename = edit_user.photo.rsplit('.')[0]+'.'+photo.mimetype.rsplit('/')[1]
+                        #photo.save(os.path.join(app.config['AVATARS_FOLDER'], new_filename))
+                        #edit_user.photo = new_filename
+                        deletePhoto = requests.delete(app.config['CDN_AVATARS_FOLDER']+edit_user.photo)
+                        new_filename = edit_user.photo.rsplit('.')[0]
+                        postPhoto = requests.post(app.config['CDN_AVATARS_FOLDER'], files=sendFile, params={'names': new_filename})
                     else:
-                        hashname = uuid.uuid4().hex + '.' + photo.filename.rsplit('.', 1)[1]
-                        photo.save(os.path.join(app.config['AVATARS_FOLDER'], hashname))
-                        edit_user.photo = hashname
+                        postPhoto = requests.post(app.config['CDN_AVATARS_FOLDER'], files=sendFile)
+                    if postPhoto.status_code == 200:                  
+                        edit_user.photo = postPhoto.json()['uploadedFiles'][0]['name']
+                        #hashname = uuid.uuid4().hex + '.' + photo.filename.rsplit('.', 1)[1]
+                        #photo.save(os.path.join(app.config['AVATARS_FOLDER'], hashname))
+                        #edit_user.photo = hashname
 
                 edit_user.login = login
                 edit_user.password = password
@@ -1072,7 +1092,6 @@ def admin_permissions():
     insert = get_permissions(current_user.role.id, current_user.id, "permissions", "insert")
     delete = get_permissions(current_user.role.id, current_user.id, "permissions", "delete")
     update = get_permissions(current_user.role.id, current_user.id, "permissions", "update")
-    print (update)
 
     if not enter:
         return forbidden(403)
@@ -1102,7 +1121,7 @@ def admin_permissions():
                 return redirect(url_for('admin.admin_permissions'))
             else:
                 form_vals = request.form.to_dict()
-                permission = Permission(user_id = form_permission_add.user_id.data.id, table_id = form_permission_add.table_id.data.id, enter = form_vals.get('enter'), insert = form_vals.get('insert'), update = form_vals.get('update'), delete = form_vals.get('delete'))
+                permission = Permission(user_id = form_permission_add.user_id.data.id, table_id = form_permission_add.table_id.data.id, enter = int(form_vals.get('enter', 0)), insert = int(form_vals.get('insert', 0)), update = int(form_vals.get('update', 0)), delete = int(form_vals.get('delete', 0)))
                 db.session.add(permission)
                 make_history("permissions", "вставку", current_user.id)
                 db.session.commit()

@@ -101,7 +101,7 @@
                     <td>{{ permission_role.role.name }}</td>
                     <td>{{ permission_role.table.name }}</td>
                     <td>{{ permission_role.table.module_parent.name }}</td>
-                    <td><input type="checkbox" name="" class="checkbox" id="{{ permission_role.id }}-enter" title="Переключение разрешения" {% if permission_role.enter %}checked="checked"{% endif %}></td>
+                    <td><input type="checkbox" name="" class="checkbox" id="{{ permission_role.id }}-enter" title="Переключение разрешения" {% if permission_role.enter %}checked="true"{% endif %}></td>
                     <td><input type="checkbox" name="" class="checkbox" id="{{ permission_role.id }}-insert" title="Переключение разрешения" {% if permission_role.insert %}checked="checked"{% endif %}></td>
                     <td><input type="checkbox" name="" class="checkbox" id="{{ permission_role.id }}-update" title="Переключение разрешения" {% if permission_role.update %}checked="checked"{% endif %}></td>
                     <td><input type="checkbox" name="" class="checkbox" id="{{ permission_role.id }}-delete" title="Переключение разрешения"{% if permission_role.delete %}checked="checked"{% endif %}></td>

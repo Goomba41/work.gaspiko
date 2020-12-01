@@ -202,7 +202,8 @@
                         <td>{{ request.answer.name }}</td>
                         <td>
                         {% if request.filename %}
-                            <a title="Файл справки: {{ request.filename }}" href="{{ url_for('kartoteka.download', filename=request.filename) }}"><i class="fa fa-file-text fa-3x" aria-hidden="true"></i></a>
+			<a title="Файл справки: {{ request.filename }}" href="{{ config['CDN_REQUEST_RESPONSE_FOLDER'] + request.filename }}"><i class="fa fa-file-text fa-3x" aria-hidden="true"></i></a>
+			{#<!--<a title="Файл справки: {{ request.filename }}" href="{{ url_for('kartoteka.download', filename=request.filename) }}"><i class="fa fa-file-text fa-3x" aria-hidden="true"></i></a>-->#}
                         {% endif %}
                         </td>
                     </tr>

@@ -26,7 +26,7 @@
         </div>
     </nav> #}
     
-<div class="container mw-100 p-0" style="margin-top:3.95em;margin-bottom:4em;">
+<div class="container mw-100 p-0" style="margin-top:3.95em;">
     <div class="col p-0">
         
         <div class="row-fluid">
@@ -93,7 +93,8 @@
             {{ render_field(form_request_edit.filename) }}
 
             {% if edit_request.filename %}
-                <a title="Файл справки: {{ edit_request.filename }}" href="{{ url_for('kartoteka.download', filename=edit_request.filename) }}"><i class="fa fa-file-text fa-3x fa-pull-left fa-border" aria-hidden="true"></i></a><i onclick="delete_requests_file()" class="fa fa-trash" aria-hidden="true"></i>
+	    {#<a title="Файл справки: {{ edit_request.filename }}" href="{{ url_for('kartoteka.download', filename=edit_request.filename) }}"><i class="fa fa-file-text fa-3x fa-pull-left fa-border" aria-hidden="true"></i></a><i onclick="delete_requests_file()" class="fa fa-trash" aria-hidden="true"></i>#}
+                <a title="Файл справки: {{ edit_request.filename }}" href="{{ config['CDN_REQUEST_RESPONSE_FOLDER'] + edit_request.filename }}"><i class="fa fa-file-text fa-3x fa-pull-left fa-border" aria-hidden="true"></i></a><i onclick="delete_requests_file()" class="fa fa-trash" aria-hidden="true"></i>
             {% endif %}
             </div>
             <div class="row-fluid p-3">
@@ -177,11 +178,14 @@
         $.post( "{{ url_for('kartoteka.delete_file',filename=edit_request.filename) }}", {
             filename: '{{ edit_request.filename }}',
             id_request: '{{ edit_request.id }}',
-            success: function (e) {
-                console.log(e);
-                location.reload();
-            }
         })
+	.done(function(response) {
+		alert(response);
+		location.reload();
+	})
+	.fail(function(response) {
+		alert('Ошибка: '+response.responseJSON);
+	});
     }
     {% endif %}
 </script>

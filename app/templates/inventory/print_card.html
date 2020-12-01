@@ -1,0 +1,109 @@
+{% if session['logged_in'] %}
+<style>
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+table, th, td {
+	border: 1px solid black;
+	padding: .4rem;
+	font-size: 12pt;
+}
+h1 {
+	text-transform: uppercase;
+	font-weight: 900;
+	text-align: center;
+	font-size: 12pt;
+}
+tr:first-child > th {
+	background-color: #cccccc !important;
+	color-adjust: exact;
+	-webkit-print-color-adjust: exact;
+	print-color-adjust: exact;
+}
+.control {
+	padding: 1rem 0;
+	margin-bottom: 1rem;
+	border-bottom: 1px dashed black;
+}
+.number {
+	/*text-align: center;*/
+	text-indent: 1rem;
+	font-family:'Lucida Console', monospace;
+}
+@media print {
+	.no-print, .no-print * {
+		display: none !important;
+	}
+	table, th, td {
+		font-size: .58333377427827rem;
+	}
+}
+</style>
+
+<div class="control no-print">
+	<span class="no-print">Помещение: </span>
+	<select id="room" class="no-print" onchange="changeRoom()">
+		{% for room in rooms_list %}
+		<option value="{{room.number}}{% if room.type =='хр.' %} {{room.type}}{% endif %}" {% if room.active %}selected{% endif %}>{{room.type}}{% if room.number %} №{{room.number}}{% endif %}</option>
+		{% endfor %}
+	</select>
+</div>
+{% for room in rooms_list %}
+	{% if room.active %}
+		<h1>
+			Инвентарная карточка
+			{% if room.number %}{{room.type+room.number|string}}{% else %}по зданию{% endif %}
+		</h1>
+	{% endif %}
+{% endfor %}
+<table>
+	<thead>
+		<tr>
+			<th>№ <span style="white-space: nowrap;">П/П</span></th>
+			<th>Наименование объекта</th>
+			<th>Номер (код) объекта учета (инвентарный или иной)</th>
+			<th>Количество</th>
+			<th>Примечание</th>
+			{% if room == 0 %}
+			<th>Кабинет/Этаж</th>
+			{% endif %}
+		</tr>
+		<tr>
+			<th>1</th>
+			<th>2</th>
+			<th>3</th>
+			<th>4</th>
+			<th>5</th>
+			{% if room == 0 %}
+			<th>6</th>
+			{% endif %}
+		</tr>
+	</thead>
+	{% for item in items %}
+	<tr>
+		<td style="text-align: center;">{{loop.index}}</td>
+		<td>{{item.name}}</td>
+		<td class="number"><span>{{item.number[:-3]}}<b>{{item.number[-3:]}}</b></span></td>
+		<td style="text-align: center;">{{item.quantity}}{% if item.quantity != item.quantityTotal%}/{{item.quantityTotal}}{% endif %}</td>
+		<td>{{item.placing.description}}</td>
+		{% if room == 0 %}
+		<td style="text-align: center;">{{item.placing.room}}/{{item.placing.floor}}</td>
+		{% endif %}
+	</tr>
+	{% endfor %}
+</table>
+
+<script type="text/javascript">
+	function changeRoom() {
+		var room = document.getElementById("room").value;
+		if (room == 0) {
+			window.location = "{{ url_for('inventory.print_card') }}";
+		}
+		else {
+			window.location = "{{ url_for('inventory.print_card') }}?room=" + room;
+		}
+	}
+</script>
+
+{% endif %}

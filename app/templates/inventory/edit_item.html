@@ -65,6 +65,17 @@
                 </div>
                 
             </div>
+ 
+	    <div class="col-12">
+                
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="header-addon">Количество</span>
+                    </div>
+                    <input value="{% if edit_items.quantity is not none %}{{ edit_items.quantity }}{% endif %}" maxlength="3" name="quantity" type="text" class="form-control" placeholder="Введите количество (не более 3 символов)" aria-label="header" aria-describedby="header-addon">
+                </div>
+                
+            </div>
             
             <div class="col-12">
                 
@@ -73,7 +84,7 @@
                         <span class="input-group-text">Расположение объекта</span>
                     </div>
                     <input value="{{ edit_items.placing.floor }}" type="text" name="floor" aria-label="Этаж" class="form-control" maxlength="2" placeholder="Этаж (не более 2 символов)" required>
-                    <input value="{{ edit_items.placing.room }}" type="text" name="room" aria-label="Кабинет" class="form-control" maxlength="3" placeholder="Кабинет (не более 3 символов)" required>
+                    <input value="{{ edit_items.placing.room }}" type="text" name="room" aria-label="Кабинет" class="form-control" maxlength="5" placeholder="Кабинет (не более 5 символов)" required>
                     <input value="{{ edit_items.placing.description }}" type="text" name="description" aria-label="Описание" class="form-control" maxlength="255" placeholder="Описание (не более 255 символов)" required>
                 </div>
             

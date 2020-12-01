@@ -63,7 +63,7 @@ function delete_news(id) {
                     contentType: 'application/json;charset=UTF-8',
                     dataType: 'json',
                     success: function (e) {
-                        message = {"type":"success", "text":"Удалено записей: "+to_delete.length};
+                        message = {"type":e["type"], "text":"Удалено записей: "+to_delete.length+e['text']};
                         localStorage.setItem("message", JSON.stringify(message));
                         location.reload(true);
                     },
@@ -87,7 +87,8 @@ function delete_news(id) {
                 contentType: 'application/json;charset=UTF-8',
                 dataType: 'json',
                 success: function (e) {
-                    message = {"type":"success", "text":"Удалена запись №"+e};
+                    message = {"type":e['type'], "text": "Новость №"+id+" удалена успешно"+e['text']};
+
                     localStorage.setItem("message", JSON.stringify(message));
                     location.reload(true);
                 },
@@ -133,7 +134,7 @@ $(document).ready(function(){
             data : formData,
             dataType: 'json',
             success: function (response) {
-                    message = {"type":"success", "text":"Новость успешно добавлена!"};
+                    message = {"type":response['type'], "text":response['text']};
                     localStorage.setItem("message", JSON.stringify(message));
                     
                     if (button_type=="with_reset") {
@@ -186,7 +187,7 @@ $(document).ready(function(){
             processData: false,
             data : formData,
             success: function (response) {
-                    message = {"type":"success", "text":"Новость успешно отредактирована!"};
+                    message = {"type":response['type'], "text":response['text']};
                     localStorage.setItem("message", JSON.stringify(message));
                     
                     if (button_type=="with_reset") {

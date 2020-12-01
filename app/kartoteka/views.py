@@ -14,8 +14,8 @@ from flask_paginate import Pagination
 from functools import wraps
 from sqlalchemy.sql.functions import func
 from sqlalchemy import desc, extract
-from config import basedir, SQLALCHEMY_DATABASE_URI, REQUEST_FILES_FOLDER
-import time, os, hashlib, json, datetime, csv, locale
+from config import basedir, SQLALCHEMY_DATABASE_URI
+import time, os, hashlib, json, datetime, csv, locale, requests
 
 locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
 
@@ -86,10 +86,14 @@ def kartoteka_main(page = 1, *args):
 
     if form_delete.validate_on_submit() and delete:
         request_id = form_delete.del_id.data
-        requests = Request.query.filter(Request.id == request_id).first()
-        db.session.delete(requests)
-        if requests.filename:
-            os.remove(os.path.join(REQUEST_FILES_FOLDER, requests.filename))
+        requestToDelete = Request.query.filter(Request.id == request_id).first()
+        db.session.delete(requestToDelete)
+        if requestToDelete.filename:
+            #os.remove(os.path.join(REQUEST_FILES_FOLDER, requests.filename))
+            try:
+                deleteFile = requests.delete(app.config['CDN_REQUEST_RESPONSE_FOLDER']+requestToDelete.filename)
+            except requests.ConnectionError:
+                flash(u"Файл «%s» не был удален (CDN-сервер не доступен, удалите файл вручную после восстановления связи с сервером)" % (requestToDelete.filename), 'warning')
         make_history("requests", "удаление", current_user.id)
         db.session.commit()
         flash(u"Запрос удален", 'success')
@@ -191,8 +195,8 @@ def kartoteka_statistics(page = 1, *args):
     count_requests_haracter = Request.query.with_entities(Request.character_id, Character.name,func.count(Request.character_id).label('count')).group_by('character_id').order_by(desc('count')).join(Character)
     count_requests_answer = Request.query.with_entities(Request.answer_id, Answer.name,func.count(Request.answer_id).label('count')).group_by('answer_id').order_by(desc('count')).join(Answer)
     count_requests_kind = Request.query.with_entities(Request.kind_id, Kind.name,func.count(Request.kind_id).label('count')).group_by('kind_id').order_by(desc('count')).join(Kind)
-    count_requests_year = Request.query.with_entities(func.year(Request.date_registration),func.count("year_1").label('count')).group_by("1").order_by(desc('year_1'))
-    count_requests_users = Request.query.with_entities(Request.executor_id, User.surname, func.count(Request.executor_id).label('count')).group_by(Request.executor_id).order_by(desc('count')).join(Executor).join(User)
+    count_requests_year = Request.query.with_entities(func.year(Request.date_registration).label('year'),func.count("year").label('count')).group_by('year').order_by(desc('year'))
+    count_requests_users = Request.query.with_entities(Request.executor_id, User.surname, func.count(Request.executor_id).label('count')).group_by(Request.executor_id).order_by(desc('count')).join(Executor, Request.executor).join(User, Executor.user)
     count_requests_users_others = Request.query.filter(Request.executor_id == None).count()
     #~ count_requests_users_2 = Request.query.with_entities(Request.executor_id, User.surname, Answer.name, func.count(Request.executor_id).label('count')).filter((Request.answer_id==3)).group_by(Request.executor_id, Request.answer_id).order_by(desc("count"),User.surname).join(Executor).join(User).join(Answer)
 
@@ -406,14 +410,25 @@ def edit_request():
                 
                 filename = request.files['filename']
                 if filename:
-                    if edit_request.filename is not None:
-                        filename.save(os.path.join(REQUEST_FILES_FOLDER, edit_request.filename))
-                    else:
-                        name = today + '_' + str(edit_request.number) + '_' + str(edit_request.id) + '.' + filename.filename.rsplit('.', 1)[1]
-                        filename.save(os.path.join(REQUEST_FILES_FOLDER, name))
-                        edit_request.filename = name
+                    sendFile = {"uploads": (filename.filename, filename.stream, filename.mimetype)}
+                    try:
+                        if edit_request.filename is not None:
+                        #    filename.save(os.path.join(REQUEST_FILES_FOLDER, edit_request.filename))
+                            name = edit_request.filename.rsplit('.')[0]
+                            deleteFile = requests.delete(app.config['CDN_REQUEST_RESPONSE_FOLDER']+edit_request.filename)
+                        else:
+                        #    name = today + '_' + str(edit_request.number) + '_' + str(edit_request.id) + '.' + filename.filename.rsplit('.', 1)[1]
+                            name = today + '_' + str(edit_request.number.replace(' ','')) + '_' + str(edit_request.id)
 
-                
+                        postFile = requests.post(app.config['CDN_REQUEST_RESPONSE_FOLDER'], files=sendFile, params={'names': name})
+
+                        if postFile.status_code == 200:
+                            edit_request.filename = postFile.json()['uploadedFiles'][0]['name']
+                        #    filename.save(os.path.join(REQUEST_FILES_FOLDER, name))
+                        #    edit_request.filename = name
+                    except requests.ConnectionError:
+                        flash(u"Файл не загружен (CDN-сервер недоступен)", 'warning')
+
 
                 edit_request.number=num
                 edit_request.copies=int(form_request_edit.copies.data)
@@ -450,10 +465,10 @@ def edit_request():
     #~ )
     #~ return response
 
-@kartoteka.route('/upload/<path:filename>', methods=['GET', 'POST'])
-def download(filename):
-    uploads = os.path.join(basedir, REQUEST_FILES_FOLDER)
-    return send_from_directory(directory=uploads, filename=filename)
+#@kartoteka.route('/upload/<path:filename>', methods=['GET', 'POST'])
+#def download(filename):
+#    uploads = os.path.join(basedir, REQUEST_FILES_FOLDER)
+#    return send_from_directory(directory=uploads, filename=filename)
 
 @kartoteka.route('/csv/<path:filename>', methods=['GET', 'POST'])
 def download_csv(filename):
@@ -478,15 +493,23 @@ def download_csv(filename):
 
 @kartoteka.route('/delete/<path:filename>', methods=['GET', 'POST'])
 def delete_file(filename):
-    requests = Request.query.get(request.form['id_request'])
-    os.remove(os.path.join(REQUEST_FILES_FOLDER, requests.filename))
-    requests.filename = None
-    db.session.commit()
-    response = Response(
-        response=json.dumps({'OK':'OK'}),
-        status=200,
-        mimetype='application/json'
-    )
+    requestToEdit = Request.query.get(request.form['id_request'])
+    #os.remove(os.path.join(REQUEST_FILES_FOLDER, requests.filename))
+    try:
+        deleteFile = requests.delete(app.config['CDN_REQUEST_RESPONSE_FOLDER']+requestToEdit.filename)
+        requestToEdit.filename = None
+        db.session.commit()
+        response = Response(
+            response=json.dumps("Файл удален"),
+            status=200,
+            mimetype='application/json'
+        )
+    except requests.ConnectionError:
+        response = Response(
+            response=json.dumps(u"Файл «%s» не был удален (CDN-сервер не доступен)" % (requestToEdit.filename)),
+            status=400,
+            mimetype='application/json'
+        )
     return response
 
 @kartoteka.route('/request/search', methods=['GET', 'POST'])
@@ -517,7 +540,7 @@ def card_request():
 
 @kartoteka.route('/request/weekly/print', methods=['GET', 'POST'])
 @login_required
-def request_weekly_print(page = 1, *args):
+def request_weekly_print():
 
     current_user = User.current()
 

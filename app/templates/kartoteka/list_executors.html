@@ -128,7 +128,7 @@
                                 {% if executor.user.photo is none  %}
                                     <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/anonymous.png') }}"  />
                                 {% else %}
-                                    <img style = "width:100%;" src ="{{ url_for('static', filename='admin/upload/users/'+executor.user.photo) }}"  />
+                                    <img style = "width:100%;" src ="{{ config['CDN_AVATARS_FOLDER'] + executor.user.photo }}"  />
                                 {% endif %}
                                 </div>
                             </td>
@@ -188,7 +188,7 @@
                         {% if executor.user.photo is none  %}
                             <img style = "width:100%;" src ="{{ url_for('static', filename='admin/img/anonymous.png') }}"  />
                         {% else %}
-                            <img style = "width:100%;" src ="{{ url_for('static', filename='admin/upload/users/'+executor.user.photo) }}"  />
+                            <img style = "width:100%;" src ="{{ config['CDN_AVATARS_FOLDER'] + executor.user.photo }}"  />
                         {% endif %}
                         </div>
                     </td>

@@ -199,7 +199,6 @@ app.jinja_env.filters['fresh'] = fresh_news
 #Подсчет свежих новостей
 def fresh_news_counter(news_list,days):
     count = 0
-    print(news_list)
     for i in news_list.json():
         if fresh_news(i['cdate'],days):
             count += 1
@@ -237,7 +236,7 @@ def get_one_news(news_id):
     news = News.query.filter(News.id==news_id).first()
     news_schema = NewsSchema()
 
-    response = jsonify(news_schema.dump(news).data)
+    response = jsonify(news_schema.dump(news))
     
     return response
 
@@ -246,15 +245,32 @@ def get_one_news(news_id):
 def delete_one_news(news_id):
     
     can = User.can("delete","news")
-    
+    responseType = "success"
+    responseText = ""
+
     if can:
         news = News.query.filter(News.id == news_id).first()
         for image in news.images:
-            os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], image['filename']))
+            #os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], image['filename']))
+            try:
+                deleteFile = requests.delete(app.config['CDN_NEWS_IMAGES_FOLDER']+image['filename'])
+                if not deleteFile.status_code == 200:
+                    responseType = "warning"
+                    responseText = ', но связанные файлы не удалены (ошибка на CDN-сервере)!'
+            except requests.ConnectionError:
+                responseType = "warning"
+                responseText = ', но связанные файлы не удалены (CDN-сервер недоступен)!'
+
         db.session.delete(news)
         db.session.commit()
 
         response = jsonify(news_id)
+
+        response = Response(
+            response=json.dumps({'type':responseType, 'text':responseText}),
+            status=200,
+            mimetype='application/json'
+        )
     else:
         response = Response(
             response=json.dumps({'type':'fail', 'text':'Пользователю запрещено удаление!'}),
@@ -274,19 +290,40 @@ def post_news():
     if can:
         try:
             form_data = json.loads(request.form['data'])
+            responseType = "success"
+            responseText = "Новость успешно добавлена"
 
             images_list = []
+            #if request.files:
+            #    time_hash = uuid.uuid1().hex
+            #    cover_by_default = False
+            #    for image in request.files.getlist("images"):
+            #        hashname = time_hash+'.'+uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
+            #        image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
+            #        if not cover_by_default :
+            #            images_list.append({'filename':hashname, 'as_cover':1, 'in_gallery':0, 'position':0})
+            #            cover_by_default = True
+            #        else:
+            #            images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
+
             if request.files:
-                time_hash = uuid.uuid1().hex
                 cover_by_default = False
-                for image in request.files.getlist("images"):
-                    hashname = time_hash+'.'+uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
-                    image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
-                    if not cover_by_default :
-                        images_list.append({'filename':hashname, 'as_cover':1, 'in_gallery':0, 'position':0})
-                        cover_by_default = True
+                sendFiles = [('uploads', (image.filename, image.stream, image.mimetype)) for image in request.files.getlist("images")]
+                try:
+                    postImages = requests.post(app.config['CDN_NEWS_IMAGES_FOLDER'], files=sendFiles)
+                    if postImages.status_code == 200:
+                        for uploadedFile in postImages.json()['uploadedFiles']:
+                            if not cover_by_default:
+                                images_list.append({'filename':uploadedFile['name'], 'as_cover':1, 'in_gallery':0, 'position':0})
+                                cover_by_default = True
+                            else:
+                                images_list.append({'filename':uploadedFile['name'], 'as_cover':0, 'in_gallery':0, 'position':0})
                     else:
-                        images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
+                        responseType = "warning"
+                        responseText += ', но файлы не загружены (ошибка на CDN-сервере)'
+                except requests.ConnectionError:
+                    responseType = "warning"
+                    responseText += ', но файлы не загружены (CDN-сервер недоступен)'
 
             news = News(
             header = form_data['header'],
@@ -299,9 +336,9 @@ def post_news():
             
             n_list=url_for('admin.admin_news')
             n_edit=url_for('admin.edit_news', id=news.id)
-
+            
             response = Response(
-                response=json.dumps({'type':'success', 'text':'Добавлено!', 'list':n_list, 'edit':n_edit}),
+                response=json.dumps({'type':responseType, 'text':responseText+"!", 'list':n_list, 'edit':n_edit}),
                 status=200,
                 mimetype='application/json'
             )
@@ -321,7 +358,7 @@ def post_news():
     
     return response
     
-#Редактирование новости новости
+#Редактирование новости
 @API.route('/news/<int:news_id>', methods=['PUT'])
 def update_news(news_id):
     
@@ -332,20 +369,35 @@ def update_news(news_id):
         try:
             form_data = json.loads(request.form['data'])
             edit_news = News.query.get(news_id)
-            
+
+            responseType = "success"
+            responseText = "Новость успешно изменена"
+           
             if request.files:
                 if (request.files.getlist("images")[0].filename!=''):
                     if edit_news.images:
                         images_list = edit_news.images[:] #Клонирование существующего списка
                     else:
                         images_list = []
-                    time_hash = uuid.uuid1().hex
-                    for image in request.files.getlist("images"):
-                        hashname = time_hash+'.'+uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
-                        image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
-                        images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
-                        edit_news.images = images_list
-                        
+                    sendFiles = [('uploads', (image.filename, image.stream, image.mimetype)) for image in request.files.getlist("images")]
+                    try:
+                        postImages = requests.post(app.config['CDN_NEWS_IMAGES_FOLDER'], files=sendFiles)
+                        if postImages.status_code == 200:
+                            for uploadedFile in postImages.json()['uploadedFiles']:
+                                images_list.append({'filename':uploadedFile['name'], 'as_cover':0, 'in_gallery':0, 'position':0})
+                            edit_news.images = images_list
+                        else:
+                            responseType = "warning"
+                            responseText += ', но файлы не загружены (ошибка на CDN-сервере)'
+                    except requests.ConnectionError:
+                        responseType = "warning"
+                        responseText += ', но файлы не загружены (CDN-сервер недоступен)'
+
+                    #for image in request.files.getlist("images"):
+                        #hashname = uuid.uuid4().hex + '.' + image.filename.rsplit('.', 1)[1]
+                        #image.save(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], hashname))
+                        #images_list.append({'filename':hashname, 'as_cover':0, 'in_gallery':0, 'position':0})
+                        #edit_news.images = images_list
             
             edit_news.header = form_data['header']
             edit_news.text = form_data['text']
@@ -358,7 +410,7 @@ def update_news(news_id):
             
 
             response = Response(
-                response=json.dumps({'type':'success', 'text':'Изменения сохранены!', 'list':n_list, 'new':n_new}),
+                response=json.dumps({'type':responseType, 'text':responseText+"!", 'list':n_list, 'new':n_new}),
                 status=200,
                 mimetype='application/json'
             )
@@ -378,7 +430,7 @@ def update_news(news_id):
     
     return response
     
-#Редактирование изображений новости новости
+#Редактирование изображений новости
 @API.route('/news/<int:news_id>/images', methods=['PUT'])
 def update_news_images(news_id):
     
@@ -390,17 +442,28 @@ def update_news_images(news_id):
             edit_news = News.query.get(news_id)
 
             if (request.form['action'] == 'delete'):
-                
+
+                responseType='success'
+                responseText=''
+
                 images = edit_news.images[:]
                 images[:] = [d for d in images if d.get('filename') != request.form['filename']]
 
-                os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], request.form['filename']))
+                #os.remove(os.path.join(app.config['NEWS_IMAGES_FOLDER_ROOT'], request.form['filename']))
+                try:
+                    deleteFile = requests.delete(app.config['CDN_NEWS_IMAGES_FOLDER']+request.form['filename'])
+                    if not deleteFile.status_code == 200:
+                        responseType = "warning"
+                        responseText = ', но связанные файлы не удалены (ошибка на CDN-сервере)'
+                except requests.ConnectionError:
+                    responseType = "warning"
+                    responseText = ', но связанные файлы не удалены (CDN-сервер недоступен)'
 
                 edit_news.images = images
                 db.session.commit()
                 
                 response = Response(
-                    response=json.dumps({'type':'success', 'action':'delete', 'text':'Изображение удалено!'}),
+                    response=json.dumps({'type':responseType, 'action':'delete', 'text':'Изображение откреплено'+responseText+"!"}),
                     status=200,
                     mimetype='application/json'
                 )
@@ -496,10 +559,9 @@ def update_news_images(news_id):
 def get_one_inventory_item(id):
     
     item = Item.query.filter(Item.id==id).first()
-    print(item)
     item_schema = ItemSchema()
 
-    response = jsonify(item_schema.dump(item).data)
+    response = jsonify(item_schema.dump(item))
     
     return response
     
@@ -540,7 +602,7 @@ def get_all_inventory_items():
     
     tmp = []
     for item in items:
-        tmp.append(item_schema.dump(item).data)
+        tmp.append(item_schema.dump(item))
     items_lst = sorted(tmp, key=lambda k: k['id'],reverse=True)
             
     if (('page' in locals()) and ('size' in locals())):
@@ -558,7 +620,7 @@ def get_one_inventory_item_by_in(number):
     item = Item.query.filter(Item.number==number).first()
     item_schema = ItemSchema()
 
-    response = jsonify(item_schema.dump(item).data)
+    response = jsonify(item_schema.dump(item))
     
     return response
     
@@ -631,36 +693,37 @@ def post_item():
                 if form_data[k] == '':
                     form_data[k] = None
                     
-            number_ch = Item.query.filter(Item.number == form_data['number']).first()
-            serial_ch = Item.query.filter(Item.serial == form_data['serial']).first()
+            #number_ch = Item.query.filter(Item.number == form_data['number']).first()
+            #serial_ch = Item.query.filter(Item.serial == form_data['serial']).first()
             
-            if ((number_ch is not None) or (serial_ch is not None) and (serial_ch.serial is not None)):
-                response = Response(
-                    response=json.dumps({'type':'fail', 'text':'Объект с таким инвентарным/серийным номером уже есть в системе!'}),
-                    status=403,
-                    mimetype='application/json'
-                )
-            else:
-                item = Item(
-                name = form_data['name'],
-                number = form_data['number'],
-                responsible = form_data['responsible'],
-                placing = placing,
-                employee = form_data['employee'],
-                serial = form_data['serial'],
-                status = 0)
+            #if ((number_ch is not None) or (serial_ch is not None) and (serial_ch.serial is not None)):
+            #    response = Response(
+            #        response=json.dumps({'type':'fail', 'text':'Объект с таким инвентарным/серийным номером уже есть в системе!'}),
+            #        status=403,
+            #        mimetype='application/json'
+            #    )
+            #else:
+            item = Item(
+            name = form_data['name'],
+            number = form_data['number'],
+            quantity = form_data['quantity'],
+            responsible = form_data['responsible'],
+            placing = placing,
+            employee = form_data['employee'],
+            serial = form_data['serial'],
+            status = 0)
 
-                db.session.add(item)
-                db.session.commit()
+            db.session.add(item)
+            db.session.commit()
                 
-                n_list=url_for('inventory.inventory_main')
-                n_edit=url_for('inventory.edit_items', id=item.id)
+            n_list=url_for('inventory.inventory_main')
+            n_edit=url_for('inventory.edit_items', id=item.id)
 
-                response = Response(
-                    response=json.dumps({'type':'success', 'text':'Добавлено!', 'list':n_list, 'edit':n_edit}),
-                    status=200,
-                    mimetype='application/json'
-                )
+            response = Response(
+                response=json.dumps({'type':'success', 'text':'Добавлено!', 'list':n_list, 'edit':n_edit}),
+                status=200,
+                mimetype='application/json'
+            )
         except:
             response = Response(
             response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),
@@ -692,49 +755,50 @@ def update_item(id):
                     form_data[k] = None
             edit_item = Item.query.get(id)
             
-            number_ch = Item.query.filter(Item.number == form_data['number']).first()
-            serial_ch = Item.query.filter(Item.serial == form_data['serial']).first()
+            #number_ch = Item.query.filter(Item.number == form_data['number']).first()
+            #serial_ch = Item.query.filter(Item.serial == form_data['serial']).first()
                         
-            if ((((number_ch is not None) and ((number_ch.id != edit_item.id))) or ((serial_ch is not None) and (serial_ch.id != edit_item.id))) and (serial_ch.serial is not None)):
-                response = Response(
-                    response=json.dumps({'type':'fail', 'text':'Объект с таким инвентарным/серийным номером уже есть в системе!'}),
-                    status=403,
-                    mimetype='application/json'
-                )
-            else:
-                if ((form_data['floor'] != edit_item.placing['floor']) or (form_data['room'] != edit_item.placing['room'])):
-                    move = {"to": form_data['floor']+"-"+form_data['room'], "date": datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"), "from": edit_item.placing['floor']+"-"+edit_item.placing['room']}
-                    edit_item.status = 0
-                    edit_item.chdate = None
+            #if ((((number_ch is not None) and ((number_ch.id != edit_item.id))) or ((serial_ch is not None) and (serial_ch.id != edit_item.id))) and (serial_ch.serial is not None)):
+            #    response = Response(
+            #        response=json.dumps({'type':'fail', 'text':'Объект с таким инвентарным/серийным номером уже есть в системе!'}),
+            #        status=403,
+            #        mimetype='application/json'
+            #    )
+            #else:
+            if ((form_data['floor'] != edit_item.placing['floor']) or (form_data['room'] != edit_item.placing['room'])):
+                move = {"to": form_data['floor']+"-"+form_data['room'], "date": datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S"), "from": edit_item.placing['floor']+"-"+edit_item.placing['room']}
+                edit_item.status = 0
+                edit_item.chdate = None
                     
-                    if edit_item.movements is None:
-                        edit_item.movements = [move]
-                    else:
-                        edit_item.movements.append(move)
-                        flag_modified(edit_item, "movements")
-                    edit_item.placing['floor'] = form_data['floor']
-                    edit_item.placing['room'] = form_data['room']
+                if edit_item.movements is None:
+                    edit_item.movements = [move]
+                else:
+                    edit_item.movements.append(move)
+                    flag_modified(edit_item, "movements")
+                edit_item.placing['floor'] = form_data['floor']
+                edit_item.placing['room'] = form_data['room']
                     
                 
-                edit_item.name = form_data['name']
-                edit_item.number = form_data['number']
-                edit_item.responsible = form_data['responsible']
-                edit_item.employee = form_data['employee']
-                edit_item.serial = form_data['serial']
-                edit_item.placing['description'] = form_data['description']
+            edit_item.name = form_data['name']
+            edit_item.number = form_data['number']
+            edit_item.responsible = form_data['responsible']
+            edit_item.employee = form_data['employee']
+            edit_item.serial = form_data['serial']
+            edit_item.quantity = form_data['quantity']
+            edit_item.placing['description'] = form_data['description']
                             
                 
-                flag_modified(edit_item, "placing")
-                db.session.commit()
+            flag_modified(edit_item, "placing")
+            db.session.commit()
                 
-                n_list=url_for('inventory.inventory_main')
-                n_new=url_for('inventory.new_items')           
+            n_list=url_for('inventory.inventory_main')
+            n_new=url_for('inventory.new_items')           
 
-                response = Response(
-                    response=json.dumps({'type':'success', 'text':'Изменения сохранены!', 'list':n_list, 'new':n_new}),
-                    status=200,
-                    mimetype='application/json'
-                )
+            response = Response(
+                response=json.dumps({'type':'success', 'text':'Изменения сохранены!', 'list':n_list, 'new':n_new}),
+                status=200,
+                mimetype='application/json'
+            )
         except:
             response = Response(
             response=json.dumps({'type':'fail', 'text':'Серверная ошибка!'}),

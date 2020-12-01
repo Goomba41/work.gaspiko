@@ -15,7 +15,7 @@
                         {% if news.images %}
                             {% for image in news.images %}
                                 {% if  image.as_cover%}
-                                    <img  src="{{  image.filename|thumbnail('260x260', crop='fit', quality=100) }}" style ="max-width:none; height:100%" class="img-responsive" alt="{{ news.header }}">
+                                    <img  src="{{ config['CDN_NEWS_IMAGES_FOLDER'] + image.filename }}" style ="max-width:none; height:100%" class="img-responsive" alt="{{ news.header }}">
                                 {% endif %}
                             {% endfor %}
                         {% endif %}
