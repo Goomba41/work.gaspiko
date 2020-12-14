@@ -14,7 +14,7 @@ from config import basedir, PER_PAGE, SQLALCHEMY_BASIC_URI, BACKUPS_FOLDER, DB_U
 from flask_paginate import Pagination
 from sqlalchemy import create_engine
 from sqlalchemy.sql.functions import func
-import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, redis, subprocess, re, humanize, csv, requests
+import time, calendar, os, hashlib, shutil, uuid, json, datetime, inspect, subprocess, re, humanize, csv, requests #redis, 
 
 administration = Blueprint('admin', __name__, url_prefix='/admin')
 
