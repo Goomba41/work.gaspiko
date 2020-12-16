@@ -29,4 +29,3 @@ app.register_blueprint(kartoteka_module)
 app.register_blueprint(zal_module)
 app.register_blueprint(CA_module)
 app.register_blueprint(inventory_module)
-
