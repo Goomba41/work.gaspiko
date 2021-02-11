@@ -45,7 +45,7 @@ tr:first-child > th {
 	<span class="no-print">Помещение: </span>
 	<select id="room" class="no-print" onchange="changeRoom()">
 		{% for room in rooms_list %}
-		<option value="{{room.number}}{% if room.type !='хр.' %} {{room.type}}{% endif %}" {% if room.active %}selected{% endif %}>{{room.type}}{% if room.number %} №{{room.number}}{% endif %}</option>
+		<option value="{% if room.number or room.number == 0%}{{room.number}}{% if room.type !='каб.' and room.number != 0 %} {{room.type}}{% endif %}{% else %}{{room.type}}{% endif %}" {% if room.active %}selected{% endif %}>{{room.type}}{% if room.number %} №{{room.number}}{% endif %}</option>
 		{% endfor %}
 	</select>
 </div>
@@ -53,7 +53,7 @@ tr:first-child > th {
 	{% if room.active %}
 		<h1>
 			Инвентарная карточка
-			{% if room.number %}{{room.type+room.number|string}}{% else %}по зданию{% endif %}
+			{% if room.number %}{{room.type+room.number|string}}{% elif room.number == 0 %}по зданию{% else %}{{room.type}}{% endif %}
 		</h1>
 	{% endif %}
 {% endfor %}

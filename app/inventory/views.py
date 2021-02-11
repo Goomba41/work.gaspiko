@@ -113,10 +113,19 @@ def print_card():
     rooms_list = []
     for uRoom in uniqueRooms:
         e = uRoom.split(' ')
-        room_item = {'number': int(e[0]), 'type': e[1] if len(e) > 1 else 'каб.', 'active': True if args['room'] == uRoom else False}
+        try:
+            number = int(e[0])
+            rtype = e[1] if len(e) > 1 else 'каб.'
+            #room_item = {'number': int(e[0]), 'type': e[1] if len(e) > 1 else 'каб.', 'active': True if args['room'] == uRoom else False}
+        except:
+            number = None
+            rtype = e[0]
+        room_item = {'number': number, 'type': rtype, 'active': True if args['room'] == uRoom else False}
         rooms_list.append(room_item)
-    rooms_list.append({'number': 0, 'type': 'Все', 'active': True if args['room'] not in uniqueRooms else False})
-    rooms_list = sorted(rooms_list, key = itemgetter(*['number']))
+    #rooms_list.append({'number': None, 'type': 'Все', 'active': True if args['room'] not in uniqueRooms else False})
+    #rooms_list = sorted(rooms_list, key = itemgetter(*['number']))
+    rooms_list.sort(key=lambda x: -float('inf') if x['number'] is None else x['number'])
+    rooms_list.insert(0, {'number': 0, 'type': 'Все', 'active': True if args['room'] not in uniqueRooms else False})
 
     if args['room']:
         items_all = requests.get(url_for('API.get_all_inventory_items', **args, _external=True), verify=False).json()
