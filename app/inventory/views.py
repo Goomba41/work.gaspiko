@@ -130,7 +130,7 @@ def print_card():
     if args['room']:
         items_all = requests.get(url_for('API.get_all_inventory_items', **args, _external=True), verify=False).json()
    
-    sorted_items = sorted(items_all, key=lambda k: (k['placing'].get('floor'), k['placing'].get('room'), k['name']))
+    sorted_items = sorted(items_all, key=lambda k: (k['placing'].get('floor'), k['placing'].get('room'), k['name'], k['number']))
 
     uniqueItems = set([item['number'] for item in items_all])
     for ui in uniqueItems:
